@@ -1,0 +1,6 @@
+/target
+**/*.rs.bk
+
+# Nunca versionar credencial: o `credentials.toml` do CLI guarda um JWT de 365 dias.
+credentials.toml
+*.token

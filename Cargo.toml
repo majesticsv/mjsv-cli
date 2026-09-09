@@ -1,0 +1,35 @@
+[workspace]
+members = ["crates/mjsv-core", "crates/mjsv"]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/majesticsv/mjsv-cli"
+
+[workspace.dependencies]
+# rustls e não native-tls: o binário de release é musl estático, e o openssl do sistema não
+# acompanha. Sem isso o mesmo binário não roda em toda distro de cliente.
+reqwest = { version = "0.12", default-features = false, features = [
+    "json",
+    "rustls-tls",
+    "charset",
+    "http2",
+    "stream",
+] }
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "io-std", "time"] }
+serde = { version = "1", features = ["derive"] }
+# `arbitrary_precision`: o backend substitui o JSON.stringify global por json-bigint
+# (Courtyard-backend/src/main.ts), então um inteiro pode passar do alcance de f64. Sem isto o
+# serde_json arredondaria ids em silêncio.
+serde_json = { version = "1", features = ["arbitrary_precision"] }
+anyhow = "1"
+thiserror = "2"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+toml = "0.8"
+dirs = "5"
+chrono = { version = "0.4", features = ["serde"] }
+clap = { version = "4", features = ["derive", "env", "wrap_help"] }
+rpassword = "7"

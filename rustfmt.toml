@@ -1,0 +1,4 @@
+# 120 e não os 100 do padrão: os comentários deste repositório explicam *por que* o código é do
+# jeito que é, em português, e a 100 colunas eles viram parágrafos picados. O código também fica
+# mais legível — `match std::env::var(X).ok().filter(...)` cabe em uma linha em vez de virar quatro.
+max_width = 120
