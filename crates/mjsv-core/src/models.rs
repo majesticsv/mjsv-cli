@@ -99,6 +99,39 @@ pub struct Session {
     pub created_at: Option<String>,
 }
 
+/// Uma VM.
+///
+/// A API tem **dois** modelos de VM e a listagem devolve os dois no mesmo array: o legado
+/// (`VirtualMachine`, com `domainName`/`memory`/`OS`) e o atual sobre VPC (`VirtTenantVm`, com
+/// `name`/`memoryMb`/`osName`). O `getOrgVirtualMachines` faz `virtTenantVm ?? virtualMachine` e
+/// não marca qual é qual, então os campos equivalentes são unificados com `alias` — sem isso, uma
+/// VM legada apareceria com todas as colunas vazias em vez de dar erro.
+///
+/// `serviceId` é o identificador que importa: as rotas são `/vm/:vmServiceId`, chaveadas pelo
+/// serviço, não pelo id da VM.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Vm {
+    #[serde(default)]
+    pub id: Option<Sqid>,
+    #[serde(default)]
+    pub service_id: Option<Sqid>,
+    #[serde(default, alias = "domainName")]
+    pub name: Option<String>,
+    #[serde(default)]
+    pub state: Option<String>,
+    #[serde(default, alias = "stateMessage")]
+    pub state_msg: Option<String>,
+    #[serde(default)]
+    pub vcpu: Option<i64>,
+    #[serde(default, alias = "memory")]
+    pub memory_mb: Option<i64>,
+    #[serde(default, alias = "OS")]
+    pub os_name: Option<String>,
+    #[serde(default)]
+    pub created_at: Option<String>,
+}
+
 /// Envelope de listagem usado pela API (`{ data, count }`).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Listing<T> {
@@ -147,6 +180,35 @@ mod tests {
 
         let id: Identity = serde_json::from_value(json).unwrap();
         assert_eq!(id.access_token.as_deref(), Some("jwt"));
+    }
+
+    #[test]
+    fn vm_do_modelo_atual_virt_tenant() {
+        let vm: Vm = serde_json::from_value(serde_json::json!({
+            "id": "K3xQ7", "serviceId": "y3zqv", "name": "ascp-vm",
+            "state": "active", "vcpu": 2, "memoryMb": 4096, "osName": "ubuntu-24.04"
+        }))
+        .unwrap();
+
+        assert_eq!(vm.name.as_deref(), Some("ascp-vm"));
+        assert_eq!(vm.memory_mb, Some(4096));
+        assert_eq!(vm.service_id.as_deref(), Some("y3zqv"));
+    }
+
+    #[test]
+    fn vm_do_modelo_legado_cai_nos_mesmos_campos() {
+        // A listagem devolve os dois modelos no mesmo array, sem marcar qual é qual. Sem os
+        // aliases, uma VM legada renderizaria com todas as colunas vazias em vez de dar erro —
+        // pior que falhar, porque parece que a VM está quebrada.
+        let vm: Vm = serde_json::from_value(serde_json::json!({
+            "id": "K3xQ7", "serviceId": "y3zqv", "domainName": "vm-antiga",
+            "state": "running", "vcpu": 1, "memory": 2048, "OS": "debian-12"
+        }))
+        .unwrap();
+
+        assert_eq!(vm.name.as_deref(), Some("vm-antiga"));
+        assert_eq!(vm.memory_mb, Some(2048));
+        assert_eq!(vm.os_name.as_deref(), Some("debian-12"));
     }
 
     #[test]

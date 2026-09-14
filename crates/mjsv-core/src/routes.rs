@@ -75,6 +75,16 @@ pub const ROUTES: &[RouteSpec] = &[
     r(Method::Delete, "/auth/token/{tokenId}", Scope::Root),
     r(Method::Get, "/org/{id}/virtualmachine", Scope::Org),
     r(Method::Get, "/org/{id}/gameserver", Scope::Org),
+    // `{vmServiceId}` é o id do SERVIÇO, não o da VM, e o cabeçalho de alvo é `VIRTUALMACHINE` com
+    // esse mesmo valor — é o que todo handler de `/vm/:vmServiceId` re-confere.
+    r(Method::Get, "/vm/{vmServiceId}", Scope::Vm),
+    r(Method::Get, "/vm/{vmServiceId}/power", Scope::Vm),
+    r(Method::Get, "/vm/{vmServiceId}/metrics", Scope::Vm),
+    r(Method::Get, "/vm/{vmServiceId}/vnc", Scope::Vm),
+    r(Method::Post, "/vm/{vmServiceId}/start", Scope::Vm),
+    r(Method::Post, "/vm/{vmServiceId}/stop", Scope::Vm),
+    r(Method::Post, "/vm/{vmServiceId}/reboot", Scope::Vm),
+    r(Method::Post, "/vm/{vmServiceId}/kill", Scope::Vm),
 ];
 
 #[cfg(test)]
@@ -99,6 +109,21 @@ mod tests {
             assert!(
                 spec.template.contains("/org/{id}"),
                 "{} {} está marcada como ORG mas não tem o id no caminho",
+                spec.method.as_str(),
+                spec.template
+            );
+        }
+    }
+
+    #[test]
+    fn rota_de_vm_e_chaveada_pelo_servico() {
+        // O parâmetro se chama `vmServiceId` de propósito: passar o id da VM aí devolve 403,
+        // porque o handler compara o cabeçalho com o valor do caminho e ambos têm de ser o
+        // serviço.
+        for spec in ROUTES.iter().filter(|s| s.scope == Scope::Vm) {
+            assert!(
+                spec.template.contains("/vm/{vmServiceId}"),
+                "{} {} é de escopo VM mas não usa vmServiceId",
                 spec.method.as_str(),
                 spec.template
             );

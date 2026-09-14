@@ -58,9 +58,45 @@ pub enum Command {
     #[command(subcommand)]
     Org(OrgCommand),
 
+    /// Máquinas virtuais.
+    #[command(subcommand)]
+    Vm(VmCommand),
+
     /// Chaves de API.
     #[command(subcommand)]
     Token(TokenCommand),
+}
+
+/// Todo subcomando recebe o **id do serviço** (a coluna `service` de `mjsv vm list`), porque as
+/// rotas da API são `/vm/:vmServiceId` — chaveadas pelo serviço, não pelo id da VM.
+#[derive(Debug, Subcommand)]
+pub enum VmCommand {
+    /// Lista as VMs da organização.
+    List,
+
+    /// Mostra os detalhes de uma VM.
+    Show { id: String },
+
+    /// Liga a VM.
+    Start { id: String },
+
+    /// Desliga pelo sistema convidado (ACPI).
+    Stop { id: String },
+
+    /// Reinicia a VM.
+    Reboot { id: String },
+
+    /// Corta a energia sem avisar o convidado. Pede confirmação.
+    Kill { id: String },
+
+    /// Estado de energia atual, direto do hypervisor.
+    Power { id: String },
+
+    /// Métricas de CPU, memória, disco e rede.
+    Metrics { id: String },
+
+    /// Dados de conexão do console VNC.
+    Console { id: String },
 }
 
 #[derive(Debug, Args)]

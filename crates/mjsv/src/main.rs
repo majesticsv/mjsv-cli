@@ -81,6 +81,7 @@ async fn run(cli: Cli) -> anyhow::Result<()> {
         Command::Whoami => cmd::auth::whoami(&ctx).await,
         Command::Org(OrgCommand::List) => cmd::auth::org_list(&ctx).await,
         Command::Org(OrgCommand::Use { org }) => cmd::auth::org_use(&ctx, org).await,
+        Command::Vm(sub) => cmd::vm::run(&ctx, sub).await,
         Command::Token(sub) => cmd::auth::token(&ctx, sub).await,
     }
 }
