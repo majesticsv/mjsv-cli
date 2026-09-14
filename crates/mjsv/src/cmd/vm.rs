@@ -170,5 +170,6 @@ pub async fn run(ctx: &Ctx, cmd: &VmCommand) -> Result<()> {
         VmCommand::Power { id } => power_state(ctx, id).await,
         VmCommand::Metrics { id } => metrics(ctx, id).await,
         VmCommand::Console { id } => console(ctx, id).await,
+        VmCommand::Firewall(sub) => crate::cmd::fw::run(ctx, sub).await,
     }
 }

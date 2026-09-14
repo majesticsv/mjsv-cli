@@ -62,9 +62,96 @@ pub enum Command {
     #[command(subcommand)]
     Vm(VmCommand),
 
+    /// Gameservers.
+    #[command(subcommand)]
+    Gs(GsCommand),
+
+    /// IPs elásticos de uma VM.
+    #[command(subcommand)]
+    Eip(EipCommand),
+
     /// Chaves de API.
     #[command(subcommand)]
     Token(TokenCommand),
+}
+
+/// Como nas VMs, o id é o do **serviço** (`/gameserver/:gameServerServiceId`).
+#[derive(Debug, Subcommand)]
+pub enum GsCommand {
+    /// Lista os gameservers da organização.
+    List,
+
+    /// Mostra os detalhes de um gameserver.
+    Show { id: String },
+
+    /// Liga o servidor.
+    Start { id: String },
+
+    /// Para o servidor.
+    Stop { id: String },
+
+    /// Reinicia o servidor.
+    Restart { id: String },
+
+    /// Mata o processo sem salvar. Pede confirmação.
+    Kill { id: String },
+
+    /// Reexecuta o script de instalação. Pede confirmação.
+    Reinstall { id: String },
+
+    /// Metadados do servidor.
+    Metadata { id: String },
+
+    /// Bancos de dados do servidor.
+    Databases { id: String },
+
+    /// Agendamentos.
+    Schedules { id: String },
+
+    /// Credenciais de SFTP.
+    Sftp { id: String },
+}
+
+#[derive(Debug, Subcommand)]
+pub enum EipCommand {
+    /// Lista os EIPs de uma VM (id do serviço).
+    List { vm: String },
+}
+
+#[derive(Debug, Subcommand)]
+pub enum FirewallCommand {
+    /// Lista as regras e as faixas de gameguard.
+    List { vm: String },
+
+    /// Cria uma regra.
+    Add {
+        /// Id do serviço da VM.
+        vm: String,
+
+        #[arg(long, value_parser = ["allow", "drop"])]
+        action: String,
+
+        #[arg(long, value_parser = ["tcp", "udp"])]
+        protocol: String,
+
+        /// `443` ou `27015-27020`.
+        #[arg(long)]
+        ports: String,
+
+        /// CIDR de origem. Ausente = qualquer origem (não use `0.0.0.0/0`, a API recusa).
+        #[arg(long)]
+        source: Option<String>,
+
+        #[arg(long)]
+        description: Option<String>,
+
+        /// Posição desejada na lista (1-based). Ausente = no fim.
+        #[arg(long)]
+        position: Option<u32>,
+    },
+
+    /// Remove uma regra. Pede confirmação.
+    Delete { vm: String, rule_id: String },
 }
 
 /// Todo subcomando recebe o **id do serviço** (a coluna `service` de `mjsv vm list`), porque as
@@ -97,6 +184,10 @@ pub enum VmCommand {
 
     /// Dados de conexão do console VNC.
     Console { id: String },
+
+    /// Firewall do EIP da VM.
+    #[command(subcommand)]
+    Firewall(FirewallCommand),
 }
 
 #[derive(Debug, Args)]

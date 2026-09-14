@@ -132,6 +132,106 @@ pub struct Vm {
     pub created_at: Option<String>,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GameServer {
+    #[serde(default)]
+    pub id: Option<Sqid>,
+    #[serde(default)]
+    pub service_id: Option<Sqid>,
+    #[serde(default)]
+    pub name: Option<String>,
+    /// A API usa `status` em alguns caminhos e `state` em outros; os dois são lidos.
+    #[serde(default)]
+    pub status: Option<String>,
+    #[serde(default)]
+    pub state: Option<String>,
+}
+
+/// Uma regra de firewall — serve também para as faixas do gameguard, que compartilham os campos de
+/// porta.
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct FirewallRule {
+    #[serde(default)]
+    pub id: Option<Sqid>,
+    #[serde(default)]
+    pub position: Option<i64>,
+    #[serde(default)]
+    pub action: Option<String>,
+    #[serde(default)]
+    pub protocol: Option<String>,
+    #[serde(default)]
+    pub port_start: Option<i64>,
+    #[serde(default)]
+    pub port_end: Option<i64>,
+    #[serde(default)]
+    pub source_cidr: Option<String>,
+    #[serde(default)]
+    pub description: Option<String>,
+    #[serde(default)]
+    pub enabled: Option<bool>,
+    /// Só nas faixas de gameguard.
+    #[serde(default)]
+    pub profile: Option<String>,
+}
+
+/// O corpo de `GET /vm/:id/firewall`.
+///
+/// Os nomes das coleções mudaram de lugar entre versões da API, então os dois aparecem como alias;
+/// o `default` é o que impede uma VM sem gameguard de virar erro de parse.
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct FirewallView {
+    #[serde(default, alias = "firewallRules")]
+    pub rules: Vec<FirewallRule>,
+    #[serde(default, alias = "gameguardRanges")]
+    pub gameguard: Vec<FirewallRule>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Eip {
+    #[serde(default)]
+    pub address: Option<String>,
+    #[serde(default)]
+    pub state: Option<String>,
+    /// O IP privado da VM para onde este EIP faz NAT.
+    #[serde(default)]
+    pub attached_private_ip: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct EipV6 {
+    #[serde(default)]
+    pub prefix: Option<String>,
+    #[serde(default)]
+    pub state: Option<String>,
+}
+
+/// O corpo de `GET /vm/:id/eips`.
+///
+/// Não é uma lista: é `{ data: { v4, v6, v6Addresses } }`. O IPv6 aparece como **prefixo delegado**
+/// (`/64`) e, separado, os endereços que o roteador de fato aprendeu dentro dele — um prefixo
+/// atribuído sem endereço aprendido significa que o convidado ainda não configurou o v6.
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct EipView {
+    #[serde(default)]
+    pub v4: Vec<Eip>,
+    #[serde(default)]
+    pub v6: Vec<EipV6>,
+    #[serde(default)]
+    pub v6_addresses: Vec<String>,
+}
+
+/// Envelope de item único (`{ data }`), distinto do `Listing`, que traz `{ data, count }`.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Envelope<T> {
+    pub data: T,
+}
+
 /// Envelope de listagem usado pela API (`{ data, count }`).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Listing<T> {
