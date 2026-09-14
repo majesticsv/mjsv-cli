@@ -14,7 +14,20 @@ DEST="$(dirname "$0")/../crates/mjsv-core/tests/api-routes.txt"
 TMP="$(mktemp)"
 trap 'rm -f "$TMP"' EXIT
 
-curl -fsS "$API_URL/doc-json" | API_URL="$API_URL" python3 -c '
+# O spec passou a ser restrito a staff. O token vem de MJSV_TOKEN (chave de API ou sessão) — o
+# mesmo que o CLI usa — ou do credentials.toml de quem já rodou `mjsv login`.
+TOKEN="${MJSV_TOKEN:-}"
+if [ -z "$TOKEN" ] && [ -f "${HOME}/.config/mjsv/credentials.toml" ]; then
+    TOKEN=$(sed -n 's/^token[ ]*=[ ]*"\(.*\)"/\1/p' "${HOME}/.config/mjsv/credentials.toml" | head -1)
+fi
+
+if [ -z "$TOKEN" ]; then
+    echo "erro: o /doc-json é restrito a administradores." >&2
+    echo "Rode \`mjsv login\` com uma conta de staff, ou exporte MJSV_TOKEN." >&2
+    exit 1
+fi
+
+curl -fsS -H "Authorization: Bearer ${TOKEN}" "$API_URL/doc-json" | API_URL="$API_URL" python3 -c '
 import datetime
 import json
 import os

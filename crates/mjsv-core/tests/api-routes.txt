@@ -8,7 +8,7 @@
 #   ./scripts/refresh-routes.sh
 # e trate a mudança como revisão: se uma rota sumiu, algum comando do CLI vai quebrar.
 #
-# Coletado em 2026-09-08.
+# Coletado em 2026-09-14.
 DELETE /auth/token/{tokenId}
 DELETE /bandwidth/profiles/{tenantId}
 DELETE /dhcp-leases/{id}
