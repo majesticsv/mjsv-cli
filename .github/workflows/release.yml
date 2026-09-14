@@ -85,10 +85,17 @@ jobs:
             tar czf "${NOME}.tar.gz" "${NOME}"
           fi
 
+      # Dois padrões em linhas separadas, e NÃO `dist/*.{tar.gz,zip}`: a chave de expansão é do
+      # shell, e o globber do upload-artifact (@actions/glob) não a implementa — o padrão é
+      # tratado literalmente, nada casa e o passo falha com "No files were found", mesmo com o
+      # tarball ali do lado. `if-no-files-found: error` só dispara se NENHUM dos padrões casar,
+      # então o Linux (só .tar.gz) e o Windows (só .zip) continuam válidos.
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.target }}
-          path: dist/*.{tar.gz,zip}
+          path: |
+            dist/*.tar.gz
+            dist/*.zip
           if-no-files-found: error
 
   publish:
