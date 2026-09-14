@@ -26,13 +26,43 @@ need() {
 need uname
 need tar
 
+# Token opcional. Enquanto o repositório for privado a API do GitHub responde 404 sem
+# autenticação — o mesmo 404 de "não existe", o que faz o erro parecer outra coisa. Com
+# GITHUB_TOKEN (ou GH_TOKEN) o script funciona nos dois casos, e continua sem exigir nada quando o
+# repositório for público.
+TOKEN="${GITHUB_TOKEN:-${GH_TOKEN:-}}"
+
 # curl ou wget: nenhum dos dois está garantido, então o script aceita os dois em vez de exigir um.
 if command -v curl >/dev/null 2>&1; then
-    baixar() { curl -fsSL "$1" -o "$2"; }
-    ler() { curl -fsSL "$1"; }
+    baixar() {
+        if [ -n "$TOKEN" ]; then
+            curl -fsSL -H "Authorization: Bearer ${TOKEN}" -H "Accept: application/octet-stream" "$1" -o "$2"
+        else
+            curl -fsSL "$1" -o "$2"
+        fi
+    }
+    ler() {
+        if [ -n "$TOKEN" ]; then
+            curl -fsSL -H "Authorization: Bearer ${TOKEN}" "$1"
+        else
+            curl -fsSL "$1"
+        fi
+    }
 elif command -v wget >/dev/null 2>&1; then
-    baixar() { wget -qO "$2" "$1"; }
-    ler() { wget -qO- "$1"; }
+    baixar() {
+        if [ -n "$TOKEN" ]; then
+            wget -q --header="Authorization: Bearer ${TOKEN}" --header="Accept: application/octet-stream" -O "$2" "$1"
+        else
+            wget -qO "$2" "$1"
+        fi
+    }
+    ler() {
+        if [ -n "$TOKEN" ]; then
+            wget -q --header="Authorization: Bearer ${TOKEN}" -O- "$1"
+        else
+            wget -qO- "$1"
+        fi
+    }
 else
     erro "curl ou wget é necessário"
 fi
@@ -53,9 +83,32 @@ ALVO="${ARCH}-${SO}"
 
 VERSAO="${MJSV_VERSION:-}"
 if [ -z "$VERSAO" ]; then
-    VERSAO=$(ler "https://api.github.com/repos/${REPO}/releases/latest" \
+    VERSAO=$(ler "https://api.github.com/repos/${REPO}/releases/latest" 2>/dev/null \
         | sed -n 's/.*"tag_name"[ ]*:[ ]*"\([^"]*\)".*/\1/p' | head -1)
-    [ -n "$VERSAO" ] || erro "não foi possível descobrir a última versão; defina MJSV_VERSION"
+    if [ -z "$VERSAO" ]; then
+        erro "não foi possível descobrir a última versão.
+Se o repositório for privado, exporte GITHUB_TOKEN com acesso de leitura a ${REPO};
+ou fixe a versão com MJSV_VERSION=vX.Y.Z."
+    fi
+fi
+
+# Com token, o download sai pela API de assets: a URL de browser
+# (github.com/OWNER/REPO/releases/download/...) redireciona para um CDN que NÃO aceita o header
+# Authorization, e o redirecionamento devolve 404 em repositório privado.
+if [ -n "$TOKEN" ]; then
+    ASSETS=$(ler "https://api.github.com/repos/${REPO}/releases/tags/${VERSAO}")
+    # A API do GitHub devolve JSON **formatado**, um campo por linha — então nada de partir por
+    # chaves: o `name` fica numa linha e o `id` do asset em outra. Cada asset vem na ordem url,
+    # id, node_id, name, logo o id do asset é o último `"id":` visto ANTES do nome procurado.
+    #
+    # `/"id":/` não casa com `"node_id":` (ali o que precede o `id` é `_`, não aspas), e o id da
+    # release e o do autor ficam antes do primeiro asset, então são sobrescritos.
+    achar_asset() {
+        echo "$ASSETS" | awk -v alvo="$1" '
+            /"id":/ { match($0, /[0-9]+/); id = substr($0, RSTART, RLENGTH) }
+            index($0, "\"name\": \"" alvo "\"") { print id; exit }
+        '
+    }
 fi
 
 NOME="${BIN}-${VERSAO}-${ALVO}"
@@ -64,11 +117,25 @@ TMP=$(mktemp -d)
 trap 'rm -rf "$TMP"' EXIT INT TERM
 
 echo "Baixando ${NOME}..."
-baixar "${BASE}/${NOME}.tar.gz" "${TMP}/${NOME}.tar.gz" || erro "falha ao baixar ${NOME}.tar.gz"
+if [ -n "$TOKEN" ]; then
+    ID=$(achar_asset "${NOME}.tar.gz")
+    [ -n "$ID" ] || erro "a release ${VERSAO} não tem ${NOME}.tar.gz"
+    baixar "https://api.github.com/repos/${REPO}/releases/assets/${ID}" "${TMP}/${NOME}.tar.gz" \
+        || erro "falha ao baixar ${NOME}.tar.gz"
+else
+    baixar "${BASE}/${NOME}.tar.gz" "${TMP}/${NOME}.tar.gz" || erro "falha ao baixar ${NOME}.tar.gz"
+fi
 
 # Conferir a soma é o motivo de o release publicar SHA256SUMS. Sem isto o script instalaria
 # qualquer coisa que voltasse da rede — e ele roda com um pipe para o shell.
-if baixar "${BASE}/SHA256SUMS" "${TMP}/SHA256SUMS" 2>/dev/null; then
+if [ -n "$TOKEN" ]; then
+    SOMAS_ID=$(achar_asset "SHA256SUMS")
+    SOMAS_URL="https://api.github.com/repos/${REPO}/releases/assets/${SOMAS_ID}"
+else
+    SOMAS_URL="${BASE}/SHA256SUMS"
+fi
+
+if baixar "$SOMAS_URL" "${TMP}/SHA256SUMS" 2>/dev/null; then
     if command -v sha256sum >/dev/null 2>&1; then
         SOMA=$(sha256sum "${TMP}/${NOME}.tar.gz" | cut -d' ' -f1)
     elif command -v shasum >/dev/null 2>&1; then

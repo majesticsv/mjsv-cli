@@ -42,6 +42,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # A tag e a versão do crate têm de bater. Sem esta checagem a v0.2.0 saiu com binários que
+      # se apresentavam como 0.1.0 — o `--version` mente e ninguém descobre até alguém reportar um
+      # bug contra a versão errada.
+      - name: Tag e versão do crate conferem
+        shell: bash
+        run: |
+          set -eu
+          TAG="${GITHUB_REF_NAME:-${{ github.event.inputs.tag }}}"
+          CRATE=$(grep -m1 '^version' Cargo.toml | cut -d'"' -f2)
+          if [ "$TAG" != "v${CRATE}" ]; then
+            echo "tag ${TAG} não corresponde à versão do workspace ${CRATE}" >&2
+            exit 1
+          fi
+          echo "tag ${TAG} == versão ${CRATE}"
+
       - name: Toolchain
         run: rustup target add ${{ matrix.target }}
 
