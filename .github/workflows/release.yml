@@ -1,0 +1,117 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag a publicar (ex.: v0.1.0)'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # musl e não gnu: um binário ligado à glibc do runner exige uma glibc igual ou mais nova
+          # na máquina do cliente, e "não roda no meu CentOS" é o modo mais comum de um CLI Rust
+          # falhar. Estático cobre toda distro.
+          - target: x86_64-unknown-linux-musl
+            os: ubuntu-latest
+            cross: true
+          - target: aarch64-unknown-linux-musl
+            os: ubuntu-latest
+            cross: true
+          - target: x86_64-apple-darwin
+            os: macos-latest
+            cross: false
+          - target: aarch64-apple-darwin
+            os: macos-latest
+            cross: false
+          - target: x86_64-pc-windows-msvc
+            os: windows-latest
+            cross: false
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Toolchain
+        run: rustup target add ${{ matrix.target }}
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.target }}
+
+      - name: Ferramenta de cross (Linux)
+        if: matrix.cross
+        run: cargo install cross --git https://github.com/cross-rs/cross --locked
+
+      - name: Build
+        shell: bash
+        run: |
+          set -eu
+          if [ "${{ matrix.cross }}" = "true" ]; then
+            cross build --release --locked --target ${{ matrix.target }} -p mjsv
+          else
+            cargo build --release --locked --target ${{ matrix.target }} -p mjsv
+          fi
+
+      - name: Empacotar
+        shell: bash
+        run: |
+          set -eu
+          VERSION="${GITHUB_REF_NAME:-${{ github.event.inputs.tag }}}"
+          NOME="mjsv-${VERSION}-${{ matrix.target }}"
+          mkdir -p "dist/${NOME}"
+
+          if [ "${{ matrix.os }}" = "windows-latest" ]; then
+            cp "target/${{ matrix.target }}/release/mjsv.exe" "dist/${NOME}/"
+          else
+            cp "target/${{ matrix.target }}/release/mjsv" "dist/${NOME}/"
+          fi
+          cp README.md LICENSE "dist/${NOME}/" 2>/dev/null || cp README.md "dist/${NOME}/"
+
+          cd dist
+          if [ "${{ matrix.os }}" = "windows-latest" ]; then
+            7z a "${NOME}.zip" "${NOME}"
+          else
+            tar czf "${NOME}.tar.gz" "${NOME}"
+          fi
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target }}
+          path: dist/*.{tar.gz,zip}
+          if-no-files-found: error
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      # As somas ficam em um arquivo só, do lado dos binários: o `install.sh` confere o que baixou
+      # contra ele, e sem isso o script estaria confiando em qualquer coisa que voltasse do CDN.
+      - name: Somas de verificação
+        run: |
+          set -eu
+          cd dist
+          sha256sum * > SHA256SUMS
+          cat SHA256SUMS
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          generate_release_notes: true

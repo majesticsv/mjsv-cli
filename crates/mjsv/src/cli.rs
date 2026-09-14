@@ -85,6 +85,14 @@ pub enum Command {
     /// Chaves de API.
     #[command(subcommand)]
     Token(TokenCommand),
+
+    /// Gera o script de completions do shell.
+    ///
+    /// Exemplo: `mjsv completions bash > /etc/bash_completion.d/mjsv`
+    Completions {
+        #[arg(value_enum)]
+        shell: clap_complete::Shell,
+    },
 }
 
 #[derive(Debug, Subcommand)]

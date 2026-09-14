@@ -49,6 +49,28 @@ async fn main() {
 }
 
 async fn run(cli: Cli) -> anyhow::Result<()> {
+    // Antes de qualquer leitura de configuração: gerar completions não precisa de credencial nem
+    // de rede, e falhar aqui por falta de config seria absurdo.
+    if let Command::Completions { shell } = &cli.command {
+        let mut cmd = <Cli as clap::CommandFactory>::command();
+
+        // Gera em memória e só então escreve. O `generate` faz `.expect()` no writer, então
+        // escrever direto em stdout vira um panic feio em `mjsv completions bash | head` — o
+        // consumidor fecha o pipe e o programa "quebra" no que é uso normal de shell.
+        let mut buf: Vec<u8> = Vec::new();
+        clap_complete::generate(*shell, &mut cmd, "mjsv", &mut buf);
+
+        use std::io::Write;
+        match std::io::stdout().write_all(&buf) {
+            Ok(()) => {}
+            // Pipe fechado pelo outro lado não é erro: é `| head`.
+            Err(e) if e.kind() == std::io::ErrorKind::BrokenPipe => {}
+            Err(e) => return Err(e.into()),
+        }
+
+        return Ok(());
+    }
+
     let config = Config::load()?;
     let credentials = Credentials::load()?;
 
@@ -88,5 +110,7 @@ async fn run(cli: Cli) -> anyhow::Result<()> {
         Command::Ticket(sub) => cmd::billing::ticket(&ctx, sub).await,
         Command::SshKey(sub) => cmd::billing::ssh_key(&ctx, sub).await,
         Command::Token(sub) => cmd::auth::token(&ctx, sub).await,
+        // Tratado antes de montar o contexto.
+        Command::Completions { .. } => Ok(()),
     }
 }
