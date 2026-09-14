@@ -224,6 +224,49 @@ impl Client {
         Err(self.map_error(status.as_u16(), &parsed, req))
     }
 
+    /// Baixa uma resposta binária (hoje, o PDF da fatura).
+    ///
+    /// Existe separado do `send_value` porque aquele faz `.text()` e depois tenta parsear JSON: um
+    /// PDF passaria por ali como uma `Value::String` com os bytes reinterpretados como UTF-8, que é
+    /// corrupção silenciosa — o arquivo sai gravado e não abre.
+    ///
+    /// O erro continua saindo pelo mesmo `map_error`: quando a resposta NÃO é de sucesso o corpo é
+    /// JSON de verdade, então vale a pena decodificá-lo em vez de escrever o erro no arquivo.
+    pub async fn download(&self, req: &Request) -> Result<Vec<u8>, ApiError> {
+        let url = format!("{}{}", self.base_url, req.path);
+
+        let mut builder = self.http.get(&url);
+
+        if let Some(token) = &self.token {
+            builder = builder.bearer_auth(token);
+        }
+
+        if let Some(t) = &req.target {
+            builder = builder
+                .header("MJSV-TargetId", &t.id)
+                .header("MJSV-TargetType", t.kind.as_str());
+        }
+
+        let response = builder.send().await.map_err(|source| ApiError::Transport {
+            url: url.clone(),
+            source,
+        })?;
+
+        let status = response.status();
+        let bytes = response.bytes().await.map_err(|source| ApiError::Transport {
+            url: url.clone(),
+            source,
+        })?;
+
+        if status.is_success() {
+            return Ok(bytes.to_vec());
+        }
+
+        let body: Value = serde_json::from_slice(&bytes).unwrap_or(Value::Null);
+
+        Err(self.map_error(status.as_u16(), &body, req))
+    }
+
     fn map_error(&self, status: u16, body: &Value, req: &Request) -> ApiError {
         match status {
             401 => ApiError::Unauthorized,

@@ -226,6 +226,116 @@ pub struct EipView {
     pub v6_addresses: Vec<String>,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Order {
+    #[serde(default)]
+    pub id: Option<Sqid>,
+    #[serde(default)]
+    pub status: Option<String>,
+    /// Valor **em centavos**, inteiro. `totalAmount` é o que o cliente paga; `rawAmount` é o preço
+    /// antes de cupom/crédito, e serve de reserva porque nem toda rota devolve os dois.
+    ///
+    /// `i64` e não `f64`: dinheiro não sobrevive a uma ida e volta por ponto flutuante, que é a
+    /// mesma razão de o crate usar `arbitrary_precision`.
+    #[serde(default)]
+    pub total_amount: Option<i64>,
+    #[serde(default)]
+    pub raw_amount: Option<i64>,
+    #[serde(default)]
+    pub currency: Option<String>,
+    #[serde(default)]
+    pub due_date: Option<String>,
+    #[serde(default)]
+    pub created_at: Option<String>,
+}
+
+impl Order {
+    /// Centavos para texto, com a divisão feita em inteiros — nada de `/ 100.0`.
+    pub fn valor_formatado(&self) -> String {
+        let Some(centavos) = self.total_amount.or(self.raw_amount) else {
+            return "-".to_string();
+        };
+
+        let sinal = if centavos < 0 { "-" } else { "" };
+        let abs = centavos.unsigned_abs();
+        let valor = format!("{sinal}{}.{:02}", abs / 100, abs % 100);
+
+        match self.currency.as_deref() {
+            Some("BRL") | None => format!("R$ {valor}"),
+            Some(outra) => format!("{valor} {outra}"),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Ticket {
+    #[serde(default)]
+    pub id: Option<Sqid>,
+    #[serde(default)]
+    pub title: Option<String>,
+    #[serde(default)]
+    pub status: Option<String>,
+    #[serde(default)]
+    pub category: Option<TicketCategory>,
+    /// `GET /ticket` NÃO devolve `createdAt` — a data só aparece nas mensagens. Fica como `Option`
+    /// porque outras rotas trazem, mas a listagem não pode mostrar uma coluna que é sempre vazia.
+    #[serde(default)]
+    pub created_at: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TicketCategory {
+    #[serde(default)]
+    pub id: Option<Sqid>,
+    #[serde(default)]
+    pub name: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TicketAuthor {
+    #[serde(default)]
+    pub id: Option<Sqid>,
+    #[serde(default)]
+    pub name: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TicketMessage {
+    #[serde(default)]
+    pub id: Option<Sqid>,
+    #[serde(default)]
+    pub content: Option<String>,
+    /// `GET /ticket/:id/messages` devolve só `authorId`; o objeto `author` (com nome e e-mail) vem
+    /// apenas pelo `GET /ticket/:id`, que usa outro serviço. Os dois são lidos para a exibição não
+    /// depender de qual rota trouxe a mensagem.
+    #[serde(default)]
+    pub author: Option<TicketAuthor>,
+    #[serde(default)]
+    pub author_id: Option<Sqid>,
+    #[serde(default)]
+    pub is_staff: Option<bool>,
+    #[serde(default)]
+    pub created_at: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SshKey {
+    #[serde(default)]
+    pub id: Option<Sqid>,
+    #[serde(default)]
+    pub name: Option<String>,
+    #[serde(default)]
+    pub public_key: Option<String>,
+    #[serde(default)]
+    pub created_at: Option<String>,
+}
+
 /// Envelope de item único (`{ data }`), distinto do `Listing`, que traz `{ data, count }`.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Envelope<T> {
@@ -239,6 +349,27 @@ pub struct Listing<T> {
     pub data: Vec<T>,
     #[serde(default)]
     pub count: Option<i64>,
+}
+
+impl<T: serde::de::DeserializeOwned> Listing<T> {
+    /// Aceita o envelope **ou** um array cru.
+    ///
+    /// A API não é consistente nisto: `GET /order` devolve `{data, count}` e `GET /order/pending`
+    /// devolve `[...]` direto. Sem tratar os dois, o segundo falha com
+    /// `invalid type: map, expected a sequence` — um erro que parece bug do CLI e é diferença de
+    /// contrato entre duas rotas do mesmo controller.
+    pub fn from_value(value: serde_json::Value) -> Result<Self, serde_json::Error> {
+        if value.is_array() {
+            let data: Vec<T> = serde_json::from_value(value)?;
+            let count = data.len() as i64;
+            return Ok(Listing {
+                data,
+                count: Some(count),
+            });
+        }
+
+        serde_json::from_value(value)
+    }
 }
 
 #[cfg(test)]
@@ -309,6 +440,47 @@ mod tests {
         assert_eq!(vm.name.as_deref(), Some("vm-antiga"));
         assert_eq!(vm.memory_mb, Some(2048));
         assert_eq!(vm.os_name.as_deref(), Some("debian-12"));
+    }
+
+    #[test]
+    fn listagem_aceita_envelope_e_array_cru() {
+        // `GET /order` devolve {data,count}; `GET /order/pending` devolve um array. As duas rotas
+        // são do mesmo controller e discordam do envelope.
+        let envelope = serde_json::json!({"data": [{"id": "njLME"}], "count": 1});
+        let cru = serde_json::json!([{"id": "njLME"}]);
+
+        for v in [envelope, cru] {
+            let l: Listing<Order> = Listing::from_value(v).unwrap();
+            assert_eq!(l.data.len(), 1);
+            assert_eq!(l.count, Some(1));
+        }
+    }
+
+    #[test]
+    fn valor_sai_de_centavos_sem_passar_por_float() {
+        let com = |total: Option<i64>, raw: Option<i64>, moeda: &str| {
+            Order {
+                id: None,
+                status: None,
+                total_amount: total,
+                raw_amount: raw,
+                currency: Some(moeda.into()),
+                due_date: None,
+                created_at: None,
+            }
+            .valor_formatado()
+        };
+
+        assert_eq!(com(Some(5500), None, "BRL"), "R$ 55.00");
+        assert_eq!(com(Some(11600), None, "BRL"), "R$ 116.00");
+        // O centavo sobrevive: 5 centavos não vira 0.05000000000000001.
+        assert_eq!(com(Some(5), None, "BRL"), "R$ 0.05");
+        assert_eq!(com(Some(-1250), None, "BRL"), "R$ -12.50");
+        // `rawAmount` só é usado quando não há `totalAmount`.
+        assert_eq!(com(None, Some(999), "BRL"), "R$ 9.99");
+        assert_eq!(com(Some(100), Some(999), "BRL"), "R$ 1.00");
+        assert_eq!(com(Some(5500), None, "USD"), "55.00 USD");
+        assert_eq!(com(None, None, "BRL"), "-");
     }
 
     #[test]

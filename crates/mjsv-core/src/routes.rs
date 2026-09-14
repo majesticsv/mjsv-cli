@@ -115,6 +115,25 @@ pub const ROUTES: &[RouteSpec] = &[
     // Sem id no caminho DE PROPÓSITO: estas identificam o servidor só pelo cabeçalho de alvo.
     r(Method::Post, "/gameserver/power", Scope::GameServer),
     r(Method::Post, "/gameserver/reinstall", Scope::GameServer),
+    // Pedidos: escopo ORG mesmo quando o `orderId` está no caminho — o cabeçalho leva a
+    // organização e o handler a usa como filtro de dono.
+    r(Method::Get, "/order", Scope::Org),
+    r(Method::Get, "/order/pending", Scope::Org),
+    r(Method::Get, "/order/{orderId}", Scope::Org),
+    r(Method::Post, "/order/{orderId}/cancel", Scope::Org),
+    r(Method::Get, "/order/{orderId}/invoice-pdf", Scope::Org),
+    // Tickets: a ÚNICA família que mistura dois escopos. Listar/abrir/ver é ORG; ler mensagens,
+    // responder e fechar é TICKET, com o id do próprio ticket no cabeçalho.
+    r(Method::Get, "/ticket", Scope::Org),
+    r(Method::Get, "/ticket/category", Scope::Org),
+    r(Method::Get, "/ticket/{ticketId}", Scope::Org),
+    r(Method::Post, "/ticket", Scope::Org),
+    r(Method::Get, "/ticket/{ticketId}/messages", Scope::Ticket),
+    r(Method::Post, "/ticket/{ticketId}/message", Scope::Ticket),
+    r(Method::Put, "/ticket/{ticketId}/close", Scope::Ticket),
+    r(Method::Get, "/ssh-keys/org/{orgId}", Scope::Org),
+    r(Method::Post, "/ssh-keys/org/{orgId}", Scope::Org),
+    r(Method::Delete, "/ssh-keys/org/{orgId}/{keyId}", Scope::Org),
 ];
 
 #[cfg(test)]
@@ -160,6 +179,22 @@ mod tests {
             assert!(
                 spec.template.contains("{gameServerServiceId}") || SEM_ID_NO_CAMINHO.contains(&spec.template),
                 "{} {} é de escopo GAMESERVER mas não declara de onde vem o id",
+                spec.method.as_str(),
+                spec.template
+            );
+        }
+    }
+
+    #[test]
+    fn rota_de_ticket_com_escopo_ticket_traz_o_id_no_caminho() {
+        // Os tickets são a única família que mistura escopos: ORG para listar/abrir/ver, TICKET
+        // para mensagens/resposta/fechamento. Mandar o alvo errado NÃO dá 403 — o handler faz
+        // `return new BadRequestException(...)` em vez de `throw`, o que vira 200 com corpo de
+        // erro, e o comando parece ter funcionado sem fazer nada.
+        for spec in ROUTES.iter().filter(|s| s.scope == Scope::Ticket) {
+            assert!(
+                spec.template.contains("/ticket/{ticketId}"),
+                "{} {} é de escopo TICKET mas não traz o ticketId no caminho",
                 spec.method.as_str(),
                 spec.template
             );

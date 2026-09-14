@@ -84,6 +84,9 @@ async fn run(cli: Cli) -> anyhow::Result<()> {
         Command::Vm(sub) => cmd::vm::run(&ctx, sub).await,
         Command::Gs(sub) => cmd::gs::run(&ctx, sub).await,
         Command::Eip(sub) => cmd::fw::eip(&ctx, sub).await,
+        Command::Order(sub) => cmd::billing::order(&ctx, sub).await,
+        Command::Ticket(sub) => cmd::billing::ticket(&ctx, sub).await,
+        Command::SshKey(sub) => cmd::billing::ssh_key(&ctx, sub).await,
         Command::Token(sub) => cmd::auth::token(&ctx, sub).await,
     }
 }

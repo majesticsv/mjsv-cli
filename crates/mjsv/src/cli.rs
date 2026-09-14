@@ -70,9 +70,102 @@ pub enum Command {
     #[command(subcommand)]
     Eip(EipCommand),
 
+    /// Pedidos e faturas.
+    #[command(subcommand)]
+    Order(OrderCommand),
+
+    /// Tickets de suporte.
+    #[command(subcommand)]
+    Ticket(TicketCommand),
+
+    /// Chaves SSH da organização.
+    #[command(subcommand, name = "ssh-key")]
+    SshKey(SshKeyCommand),
+
     /// Chaves de API.
     #[command(subcommand)]
     Token(TokenCommand),
+}
+
+#[derive(Debug, Subcommand)]
+pub enum OrderCommand {
+    /// Lista os pedidos da organização.
+    List,
+
+    /// Lista apenas os pedidos pendentes.
+    Pending,
+
+    /// Mostra um pedido.
+    Show { id: String },
+
+    /// Cancela um pedido. Pede confirmação.
+    Cancel { id: String },
+
+    /// Baixa o PDF da fatura.
+    Invoice {
+        id: String,
+
+        /// Caminho de saída. Padrão: `fatura-<id>.pdf` no diretório atual.
+        #[arg(long, short = 'o')]
+        output: Option<String>,
+    },
+}
+
+#[derive(Debug, Subcommand)]
+pub enum TicketCommand {
+    /// Lista os tickets da organização.
+    List,
+
+    /// Lista as categorias disponíveis (o id é exigido por `ticket open`).
+    Categories,
+
+    /// Mostra um ticket.
+    Show { id: String },
+
+    /// Mostra a conversa de um ticket.
+    Messages { id: String },
+
+    /// Abre um ticket.
+    Open {
+        #[arg(long)]
+        title: String,
+
+        #[arg(long)]
+        message: String,
+
+        /// Id da categoria — veja `mjsv ticket categories`.
+        #[arg(long)]
+        category: String,
+
+        /// Serviço relacionado, se houver.
+        #[arg(long)]
+        service: Option<String>,
+    },
+
+    /// Responde um ticket.
+    Reply { id: String, message: String },
+
+    /// Fecha um ticket. Pede confirmação.
+    Close { id: String },
+}
+
+#[derive(Debug, Subcommand)]
+pub enum SshKeyCommand {
+    /// Lista as chaves da organização.
+    List,
+
+    /// Adiciona uma chave a partir de um arquivo `.pub`.
+    Add {
+        #[arg(long)]
+        name: String,
+
+        /// Caminho do arquivo da chave PÚBLICA (ex.: ~/.ssh/id_ed25519.pub).
+        #[arg(long)]
+        file: String,
+    },
+
+    /// Remove uma chave. Pede confirmação.
+    Delete { id: String },
 }
 
 /// Como nas VMs, o id é o do **serviço** (`/gameserver/:gameServerServiceId`).
