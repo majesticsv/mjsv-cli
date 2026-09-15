@@ -283,7 +283,7 @@ pub enum VmCommand {
     /// Métricas de CPU, memória, disco e rede.
     Metrics { id: String },
 
-    /// Dados de conexão do console VNC.
+    /// Estado do console VNC (o acesso em si é pelo painel).
     Console { id: String },
 
     /// Firewall do EIP da VM.

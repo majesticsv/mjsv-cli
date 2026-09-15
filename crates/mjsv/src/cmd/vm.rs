@@ -144,10 +144,13 @@ async fn metrics(ctx: &Ctx, id: &str) -> Result<()> {
     Ok(())
 }
 
-/// Dados de conexão do console VNC.
+/// Estado do console VNC.
 ///
-/// Não abre nada: devolve endereço e credencial para o usuário plugar no cliente dele. Abrir um
-/// navegador daqui presumiria ambiente gráfico, que é justamente o que um CLI não pode presumir.
+/// Não abre nada, e desde 2026-09-15 também não devolve endereço: o `vncIp` saiu da resposta da
+/// API porque era o endereço do hipervisor na rede de gerência e não habilitava nada de fora — o
+/// VNC não é roteável pela internet. O acesso de verdade é pelo painel, que pega um token de uso
+/// único e abre um WebSocket contra a própria API. Sobra aqui o que dá para responder honestamente
+/// da linha de comando: se a VM tem console atribuído e em que porta, no nó.
 async fn console(ctx: &Ctx, id: &str) -> Result<()> {
     let req = Request::get(format!("/vm/{id}/vnc")).target(Target::vm(id));
     let Some(value) = ctx.run(req).await? else {
