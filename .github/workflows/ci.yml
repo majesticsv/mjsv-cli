@@ -4,6 +4,7 @@ on:
   push:
     branches: [master]
   pull_request:
+  workflow_dispatch:
 
 env:
   CARGO_TERM_COLOR: always
@@ -22,11 +23,32 @@ jobs:
       - name: Formatação
         run: cargo fmt --all --check
 
+      # `--locked` daqui para baixo: o Cargo.lock é versionado, e sem a flag o cargo o reescreve em
+      # silêncio no runner — o CI passaria a testar um grafo de dependências que ninguém revisou, e
+      # o release (que compila com o lock do repositório) testaria outro.
       - name: Clippy
-        run: cargo clippy --all-targets --all-features -- -D warnings
+        run: cargo clippy --locked --all-targets --all-features -- -D warnings
 
       # O teste de contrato usa o inventário de rotas vendorizado em
       # crates/mjsv-core/tests/api-routes.txt — ele NÃO vai à rede de propósito, para o CI não
       # depender de a produção estar de pé. Atualize com ./scripts/refresh-routes.sh.
       - name: Testes
-        run: cargo test --all-features
+        run: cargo test --locked --all-features
+
+      - name: Compila o binário
+        run: cargo build --locked --release
+
+      # A v0.2.0 saiu com binários que respondiam `0.1.0` ao `--version`: a versão do workspace
+      # nunca foi subida. O release já aborta quando a tag diverge, mas ali é tarde — a tag já
+      # existe e some do histórico de quem clonou. Aqui a divergência aparece no push.
+      - name: A versão do binário é a do workspace
+        run: |
+          # `cargo pkgid` em vez de vasculhar o JSON do `cargo metadata`: a saída é
+          # `path+file:///…/mjsv#0.2.0` (ou `…@0.2.0`), estável e sem depender da ordem dos campos.
+          esperada=$(cargo pkgid -p mjsv | sed 's/.*[#@]//')
+          obtida=$(./target/release/mjsv --version | awk '{print $NF}')
+          test "$esperada" = "$obtida" || {
+            echo "::error::Cargo.toml diz $esperada, o binário responde $obtida"
+            exit 1
+          }
+          echo "mjsv $obtida"
