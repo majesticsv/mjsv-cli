@@ -40,7 +40,7 @@ jobs:
             cross: false
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # A tag e a versão do crate têm de bater. Sem esta checagem a v0.2.0 saiu com binários que
       # se apresentavam como 0.1.0 — o `--version` mente e ninguém descobre até alguém reportar um
@@ -105,7 +105,7 @@ jobs:
       # tratado literalmente, nada casa e o passo falha com "No files were found", mesmo com o
       # tarball ali do lado. `if-no-files-found: error` só dispara se NENHUM dos padrões casar,
       # então o Linux (só .tar.gz) e o Windows (só .zip) continuam válidos.
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.target }}
           path: |
@@ -117,9 +117,9 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           path: dist
           merge-multiple: true
@@ -133,7 +133,7 @@ jobs:
           sha256sum * > SHA256SUMS
           cat SHA256SUMS
 
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v3
         with:
           files: dist/*
           generate_release_notes: true
