@@ -13,11 +13,48 @@ set -eu
 REPO="majesticsv/mjsv-cli"
 BIN="mjsv"
 PREFIX="${MJSV_INSTALL_DIR:-}"
+VERSAO_ARG=""
 
 erro() {
     echo "erro: $*" >&2
     exit 1
 }
+
+uso() {
+    cat <<FIM
+Instala o mjsv.
+
+Uso:
+  install.sh [--prefix DIR] [--version vX.Y.Z]
+  curl -fsSL .../install.sh | sh -s -- --prefix ~/.local/bin
+
+Opções:
+  --prefix DIR       Onde instalar. Padrão: /usr/local/bin se gravável, senão ~/.local/bin.
+                     Equivale a MJSV_INSTALL_DIR.
+  --version vX.Y.Z   Versão a instalar. Padrão: a última release. Equivale a MJSV_VERSION.
+  -h, --help         Esta ajuda.
+
+Ambiente:
+  GITHUB_TOKEN/GH_TOKEN  Necessário enquanto o repositório for privado.
+FIM
+}
+
+# Um instalador que aceita a bandeira errada em silêncio é pior do que um que não aceita bandeira
+# nenhuma: quem escreveu `--prefix /opt/bin` vai jurar que instalou lá. Argumento desconhecido é
+# erro, com a ajuda junto.
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --prefix)  [ $# -ge 2 ] || erro "--prefix exige um diretório"; PREFIX="$2"; shift 2 ;;
+        --prefix=*) PREFIX="${1#--prefix=}"; shift ;;
+        --version) [ $# -ge 2 ] || erro "--version exige uma versão (ex.: v0.2.1)"; VERSAO_ARG="$2"; shift 2 ;;
+        --version=*) VERSAO_ARG="${1#--version=}"; shift ;;
+        -h|--help) uso; exit 0 ;;
+        *)
+            uso >&2
+            erro "argumento desconhecido: $1"
+            ;;
+    esac
+done
 
 need() {
     command -v "$1" >/dev/null 2>&1 || erro "$1 é necessário e não está instalado"
@@ -81,7 +118,7 @@ esac
 
 ALVO="${ARCH}-${SO}"
 
-VERSAO="${MJSV_VERSION:-}"
+VERSAO="${VERSAO_ARG:-${MJSV_VERSION:-}}"
 if [ -z "$VERSAO" ]; then
     VERSAO=$(ler "https://api.github.com/repos/${REPO}/releases/latest" 2>/dev/null \
         | sed -n 's/.*"tag_name"[ ]*:[ ]*"\([^"]*\)".*/\1/p' | head -1)
