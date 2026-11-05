@@ -8,13 +8,15 @@
 #   ./scripts/refresh-routes.sh
 # e trate a mudança como revisão: se uma rota sumiu, algum comando do CLI vai quebrar.
 #
-# Coletado em 2026-09-14.
+# Coletado em 2026-11-05.
 DELETE /auth/token/{tokenId}
 DELETE /bandwidth/profiles/{tenantId}
+DELETE /coupon/{id}
 DELETE /dhcp-leases/{id}
 DELETE /eips/{address}
 DELETE /eipv6/{prefix}
 DELETE /gameserver/{gameServerServiceId}
+DELETE /gameserver/{gameServerServiceId}/addons
 DELETE /gameserver/{gameServerServiceId}/database/{databaseId}
 DELETE /gameserver/{gameServerServiceId}/file
 DELETE /gameserver/{gameServerServiceId}/schedules/{scheduleId}
@@ -26,6 +28,7 @@ DELETE /notifications/org/{orgId}/{notificationId}
 DELETE /notifications/web-push/unsubscribe
 DELETE /order/{orderId}
 DELETE /org/{id}
+DELETE /org/{id}/invite/{inviteId}
 DELETE /org/{id}/leave
 DELETE /org/{id}/member/{userId}
 DELETE /org/{id}/member/{userId}/role
@@ -34,9 +37,11 @@ DELETE /otp/disable
 DELETE /product/PriceComponent/Discrete/{id}
 DELETE /product/PriceComponent/{id}
 DELETE /product/{id}
+DELETE /protection/{serviceId}/addresses/{addrId}/firewall/gameguard/{rangeId}
 DELETE /ssh-keys/org/{orgId}/{keyId}
 DELETE /storage-products/{productId}
 DELETE /storage-volumes/{volId}
+DELETE /ticket/category/{categoryId}
 DELETE /ticket/{ticketId}
 DELETE /user
 DELETE /virt-proxy/nodes/{nodeId}/proxy/*
@@ -50,6 +55,8 @@ DELETE /vm/{vmServiceId}/firewall/rules/{ruleId}
 DELETE /vm/{vmServiceId}/vnics/{vnicId}/ips/{ip}
 GET /
 GET /auditlogs/org/{orgId}
+GET /auditlogs/root
+GET /auth/invite
 GET /auth/session
 GET /auth/token
 GET /auth/verify
@@ -59,7 +66,11 @@ GET /bandwidth/profiles/{tenantId}
 GET /bandwidth/samples/{tenantId}
 GET /bandwidth/usage
 GET /bandwidth/usage/{tenantId}
-GET /coupon/{couponCode}
+GET /coupon
+GET /coupon/code/{code}
+GET /coupon/metadata
+GET /coupon/{id}
+GET /coupon/{id}/orders
 GET /dhcp-leases
 GET /dhcp-leases/{id}
 GET /eips/{address}
@@ -72,6 +83,7 @@ GET /gameserver/{gameServerServiceId}/databases
 GET /gameserver/{gameServerServiceId}/directories
 GET /gameserver/{gameServerServiceId}/download
 GET /gameserver/{gameServerServiceId}/file
+GET /gameserver/{gameServerServiceId}/manager-lock
 GET /gameserver/{gameServerServiceId}/metadata
 GET /gameserver/{gameServerServiceId}/schedules
 GET /gameserver/{gameServerServiceId}/schedules/{scheduleId}
@@ -84,6 +96,15 @@ GET /ip-pools
 GET /ip-pools/{id}/free
 GET /ipv6-pools
 GET /ipv6-pools/{id}/free
+GET /larder/{game}/addon/{provider}/{id}
+GET /larder/{game}/addon/{provider}/{id}/versions
+GET /larder/{game}/addons/categories
+GET /larder/{game}/fields
+GET /larder/{game}/modpack/{provider}/{id}
+GET /larder/{game}/options/{field}
+GET /larder/{game}/search/addons
+GET /larder/{game}/search/modpacks
+GET /larder/{game}/setup
 GET /notifications/org/{orgId}
 GET /notifications/org/{orgId}/count
 GET /notifications/org/{orgId}/count-by-type
@@ -100,6 +121,7 @@ GET /order/{orderId}
 GET /order/{orderId}/invoice-pdf
 GET /org/{id}
 GET /org/{id}/gameserver
+GET /org/{id}/invite
 GET /org/{id}/member
 GET /org/{id}/role
 GET /org/{id}/service
@@ -113,6 +135,12 @@ GET /product/getProductByEggId/{eggid}
 GET /product/metadata
 GET /product/{id}
 GET /product/{id}/isos
+GET /product/{id}/services
+GET /protection/{serviceId}
+GET /protection/{serviceId}/addresses/{addrId}/firewall
+GET /protection/{serviceId}/incidents
+GET /protection/{serviceId}/incidents/{incidentId}
+GET /protection/{serviceId}/telemetry
 GET /rootwarns
 GET /rootwarns/{id}
 GET /routers/{id}/desired-state
@@ -154,11 +182,14 @@ GET /vm/service/{serviceId}
 GET /vm/{vmServiceId}
 GET /vm/{vmServiceId}/eips
 GET /vm/{vmServiceId}/firewall
+GET /vm/{vmServiceId}/incidents
+GET /vm/{vmServiceId}/incidents/{incidentId}
 GET /vm/{vmServiceId}/isos
 GET /vm/{vmServiceId}/metrics
 GET /vm/{vmServiceId}/power
 GET /vm/{vmServiceId}/vnc
 GET /vm/{vmServiceId}/vpcs
+PATCH /coupon/{id}
 PATCH /ip-pools/{id}
 PATCH /notifications/org/{orgId}/read-all
 PATCH /notifications/org/{orgId}/{notificationId}/read
@@ -182,6 +213,8 @@ POST /auth/token
 POST /bandwidth/profiles
 POST /bandwidth/routers/{id}/report
 POST /bandwidth/samples
+POST /coupon
+POST /coupon/{id}/end-recurring
 POST /dhcp-leases
 POST /eips
 POST /eips/{address}/attach
@@ -195,6 +228,8 @@ POST /gameserver/ptero-migrate
 POST /gameserver/reinstall
 POST /gameserver/suspend
 POST /gameserver/unsuspend
+POST /gameserver/{gameServerServiceId}/addons
+POST /gameserver/{gameServerServiceId}/addons/updates
 POST /gameserver/{gameServerServiceId}/database
 POST /gameserver/{gameServerServiceId}/database/{databaseName}/password
 POST /gameserver/{gameServerServiceId}/directory
@@ -210,9 +245,15 @@ POST /hypervisors/{nodeId}/vm-observed
 POST /hypervisors/{nodeId}/vnic-v6
 POST /ip-pools
 POST /ipv6-pools
+POST /larder/{game}/addons/lookup
+POST /larder/{game}/addons/resolve
+POST /larder/{game}/addons/updates
+POST /larder/{game}/lookup
+POST /larder/{game}/resolve
 POST /notifications/web-push/subscribe
 POST /order
 POST /order/group
+POST /order/quote
 POST /order/{orderId}/cancel
 POST /order/{orderId}/generate-pdf
 POST /org
@@ -278,8 +319,12 @@ PUT /org/{id}/owner
 PUT /org/{id}/positionswap
 PUT /org/{id}/role/{roleId}
 PUT /product/{id}/gameserver-attributes
+PUT /product/{id}/icon
+PUT /protection/{serviceId}/addresses/{addrId}/firewall/gameguard
 PUT /rootwarns
 PUT /routers/{id}/heartbeat
+PUT /ticket/category/{categoryId}
+PUT /ticket/{ticketId}/category
 PUT /ticket/{ticketId}/close
 PUT /ticket/{ticketId}/open
 PUT /user
