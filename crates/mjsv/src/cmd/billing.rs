@@ -4,6 +4,7 @@ use anyhow::{anyhow, Result};
 use mjsv_core::client::Request;
 use mjsv_core::models::{Listing, Order, SshKey, Ticket, TicketMessage};
 use mjsv_core::output::{cell, cell_date, Table};
+use mjsv_core::style::{CardError, ConfirmSpec, Style, Tier, Tool};
 use mjsv_core::target::Target;
 use mjsv_core::Ctx;
 
@@ -16,7 +17,15 @@ use crate::prompt;
 /// Todas as rotas de pedido são de escopo ORG, inclusive as que trazem o `orderId` no caminho:
 /// o cabeçalho leva a organização e o caminho leva o pedido. O handler usa `req.targetId` como
 /// filtro de dono, então o par não é decorativo — é o que impede ler o pedido de outra org.
-async fn order_list(ctx: &Ctx, path: &str, titulo_vazio: &str) -> Result<()> {
+/// Como uma lista de pedidos vazia se apresenta: `order list` sugere o primeiro passo (EM-hint),
+/// `order pending` vazio é boa notícia (EM-clear).
+#[derive(Clone, Copy)]
+enum Vazio {
+    Dica,
+    TudoCerto,
+}
+
+async fn order_list(ctx: &Ctx, path: &str, titulo_vazio: &str, vazio: Vazio) -> Result<()> {
     let (_, target) = ctx.org_target()?;
 
     let Some(value) = ctx.run(Request::get(path).target(target)).await? else {
@@ -31,7 +40,14 @@ async fn order_list(ctx: &Ctx, path: &str, titulo_vazio: &str) -> Result<()> {
     let listing: Listing<Order> = Listing::from_value(value)?;
 
     if listing.data.is_empty() {
-        println!("{titulo_vazio}");
+        let out = Style::stdout(ctx.format, Tool::Mjsv);
+        match vazio {
+            Vazio::Dica => println!(
+                "{}",
+                out.empty_hint(titulo_vazio, "crie um", "mjsv order create --product <id>")
+            ),
+            Vazio::TudoCerto => println!("{}", out.empty_clear(titulo_vazio)),
+        }
         return Ok(());
     }
 
@@ -66,7 +82,11 @@ async fn order_cancel(ctx: &Ctx, id: &str) -> Result<()> {
     let (_, target) = ctx.org_target()?;
 
     if !ctx.assume_yes && !ctx.print_request {
-        prompt::confirm(&format!("Cancelar o pedido {id}?"), ctx.format)?;
+        // Nível 1 (CF-1): cancelar interrompe o que aguardava pagamento, sem perda de dados.
+        prompt::confirm_spec(
+            &ConfirmSpec::new(Tier::T1, format!("Cancelar o pedido {id}?")),
+            ctx.format,
+        )?;
     }
 
     let Some(value) = ctx
@@ -81,7 +101,10 @@ async fn order_cancel(ctx: &Ctx, id: &str) -> Result<()> {
         return Ok(());
     }
 
-    println!("Pedido {id} cancelado.");
+    println!(
+        "{}",
+        Style::stdout(ctx.format, Tool::Mjsv).done(&format!("Pedido {id} cancelado."))
+    );
 
     Ok(())
 }
@@ -119,15 +142,18 @@ async fn order_invoice(ctx: &Ctx, id: &str, destino: Option<&str>, via_post: boo
         .unwrap_or_else(|| format!("fatura-{id}.pdf"));
     std::fs::write(&caminho, &bytes)?;
 
-    println!("Fatura salva em {caminho} ({} bytes).", bytes.len());
+    println!(
+        "{}",
+        Style::stdout(ctx.format, Tool::Mjsv).done(&format!("Fatura salva em {caminho} ({} bytes).", bytes.len()))
+    );
 
     Ok(())
 }
 
 pub async fn order(ctx: &Ctx, cmd: &OrderCommand) -> Result<()> {
     match cmd {
-        OrderCommand::List => order_list(ctx, "/order", "Nenhum pedido nesta organização.").await,
-        OrderCommand::Pending => order_list(ctx, "/order/pending", "Nenhum pedido pendente.").await,
+        OrderCommand::List => order_list(ctx, "/order", "Nenhum pedido nesta organização.", Vazio::Dica).await,
+        OrderCommand::Pending => order_list(ctx, "/order/pending", "Nenhum pedido pendente.", Vazio::TudoCerto).await,
         OrderCommand::Show { id } => order_show(ctx, id).await,
         OrderCommand::Cancel { id } => order_cancel(ctx, id).await,
         OrderCommand::Invoice { id, output } => order_invoice(ctx, id, output.as_deref(), false).await,
@@ -251,7 +277,10 @@ pub async fn ticket(ctx: &Ctx, cmd: &TicketCommand) -> Result<()> {
                 return Ok(());
             }
 
-            println!("Ticket {id} reaberto.");
+            println!(
+                "{}",
+                Style::stdout(ctx.format, Tool::Mjsv).done(&format!("Ticket {id} reaberto."))
+            );
 
             Ok(())
         }
@@ -344,7 +373,10 @@ pub async fn ticket(ctx: &Ctx, cmd: &TicketCommand) -> Result<()> {
             }
 
             let criado: Ticket = serde_json::from_value(value)?;
-            println!("Ticket {} aberto.", cell(criado.id.as_deref()));
+            println!(
+                "{}",
+                Style::stdout(ctx.format, Tool::Mjsv).done(&format!("Ticket {} aberto.", cell(criado.id.as_deref())))
+            );
 
             Ok(())
         }
@@ -363,7 +395,10 @@ pub async fn ticket(ctx: &Ctx, cmd: &TicketCommand) -> Result<()> {
                 return Ok(());
             }
 
-            println!("Resposta enviada ao ticket {id}.");
+            println!(
+                "{}",
+                Style::stdout(ctx.format, Tool::Mjsv).done(&format!("Resposta enviada ao ticket {id}."))
+            );
 
             Ok(())
         }
@@ -383,7 +418,10 @@ pub async fn ticket(ctx: &Ctx, cmd: &TicketCommand) -> Result<()> {
                 return Ok(());
             }
 
-            println!("Ticket {id} fechado.");
+            println!(
+                "{}",
+                Style::stdout(ctx.format, Tool::Mjsv).done(&format!("Ticket {id} fechado."))
+            );
 
             Ok(())
         }
@@ -411,7 +449,14 @@ pub async fn ssh_key(ctx: &Ctx, cmd: &SshKeyCommand) -> Result<()> {
             let listing: Listing<SshKey> = Listing::from_value(value)?;
 
             if listing.data.is_empty() {
-                println!("Nenhuma chave SSH nesta organização.");
+                println!(
+                    "{}",
+                    Style::stdout(ctx.format, Tool::Mjsv).empty_hint(
+                        "Nenhuma chave SSH nesta organização.",
+                        "adicione uma",
+                        "mjsv ssh-key add --name <nome> --file <chave.pub>"
+                    )
+                );
                 return Ok(());
             }
 
@@ -444,15 +489,17 @@ pub async fn ssh_key(ctx: &Ctx, cmd: &SshKeyCommand) -> Result<()> {
             // literalmente no cloud-init da VM, e um `\n` no comentário injetaria YAML. Barrar aqui
             // evita a ida à rede e diz o motivo.
             if public_key.lines().count() != 1 {
-                return Err(anyhow!(
+                let plain = format!(
                     "{file} tem {} linhas — envie a chave PÚBLICA (.pub), que é uma linha só",
                     public_key.lines().count()
-                ));
+                );
+                // Uma chave privada tem várias linhas e cai aqui, não no teste abaixo: o cartão
+                // ER-ssh-key vale nos dois, e o texto sem terminal continua o de cada ramo.
+                return Err(erro_chave_privada(file, &public_key, plain));
             }
             if public_key.starts_with("-----BEGIN") {
-                return Err(anyhow!(
-                    "{file} é uma chave PRIVADA; envie o arquivo .pub correspondente"
-                ));
+                let plain = format!("{file} é uma chave PRIVADA; envie o arquivo .pub correspondente");
+                return Err(erro_chave_privada(file, &public_key, plain));
             }
 
             let req = Request::post(format!("/ssh-keys/org/{org_id}"))
@@ -468,7 +515,10 @@ pub async fn ssh_key(ctx: &Ctx, cmd: &SshKeyCommand) -> Result<()> {
                 return Ok(());
             }
 
-            println!("Chave `{name}` adicionada.");
+            println!(
+                "{}",
+                Style::stdout(ctx.format, Tool::Mjsv).done(&format!("Chave `{name}` adicionada."))
+            );
 
             Ok(())
         }
@@ -486,11 +536,35 @@ pub async fn ssh_key(ctx: &Ctx, cmd: &SshKeyCommand) -> Result<()> {
                 return Ok(());
             };
 
-            println!("Chave {id} removida.");
+            println!(
+                "{}",
+                Style::stdout(ctx.format, Tool::Mjsv).done(&format!("Chave {id} removida."))
+            );
 
             Ok(())
         }
     }
+}
+
+/// ER-ssh-key: só quando o conteúdo é mesmo uma chave privada E existe `<arquivo>.pub` ao lado
+/// (o conserto exato). Sem isso, o erro comum de hoje; `plain` é o texto sem terminal de cada ramo.
+fn erro_chave_privada(file: &str, conteudo: &str, plain: String) -> anyhow::Error {
+    let pub_file = format!("{file}.pub");
+    if !conteudo.starts_with("-----BEGIN") || !std::path::Path::new(&pub_file).is_file() {
+        return anyhow!(plain);
+    }
+    let nome = std::path::Path::new(file)
+        .file_name()
+        .map(|n| n.to_string_lossy().into_owned())
+        .unwrap_or_else(|| file.to_string());
+
+    CardError::new(
+        plain,
+        format!("{} é uma chave PRIVADA", mjsv_core::style::sanitize(&nome)),
+    )
+    .cause("Envie o arquivo .pub correspondente.")
+    .hint("tente", format!("mjsv ssh-key add --name <nome> --file {pub_file}"))
+    .into()
 }
 
 fn resumo_da_chave(chave: &str) -> String {
@@ -507,7 +581,7 @@ fn resumo_da_chave(chave: &str) -> String {
 
 #[cfg(test)]
 mod tests {
-    use super::resumo_da_chave;
+    use super::{erro_chave_privada, resumo_da_chave};
 
     #[test]
     fn resumo_mostra_o_tipo_e_o_fim_da_chave() {
@@ -521,5 +595,30 @@ mod tests {
     #[test]
     fn chave_curta_demais_sai_inteira() {
         assert_eq!(resumo_da_chave("ssh-rsa AAAA"), "ssh-rsa AAAA");
+    }
+
+    #[test]
+    fn chave_privada_so_vira_cartao_com_o_pub_ao_lado() {
+        let dir = std::env::temp_dir().join(format!("mjsv-sshkey-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let priv_path = dir.join("id_ed25519");
+        let priv_s = priv_path.to_str().unwrap();
+        let plain = format!("{priv_s} é uma chave PRIVADA; envie o arquivo .pub correspondente");
+
+        // Sem `.pub` ao lado: erro comum, sem cartão.
+        let e = erro_chave_privada(priv_s, "-----BEGIN OPENSSH PRIVATE KEY-----", plain.clone());
+        assert!(e.downcast_ref::<mjsv_core::style::CardError>().is_none());
+
+        std::fs::write(dir.join("id_ed25519.pub"), "ssh-ed25519 AAAA").unwrap();
+        let e = erro_chave_privada(priv_s, "-----BEGIN OPENSSH PRIVATE KEY-----", plain.clone());
+        let card = e.downcast_ref::<mjsv_core::style::CardError>().expect("cartão");
+        assert_eq!(card.to_string(), plain);
+        assert_eq!(card.title, "id_ed25519 é uma chave PRIVADA");
+
+        // Conteúdo que não é chave privada nunca ganha o cartão.
+        let e = erro_chave_privada(priv_s, "ssh-ed25519 AAAA", "x".into());
+        assert!(e.downcast_ref::<mjsv_core::style::CardError>().is_none());
+
+        std::fs::remove_dir_all(dir).ok();
     }
 }
