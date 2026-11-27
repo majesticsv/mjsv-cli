@@ -128,6 +128,14 @@ impl Request {
     }
 }
 
+/// A rota da última requisição feita neste processo (ver `send_value`).
+static LAST_PATH: std::sync::Mutex<String> = std::sync::Mutex::new(String::new());
+
+/// A rota da última requisição, para dizer onde uma resposta não decodificou.
+pub fn last_path() -> String {
+    LAST_PATH.lock().map(|p| p.clone()).unwrap_or_default()
+}
+
 #[derive(Debug, Clone)]
 pub struct Client {
     http: reqwest::Client,
@@ -169,6 +177,12 @@ impl Client {
     /// A saída `--output json` repassa exatamente isto, então nada aqui pode reordenar ou
     /// reinterpretar o corpo: o contrato de script é o corpo da API.
     pub async fn send_value(&self, req: &Request) -> Result<Value, ApiError> {
+        // Os comandos decodificam o corpo sozinhos (`serde_json::from_value(..)?`), e um corpo de
+        // forma errada vira um erro de serde sem rota. Guardar a última rota deixa o renderizador
+        // desenhar o cartão "Resposta inesperada da API" com o caminho certo.
+        if let Ok(mut p) = LAST_PATH.lock() {
+            p.clone_from(&req.path);
+        }
         let url = format!("{}{}", self.base_url, req.path);
 
         let method = match req.method {

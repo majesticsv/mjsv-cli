@@ -249,20 +249,56 @@ pub struct Order {
     pub created_at: Option<String>,
 }
 
+/// Centavos em reais no formato brasileiro da especificação (`R$ 94,32`, `-R$ 10,48`), com a
+/// divisão em inteiros. Só para saída estilizada num terminal.
+pub fn reais_br(centavos: i64) -> String {
+    let abs = centavos.unsigned_abs();
+    format!(
+        "{}R$ {},{:02}",
+        if centavos < 0 { "-" } else { "" },
+        abs / 100,
+        abs % 100
+    )
+}
+
 impl Order {
     /// Centavos para texto, com a divisão feita em inteiros — nada de `/ 100.0`.
+    ///
+    /// Este é o texto de hoje (ponto decimal, `R$ -12.50`), o que um pipe continua vendo.
     pub fn valor_formatado(&self) -> String {
+        self.formatar(false)
+    }
+
+    /// O mesmo valor no formato brasileiro da especificação (`R$ 94,32`, `-R$ 10,48`), só para
+    /// saída estilizada num terminal.
+    pub fn valor_formatado_br(&self) -> String {
+        self.formatar(true)
+    }
+
+    /// O total em centavos, como `valor_formatado` o escolhe.
+    pub fn centavos(&self) -> Option<i64> {
+        self.total_amount.or(self.raw_amount)
+    }
+
+    /// `styled` escolhe entre os dois formatos; os testes de cada um ficam abaixo.
+    pub fn valor(&self, styled: bool) -> String {
+        self.formatar(styled)
+    }
+
+    fn formatar(&self, br: bool) -> String {
         let Some(centavos) = self.total_amount.or(self.raw_amount) else {
             return "-".to_string();
         };
 
-        let sinal = if centavos < 0 { "-" } else { "" };
+        let negativo = centavos < 0;
         let abs = centavos.unsigned_abs();
-        let valor = format!("{sinal}{}.{:02}", abs / 100, abs % 100);
+        let sep = if br { ',' } else { '.' };
+        let numero = format!("{}{sep}{:02}", abs / 100, abs % 100);
 
-        match self.currency.as_deref() {
-            Some("BRL") | None => format!("R$ {valor}"),
-            Some(outra) => format!("{valor} {outra}"),
+        match (self.currency.as_deref(), br) {
+            (Some("BRL") | None, true) => format!("{}R$ {numero}", if negativo { "-" } else { "" }),
+            (Some("BRL") | None, false) => format!("R$ {}{numero}", if negativo { "-" } else { "" }),
+            (Some(outra), _) => format!("{}{numero} {outra}", if negativo { "-" } else { "" }),
         }
     }
 }
@@ -480,6 +516,18 @@ mod tests {
         assert_eq!(com(Some(100), Some(999), "BRL"), "R$ 1.00");
         assert_eq!(com(Some(5500), None, "USD"), "55.00 USD");
         assert_eq!(com(None, None, "BRL"), "-");
+    }
+
+    #[test]
+    fn valor_brasileiro_so_para_terminal() {
+        let o = |c: i64| -> Order {
+            serde_json::from_value(serde_json::json!({"id": "x", "totalAmount": c, "currency": "BRL"})).unwrap()
+        };
+        assert_eq!(o(9432).valor_formatado_br(), "R$ 94,32");
+        assert_eq!(o(-1048).valor_formatado_br(), "-R$ 10,48");
+        assert_eq!(o(-1048).valor_formatado(), "R$ -10.48");
+        assert_eq!(o(9432).valor(true), "R$ 94,32");
+        assert_eq!(o(9432).valor(false), "R$ 94.32");
     }
 
     #[test]

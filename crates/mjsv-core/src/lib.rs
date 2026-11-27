@@ -9,9 +9,12 @@ pub mod client;
 pub mod config;
 pub mod ctx;
 pub mod error;
+pub mod home;
 pub mod models;
 pub mod output;
+pub mod prompt;
 pub mod routes;
+pub mod style;
 pub mod target;
 
 pub use client::{Client, Method, Request};

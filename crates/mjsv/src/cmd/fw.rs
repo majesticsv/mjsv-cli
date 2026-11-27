@@ -8,7 +8,7 @@ use mjsv_core::target::Target;
 use mjsv_core::Ctx;
 
 use crate::cli::{EipCommand, FirewallCommand};
-use crate::prompt;
+use crate::cmd::vm_extra::{confirmar, estilo_out};
 
 /// Mostra o firewall do EIP da VM.
 ///
@@ -49,7 +49,7 @@ async fn list(ctx: &Ctx, vm: &str) -> Result<()> {
                 cell(rule.description.as_deref()),
             ]);
         }
-        print!("{}", table.render());
+        print!("{}", table.render_out());
     }
 
     if !view.gameguard.is_empty() {
@@ -63,7 +63,7 @@ async fn list(ctx: &Ctx, vm: &str) -> Result<()> {
             ]);
         }
         println!("gameguard:");
-        print!("{}", table.render());
+        print!("{}", table.render_out());
     }
 
     Ok(())
@@ -121,7 +121,10 @@ async fn add(
         return Ok(());
     }
 
-    println!("Regra criada. Confira com `mjsv vm firewall list {vm}`.");
+    println!(
+        "{}",
+        estilo_out(ctx).done(&format!("Regra criada. Confira com `mjsv vm firewall list {vm}`."))
+    );
 
     Ok(())
 }
@@ -149,12 +152,10 @@ pub(crate) fn parse_ports(spec: &str) -> Result<(u32, u32)> {
 }
 
 async fn delete(ctx: &Ctx, vm: &str, rule_id: &str) -> Result<()> {
-    if !ctx.assume_yes && !ctx.print_request {
-        prompt::confirm(
-            &format!("Remover a regra {rule_id} do firewall de {vm}? Isso muda o tráfego que chega ao EIP na hora."),
-            ctx.format,
-        )?;
-    }
+    confirmar(
+        ctx,
+        &format!("Remover a regra {rule_id} do firewall de {vm}? Isso muda o tráfego que chega ao EIP na hora."),
+    )?;
 
     let req = Request::delete(format!("/vm/{vm}/firewall/rules/{rule_id}")).target(Target::vm(vm));
 
@@ -162,7 +163,7 @@ async fn delete(ctx: &Ctx, vm: &str, rule_id: &str) -> Result<()> {
         return Ok(());
     };
 
-    println!("Regra {rule_id} removida.");
+    println!("{}", estilo_out(ctx).done(&format!("Regra {rule_id} removida.")));
 
     Ok(())
 }
@@ -199,7 +200,7 @@ pub async fn eip(ctx: &Ctx, cmd: &EipCommand) -> Result<()> {
                         cell(e.attached_private_ip.as_deref()),
                     ]);
                 }
-                print!("{}", table.render());
+                print!("{}", table.render_out());
             }
 
             if !view.v6.is_empty() {
@@ -208,7 +209,7 @@ pub async fn eip(ctx: &Ctx, cmd: &EipCommand) -> Result<()> {
                 for p in &view.v6 {
                     table.push(vec![cell(p.prefix.as_deref()), cell(p.state.as_deref())]);
                 }
-                print!("{}", table.render());
+                print!("{}", table.render_out());
 
                 // Prefixo delegado sem endereço aprendido = o convidado ainda não subiu o v6.
                 // Dizer isso é mais útil do que uma seção vazia.

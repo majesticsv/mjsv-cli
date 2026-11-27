@@ -53,5 +53,10 @@ install -m 0644 completions/mjsv.bash %{buildroot}%{_datadir}/bash-completion/co
 %{_datadir}/bash-completion/completions/mjsv
 
 %changelog
+* Fri Nov 27 2026 MJSV <infra@mjsv.io> - 0.3.0-1
+- Cobertura de todas as rotas de cliente da API (vpc, volume, protection, notification, session,
+  profile, product, payment; vm, gs, org, order e ticket completos).
+- Sistema visual no terminal: banner, cartões de erro e sucesso, confirmações por nível, metros e
+  marcadores de estado. Só em terminal interativo; json/yaml inalterados.
 * Sun Sep 14 2026 MJSV <infra@mjsv.io> - 0.1.0-1
 - Primeira versão: auth, org, vm, gameserver, firewall, eip, order, ticket, ssh-key.

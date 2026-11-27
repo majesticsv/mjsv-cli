@@ -2,8 +2,9 @@
 
 use anyhow::{anyhow, Result};
 use mjsv_core::client::Request;
-use mjsv_core::models::{Listing, Order};
+use mjsv_core::models::{reais_br, Listing, Order};
 use mjsv_core::output::{cell, Table};
+use mjsv_core::style::{sanitize, ConfirmSpec, Receipt, Style, Tier, Tool};
 use mjsv_core::target::Target;
 use mjsv_core::Ctx;
 use serde::Deserialize;
@@ -88,13 +89,16 @@ pub async fn order_create(ctx: &Ctx, args: &OrderBodyArgs, simular: bool) -> Res
     }
 
     let o: Order = serde_json::from_value(value)?;
+    // OK-order-created: fora de um terminal são as três linhas de hoje.
+    let out = Style::stdout(ctx.format, Tool::Mjsv);
     println!(
-        "Pedido {} criado ({}).",
-        cell(o.id.as_deref()),
-        cell(o.status.as_deref())
+        "{}",
+        out.order_created(
+            &sanitize(&cell(o.id.as_deref())),
+            &sanitize(&cell(o.status.as_deref())),
+            &o.valor(out.fancy())
+        )
     );
-    println!("Total:   {}", o.valor_formatado());
-    println!("Pague com: mjsv order pay {}", cell(o.id.as_deref()));
 
     Ok(())
 }
@@ -103,8 +107,12 @@ pub async fn order_delete(ctx: &Ctx, id: &str) -> Result<()> {
     let (_, target) = ctx.org_target()?;
 
     if !ctx.assume_yes && !ctx.print_request {
-        prompt::confirm(
-            &format!("Apagar o pedido {id}? Os serviços aguardando pagamento somem e o saldo reservado volta."),
+        // Nível 1 (CF-1): some o pedido pendente, mas o saldo reservado volta; sem GET extra.
+        prompt::confirm_spec(
+            &ConfirmSpec::new(
+                Tier::T1,
+                format!("Apagar o pedido {id}? Os serviços aguardando pagamento somem e o saldo reservado volta."),
+            ),
             ctx.format,
         )?;
     }
@@ -118,7 +126,10 @@ pub async fn order_delete(ctx: &Ctx, id: &str) -> Result<()> {
         return Ok(());
     }
 
-    println!("Pedido {id} apagado.");
+    println!(
+        "{}",
+        Style::stdout(ctx.format, Tool::Mjsv).done(&format!("Pedido {id} apagado."))
+    );
 
     Ok(())
 }
@@ -139,17 +150,57 @@ pub async fn order_group(ctx: &Ctx, orders: &[String]) -> Result<()> {
     }
 
     let o: Order = serde_json::from_value(value)?;
-    println!("Pedidos agrupados no pedido {}.", cell(o.id.as_deref()));
-    println!("Total:   {}", o.valor_formatado());
+    let out = Style::stdout(ctx.format, Tool::Mjsv);
+    println!(
+        "{}",
+        out.done(&format!(
+            "Pedidos agrupados no pedido {}.",
+            sanitize(&cell(o.id.as_deref()))
+        ))
+    );
+    println!("Total:   {}", o.valor(out.fancy()));
 
     Ok(())
+}
+
+/// Total do pedido e saldo da carteira, em centavos. Qualquer falha vira `None`: são consultas
+/// cosméticas (linhas do prompt e recibo), e pagar nunca trava numa delas.
+async fn total_e_saldo(ctx: &Ctx, id: &str) -> Option<(i64, i64)> {
+    let target = ctx.org_target().ok()?.1;
+    let req_pedido = Request::get(format!("/order/{id}")).target(target);
+    let req_eu = Request::get("/user/me").target(Target::root());
+    let (pedido, eu) = tokio::join!(ctx.client.send_value(&req_pedido), ctx.client.send_value(&req_eu));
+    let total = serde_json::from_value::<Order>(pedido.ok()?).ok()?.centavos()?;
+    let saldo = eu.ok()?.get("balance")?.as_i64()?;
+    Some((total, saldo))
 }
 
 /// O checkout NÃO passa pelo guard de permissões: a posse é conferida pela participação na org do
 /// pedido (que vem no corpo), então não há alvo de org — o painel manda o alvo de conta.
 pub async fn order_pay(ctx: &Ctx, id: &str, metodo: &str, usar_saldo: bool) -> Result<()> {
-    if (usar_saldo || metodo == "Balance") && !ctx.assume_yes && !ctx.print_request {
-        prompt::confirm(&format!("Pagar o pedido {id} com o saldo da carteira?"), ctx.format)?;
+    let com_saldo = usar_saldo || metodo == "Balance";
+    // Total e saldo de ANTES do pagamento, se o prompt os buscou para as linhas dele.
+    let mut antes: Option<(i64, i64)> = None;
+
+    if com_saldo && !ctx.assume_yes && !ctx.print_request {
+        // CF-1-pay: duas consultas só quando o bloco vai aparecer (terminal estilizado); em pipe
+        // ou json/yaml a frase de hoje sai sem ida à rede, e se a consulta falha o bloco degrada
+        // para o CF-1 comum.
+        let frase = format!("Pagar o pedido {id} com o saldo da carteira?");
+        let mut spec = ConfirmSpec::new(Tier::T1, frase.clone()).head(frase).ask("Pagar?");
+        if super::vm_extra::vai_mostrar_bloco(ctx) {
+            antes = total_e_saldo(ctx, id).await;
+            if let Some((total, saldo)) = antes {
+                let est = super::vm_extra::estilo_err(ctx);
+                let resta = if saldo >= total {
+                    format!("{}{}resta {}", reais_br(saldo), est.sep(), reais_br(saldo - total))
+                } else {
+                    reais_br(saldo)
+                };
+                spec = spec.row("total", reais_br(total)).row("saldo", resta);
+            }
+        }
+        prompt::confirm_spec(&spec, ctx.format)?;
     }
 
     let mut body = json!({ "orderId": id, "paymentMethod": metodo });
@@ -168,12 +219,46 @@ pub async fn order_pay(ctx: &Ctx, id: &str, metodo: &str, usar_saldo: bool) -> R
     }
 
     // Com `Balance` não há gateway: o pedido conclui na hora e a URL pode vir vazia.
+    // OK-checkout (a URL é a carga: nunca truncada) ou, pago na hora, o recibo coroado
+    // (DV-receipt) num terminal estilizado, e a frase de hoje em qualquer outro caso.
+    let out = Style::stdout(ctx.format, Tool::Mjsv);
     match value.get("urlCheckoutRedirect").and_then(Value::as_str) {
-        Some(url) if !url.is_empty() => println!("Pague em: {url}"),
-        _ => println!("Pedido {id} pago."),
+        Some(url) if !url.is_empty() => println!("{}", out.checkout(&sanitize(id), &sanitize(url))),
+        _ => {
+            let recibo = if out.fancy() && metodo == "Balance" {
+                recibo_pago(ctx, &out, id, antes).await
+            } else {
+                None
+            };
+            match recibo {
+                Some(r) => println!("{r}"),
+                None => println!("{}", out.done(&format!("Pedido {id} pago."))),
+            }
+        }
     }
 
     Ok(())
+}
+
+/// O recibo de `order pay` com saldo. A resposta do checkout não traz itens nem saldo, e a API não
+/// expõe o preço por item, então o recibo sai na forma recolhida da especificação (cabeçalho,
+/// total, saldo, resta). `None` se faltar dado: quem chama cai na frase de hoje.
+async fn recibo_pago(ctx: &Ctx, out: &Style, id: &str, antes: Option<(i64, i64)>) -> Option<String> {
+    let (total, saldo_antes) = match antes {
+        Some(v) => v,
+        None => {
+            // Sem consulta prévia (`--yes`): o saldo lido agora já é o de depois do pagamento.
+            let (total, saldo_depois) = total_e_saldo(ctx, id).await?;
+            (total, saldo_depois + total)
+        }
+    };
+    out.receipt(&Receipt {
+        order_id: sanitize(id),
+        items: Vec::new(),
+        total: reais_br(total),
+        balance_before: reais_br(saldo_antes),
+        balance_after: reais_br(saldo_antes - total),
+    })
 }
 
 pub async fn coupon(ctx: &Ctx, code: &str) -> Result<()> {
@@ -194,20 +279,30 @@ pub async fn coupon(ctx: &Ctx, code: &str) -> Result<()> {
         _ => "-".to_string(),
     };
 
-    println!("Código:     {}", cell(c.code.as_deref()));
-    println!("Desconto:   {desconto}");
-    println!("Duração:    {}", cell(c.duration.as_deref()));
-    println!(
-        "1ª compra:  {}",
-        if c.first_purchase_only.unwrap_or(false) {
-            "sim"
-        } else {
-            "não"
-        }
-    );
-    println!("Expira em:  {}", cell(c.expires_at.as_deref()));
+    let primeira = if c.first_purchase_only.unwrap_or(false) {
+        "sim"
+    } else {
+        "não"
+    };
+    let linhas = [
+        ("Código", cell(c.code.as_deref())),
+        ("Desconto", desconto),
+        ("Duração", cell(c.duration.as_deref())),
+        ("1ª compra", primeira.to_string()),
+        ("Expira em", cell(c.expires_at.as_deref())),
+    ];
+    for l in cupom_linhas(&Style::stdout(ctx.format, Tool::Mjsv), &linhas) {
+        println!("{l}");
+    }
 
     Ok(())
+}
+
+/// O cartão do cupom (DV-vm-show): régua de título fina e rótulos esmaecidos num terminal; fora
+/// dele, o bloco de hoje, byte a byte (rótulo + dois pontos preenchidos até a coluna 12).
+fn cupom_linhas(out: &Style, linhas: &[(&str, String)]) -> Vec<String> {
+    let limpas: Vec<(&str, String)> = linhas.iter().map(|(k, v)| (*k, out.safe(v))).collect();
+    out.data_card(&format!("Cupom {}", linhas[0].1), &limpas, 12)
 }
 
 #[derive(Debug, Deserialize)]
@@ -273,7 +368,7 @@ pub async fn payment(ctx: &Ctx, cmd: &PaymentCommand) -> Result<()> {
             for m in &metodos {
                 table.push(vec![cell(m.name.as_deref()), m.types.join(", ")]);
             }
-            print!("{}", table.render());
+            print!("{}", table.render_out());
 
             Ok(())
         }
@@ -337,7 +432,7 @@ pub async fn product(ctx: &Ctx, cmd: &ProductCommand) -> Result<()> {
                     preco_formatado(p.base_price.as_ref()),
                 ]);
             }
-            print!("{}", table.render());
+            print!("{}", table.render_out());
 
             Ok(())
         }
@@ -393,7 +488,7 @@ pub async fn product(ctx: &Ctx, cmd: &ProductCommand) -> Result<()> {
                     if i.is_default.unwrap_or(false) { "sim" } else { "" }.to_string(),
                 ]);
             }
-            print!("{}", table.render());
+            print!("{}", table.render_out());
 
             Ok(())
         }
@@ -425,6 +520,37 @@ mod tests {
         );
         assert!(par_chave_valor("semigual", "--option").is_err());
         assert!(par_chave_valor("=v", "--option").is_err());
+    }
+
+    fn linhas_do_cupom() -> Vec<(&'static str, String)> {
+        vec![
+            ("Código", "BEMVINDO10".into()),
+            ("Desconto", "10%".into()),
+            ("Duração", "once".into()),
+            ("1ª compra", "sim".into()),
+            ("Expira em", "-".into()),
+        ]
+    }
+
+    #[test]
+    fn cupom_sem_terminal_e_o_bloco_de_hoje() {
+        let l = cupom_linhas(&Style::plain(Tool::Mjsv), &linhas_do_cupom());
+
+        assert_eq!(l[0], "Código:     BEMVINDO10");
+        assert_eq!(l[3], "1ª compra:  sim");
+        assert_eq!(l[4], "Expira em:  -");
+        assert_eq!(l.len(), 5);
+    }
+
+    #[test]
+    fn cupom_no_terminal_tem_regua_e_rotulos() {
+        use mjsv_core::style::{Charset, Depth};
+        let s = Style::terminal(Tool::Mjsv, Charset::Unicode, Depth::None, 80);
+        let l = cupom_linhas(&s, &linhas_do_cupom());
+
+        assert!(l[0].starts_with("── Cupom BEMVINDO10 "), "{}", l[0]);
+        assert_eq!(l.len(), 6);
+        assert!(l[1].starts_with("Código:"), "{}", l[1]);
     }
 
     #[test]

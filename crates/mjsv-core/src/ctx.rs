@@ -23,10 +23,7 @@ impl Ctx {
     /// Quase toda rota de cliente é `/org/:id/...`, e o id do cabeçalho tem de ser o mesmo do
     /// caminho. Passar por aqui é o que garante os dois saírem do mesmo lugar.
     pub fn org_target(&self) -> Result<(String, Target), ApiError> {
-        let org = self.org.clone().ok_or_else(|| ApiError::Api {
-            status: 0,
-            message: "nenhuma organização selecionada — rode `mjsv org list` e depois `mjsv org use <id>`".into(),
-        })?;
+        let org = self.org.clone().ok_or(ApiError::NoOrg)?;
 
         Ok((org.clone(), Target::org(org)))
     }

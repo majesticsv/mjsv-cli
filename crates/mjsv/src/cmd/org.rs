@@ -8,6 +8,7 @@ use anyhow::{anyhow, Result};
 use mjsv_core::client::Request;
 use mjsv_core::models::Listing;
 use mjsv_core::output::{cell, cell_date, Table};
+use mjsv_core::style::{sanitize, ConfirmSpec, Style, Tier, Tool};
 use mjsv_core::target::Target;
 use mjsv_core::Ctx;
 use serde::Deserialize;
@@ -16,7 +17,13 @@ use serde_json::{json, Value};
 use crate::cli::{
     OrgCommand, OrgInviteCommand, OrgMemberCommand, OrgRoleCommand, OrgServiceCommand, PageArgs, PermArgs,
 };
+use crate::cmd::vm_extra::vai_mostrar_bloco;
 use crate::prompt;
+
+/// Uma frase de sucesso (OK-done): `✓` num terminal, o texto de hoje fora dele.
+fn sucesso(ctx: &Ctx, texto: &str) {
+    println!("{}", Style::stdout(ctx.format, Tool::Mjsv).done(texto));
+}
 
 pub async fn run(ctx: &Ctx, cmd: &OrgCommand) -> Result<()> {
     match cmd {
@@ -104,8 +111,12 @@ async fn create(ctx: &Ctx, name: &str) -> Result<()> {
         return Ok(());
     }
 
-    let id = value.get("id").and_then(Value::as_str).unwrap_or("?");
-    println!("Organização criada: {name} ({id}). Use com `mjsv org use {id}`.");
+    // O id vem do servidor e vai para um terminal: sem ESC nem bidi.
+    let id = sanitize(value.get("id").and_then(Value::as_str).unwrap_or("?"));
+    sucesso(
+        ctx,
+        &format!("Organização criada: {name} ({id}). Use com `mjsv org use {id}`."),
+    );
 
     Ok(())
 }
@@ -145,10 +156,23 @@ async fn show(ctx: &Ctx, org: Option<&str>) -> Result<()> {
 
     let view: OrgView = serde_json::from_value(value)?;
 
-    println!("Id:        {}", cell(view.id.as_deref()));
-    println!("Nome:      {}", cell(view.name.as_deref()));
-    println!("Criada em: {}", cell_date(view.created_at.as_deref()));
-    println!("Membros:   {}", view.users.len());
+    let out = Style::stdout(ctx.format, Tool::Mjsv);
+    let safe = |s: String| out.safe(&s);
+    if let Some(t) = out.title_rule(&format!("Organização {}", safe(cell(view.name.as_deref())))) {
+        println!("{t}");
+    }
+    for line in super::auth::card(
+        &out,
+        11,
+        &[
+            ("Id", safe(cell(view.id.as_deref()))),
+            ("Nome", safe(cell(view.name.as_deref()))),
+            ("Criada em", cell_date(view.created_at.as_deref())),
+            ("Membros", view.users.len().to_string()),
+        ],
+    ) {
+        println!("{line}");
+    }
 
     Ok(())
 }
@@ -165,17 +189,37 @@ async fn rename(ctx: &Ctx, org: &str, name: &str) -> Result<()> {
         return Ok(());
     }
 
-    println!("Organização {org} renomeada para {name}.");
+    sucesso(ctx, &format!("Organização {org} renomeada para {name}."));
 
     Ok(())
 }
 
 async fn delete(ctx: &Ctx, org: &str) -> Result<()> {
     if !ctx.assume_yes && !ctx.print_request {
-        prompt::confirm(
-            &format!("Apagar a organização {org}? Só o dono consegue e os serviços ativos ficam sem dono."),
-            ctx.format,
-        )?;
+        // Nível 3: a única confirmação do cliente que pede o nome. A consulta só existe para
+        // desenhar o bloco: sem terminal estilizado (pipe, json/yaml) ela seria uma chamada a
+        // mais que ninguém vê e mudaria o erro que o script recebe. Se ela falha, apagar não
+        // trava: o prompt cai para a frase de hoje (nível 1, com o id) em vez de recusar.
+        let view = if vai_mostrar_bloco(ctx) {
+            match ctx
+                .client
+                .send_value(&Request::get(format!("/org/{org}")).target(Target::org(org)))
+                .await
+            {
+                Ok(v) if !v.is_null() => serde_json::from_value::<OrgView>(v).ok(),
+                _ => None,
+            }
+        } else {
+            None
+        };
+        let spec = match &view {
+            Some(view) => delete_spec(org, view),
+            None => ConfirmSpec::new(
+                Tier::T1,
+                format!("Apagar a organização {org}? Só o dono consegue e os serviços ativos ficam sem dono."),
+            ),
+        };
+        prompt::confirm_spec(&spec, ctx.format)?;
     }
 
     let req = Request::delete(format!("/org/{org}")).target(Target::org(org));
@@ -187,15 +231,34 @@ async fn delete(ctx: &Ctx, org: &str) -> Result<()> {
         return Ok(());
     }
 
-    println!("Organização {org} apagada.");
+    sucesso(ctx, &format!("Organização {org} apagada."));
 
     Ok(())
 }
 
+/// CF-3. A frase é a de hoje com o nome no lugar do id (é ela que um pipe vê, junto do pedido do
+/// nome); as linhas dão a escala. Só há o que a resposta da org traz: o dono e a contagem de
+/// serviços exigiriam outras consultas, e o nome do rodapé já cobre a escala com os membros.
+fn delete_spec(org: &str, view: &OrgView) -> ConfirmSpec {
+    let name = view.name.as_deref().unwrap_or(org);
+    let shown = sanitize(name);
+    let effect = "Só o dono consegue e os serviços ativos ficam sem dono.";
+
+    ConfirmSpec::new(Tier::T3, format!("Apagar a organização {shown}? {effect}"))
+        .head(format!("Apagar a organização {shown}?"))
+        .row("org", format!("{shown} ({org})"))
+        .row("membros", view.users.len().to_string())
+        .note(effect)
+        .typed(name, org)
+}
+
 async fn leave(ctx: &Ctx, org: &str) -> Result<()> {
     if !ctx.assume_yes && !ctx.print_request {
-        prompt::confirm(
-            &format!("Sair da organização {org}? Você perde o acesso até ser convidado de novo."),
+        prompt::confirm_spec(
+            &ConfirmSpec::new(
+                Tier::T1,
+                format!("Sair da organização {org}? Você perde o acesso até ser convidado de novo."),
+            ),
             ctx.format,
         )?;
     }
@@ -209,7 +272,7 @@ async fn leave(ctx: &Ctx, org: &str) -> Result<()> {
         return Ok(());
     }
 
-    println!("Você saiu da organização {org}.");
+    sucesso(ctx, &format!("Você saiu da organização {org}."));
 
     Ok(())
 }
@@ -251,7 +314,7 @@ async fn audit_log(ctx: &Ctx, page: &PageArgs) -> Result<()> {
             cell(l.id.as_deref()),
         ]);
     }
-    print!("{}", table.render());
+    print!("{}", table.render_out());
 
     Ok(())
 }
@@ -300,7 +363,7 @@ async fn member(ctx: &Ctx, cmd: &OrgMemberCommand) -> Result<()> {
                     cell(m.email.as_deref()),
                 ]);
             }
-            print!("{}", table.render());
+            print!("{}", table.render_out());
 
             Ok(())
         }
@@ -319,15 +382,22 @@ async fn member(ctx: &Ctx, cmd: &OrgMemberCommand) -> Result<()> {
                 return Ok(());
             }
 
-            println!("Pedido enviado para {email}. Confira com `mjsv org member list` e `mjsv org invite list`.");
+            sucesso(
+                ctx,
+                &format!("Pedido enviado para {email}. Confira com `mjsv org member list` e `mjsv org invite list`."),
+            );
 
             Ok(())
         }
 
         OrgMemberCommand::Remove { user } => {
             if !ctx.assume_yes && !ctx.print_request {
-                prompt::confirm(
-                    &format!("Remover o membro {user} da organização {org}? Ele perde o acesso na hora."),
+                // Nível 1: recuperável, mas muda o acesso de alguém agora.
+                prompt::confirm_spec(
+                    &ConfirmSpec::new(
+                        Tier::T1,
+                        format!("Remover o membro {user} da organização {org}? Ele perde o acesso na hora."),
+                    ),
                     ctx.format,
                 )?;
             }
@@ -341,15 +411,19 @@ async fn member(ctx: &Ctx, cmd: &OrgMemberCommand) -> Result<()> {
                 return Ok(());
             }
 
-            println!("Membro {user} removido.");
+            sucesso(ctx, &format!("Membro {user} removido."));
 
             Ok(())
         }
 
         OrgMemberCommand::RoleAdd { user, role } => {
             if !ctx.assume_yes && !ctx.print_request {
-                prompt::confirm(
-                    &format!("Dar o cargo {role} ao membro {user}? As permissões dele mudam na hora."),
+                // Nível 1: recuperável, mas muda o acesso de alguém agora.
+                prompt::confirm_spec(
+                    &ConfirmSpec::new(
+                        Tier::T1,
+                        format!("Dar o cargo {role} ao membro {user}? As permissões dele mudam na hora."),
+                    ),
                     ctx.format,
                 )?;
             }
@@ -365,15 +439,19 @@ async fn member(ctx: &Ctx, cmd: &OrgMemberCommand) -> Result<()> {
                 return Ok(());
             }
 
-            println!("Cargo {role} atribuído a {user}.");
+            sucesso(ctx, &format!("Cargo {role} atribuído a {user}."));
 
             Ok(())
         }
 
         OrgMemberCommand::RoleRemove { user, role } => {
             if !ctx.assume_yes && !ctx.print_request {
-                prompt::confirm(
-                    &format!("Tirar o cargo {role} do membro {user}? As permissões dele mudam na hora."),
+                // Nível 1: recuperável, mas muda o acesso de alguém agora.
+                prompt::confirm_spec(
+                    &ConfirmSpec::new(
+                        Tier::T1,
+                        format!("Tirar o cargo {role} do membro {user}? As permissões dele mudam na hora."),
+                    ),
                     ctx.format,
                 )?;
             }
@@ -390,7 +468,7 @@ async fn member(ctx: &Ctx, cmd: &OrgMemberCommand) -> Result<()> {
                 return Ok(());
             }
 
-            println!("Cargo {role} removido de {user}.");
+            sucesso(ctx, &format!("Cargo {role} removido de {user}."));
 
             Ok(())
         }
@@ -484,7 +562,7 @@ async fn role(ctx: &Ctx, cmd: &OrgRoleCommand) -> Result<()> {
         for (nome, num) in PERMISSOES {
             table.push(vec![(*nome).to_string(), num.to_string()]);
         }
-        print!("{}", table.render());
+        print!("{}", table.render_out());
         return Ok(());
     }
 
@@ -519,7 +597,7 @@ async fn role(ctx: &Ctx, cmd: &OrgRoleCommand) -> Result<()> {
                     value_text(r.permissions.as_ref()),
                 ]);
             }
-            print!("{}", table.render());
+            print!("{}", table.render_out());
 
             Ok(())
         }
@@ -538,7 +616,10 @@ async fn role(ctx: &Ctx, cmd: &OrgRoleCommand) -> Result<()> {
                 return Ok(());
             }
 
-            println!("Cargo {name} criado (posição {position}, máscara {mask}).");
+            sucesso(
+                ctx,
+                &format!("Cargo {name} criado (posição {position}, máscara {mask})."),
+            );
 
             Ok(())
         }
@@ -556,16 +637,16 @@ async fn role(ctx: &Ctx, cmd: &OrgRoleCommand) -> Result<()> {
             if let Some(v) = position {
                 body["position"] = json!(v);
             }
-            if permission_mask(perms)?.is_some() {
-                // O DTO do backend recusa `permissions` neste PUT (conflito entre a conversão para
-                // BigInt e a validação de string): melhor avisar aqui do que devolver um 400 opaco.
-                return Err(anyhow!(
-                    "a API ainda não aceita alterar as permissões de um cargo; apague e recrie o cargo com `org role create`"
-                ));
+            // Texto decimal, como no `org role create`: o backend valida `^\d{1,19}$` e converte para
+            // BigInt no serviço, que também recusa conceder mais do que o próprio cargo de quem pede.
+            if let Some(mask) = permission_mask(perms)? {
+                body["permissions"] = json!(mask);
             }
 
             if body.as_object().is_some_and(|o| o.is_empty()) {
-                return Err(anyhow!("nada para atualizar: use --name ou --position"));
+                return Err(anyhow!(
+                    "nada para atualizar: use --name, --position, --flags ou --mask"
+                ));
             }
 
             let req = Request::put(format!("/org/{org}/role/{role}"))
@@ -579,15 +660,19 @@ async fn role(ctx: &Ctx, cmd: &OrgRoleCommand) -> Result<()> {
                 return Ok(());
             }
 
-            println!("Cargo {role} atualizado.");
+            sucesso(ctx, &format!("Cargo {role} atualizado."));
 
             Ok(())
         }
 
         OrgRoleCommand::Delete { role } => {
             if !ctx.assume_yes && !ctx.print_request {
-                prompt::confirm(
-                    &format!("Apagar o cargo {role}? Os membros que o têm perdem essas permissões."),
+                // Nível 1: recuperável, mas muda o acesso de alguém agora.
+                prompt::confirm_spec(
+                    &ConfirmSpec::new(
+                        Tier::T1,
+                        format!("Apagar o cargo {role}? Os membros que o têm perdem essas permissões."),
+                    ),
                     ctx.format,
                 )?;
             }
@@ -601,7 +686,7 @@ async fn role(ctx: &Ctx, cmd: &OrgRoleCommand) -> Result<()> {
                 return Ok(());
             }
 
-            println!("Cargo {role} apagado.");
+            sucesso(ctx, &format!("Cargo {role} apagado."));
 
             Ok(())
         }
@@ -618,7 +703,7 @@ async fn role(ctx: &Ctx, cmd: &OrgRoleCommand) -> Result<()> {
                 return Ok(());
             }
 
-            println!("Posições de {role_a} e {role_b} trocadas.");
+            sucesso(ctx, &format!("Posições de {role_a} e {role_b} trocadas."));
 
             Ok(())
         }
@@ -673,7 +758,7 @@ async fn invite(ctx: &Ctx, cmd: &OrgInviteCommand) -> Result<()> {
                     cell(i.invited_by.as_ref().and_then(|u| u.name.as_deref())),
                 ]);
             }
-            print!("{}", table.render());
+            print!("{}", table.render_out());
 
             Ok(())
         }
@@ -695,7 +780,7 @@ async fn invite(ctx: &Ctx, cmd: &OrgInviteCommand) -> Result<()> {
                 return Ok(());
             }
 
-            println!("Convite {invite} revogado.");
+            sucesso(ctx, &format!("Convite {invite} revogado."));
 
             Ok(())
         }
@@ -719,6 +804,23 @@ struct ServiceRow {
     cancel_scheduled_at: Option<String>,
 }
 
+/// CF-2 de `org service cancel --now`. A frase de hoje usa o id (é o que um pipe vê); o bloco usa
+/// o nome quando a consulta o trouxe. Sem `view`: nível 1 sob a régua de destrutivo.
+fn cancel_now_spec(org: &str, service: &str, view: Option<&ServiceRow>) -> ConfirmSpec {
+    let effect = "Os recursos são apagados e não há como desfazer.";
+    let spec = ConfirmSpec::new(Tier::T2, format!("Cancelar o serviço {service} AGORA? {effect}")).destructive();
+
+    let Some(v) = view else { return spec };
+    let name = v.name.as_deref().map(sanitize).unwrap_or_else(|| service.to_string());
+    let mut spec = spec
+        .head(format!("Cancelar o serviço {name} AGORA?"))
+        .row("serviço", format!("{name} ({service})"));
+    if let Some(kind) = v.kind.as_deref() {
+        spec = spec.row("tipo", sanitize(kind));
+    }
+    spec.row("org", org.to_string()).note(effect)
+}
+
 async fn service(ctx: &Ctx, cmd: &OrgServiceCommand) -> Result<()> {
     let (org, target) = ctx.org_target()?;
 
@@ -736,7 +838,15 @@ async fn service(ctx: &Ctx, cmd: &OrgServiceCommand) -> Result<()> {
             let listing: Listing<ServiceRow> = Listing::from_value(value)?;
 
             if listing.data.is_empty() {
-                println!("Nenhum serviço.");
+                let out = Style::stdout(ctx.format, Tool::Mjsv);
+                // O pátio vazio só convém à org sem nenhum serviço: com busca ou filtro a frase é
+                // a neutra de hoje.
+                let sem_filtro = page.search.is_none() && page.filters.is_empty();
+                if sem_filtro {
+                    println!("{}", out.empty_courtyard());
+                } else {
+                    println!("{}", out.empty("Nenhum serviço."));
+                }
                 return Ok(());
             }
 
@@ -750,7 +860,7 @@ async fn service(ctx: &Ctx, cmd: &OrgServiceCommand) -> Result<()> {
                     cell_date(s.cancel_scheduled_at.as_deref()),
                 ]);
             }
-            print!("{}", table.render());
+            print!("{}", table.render_out());
 
             Ok(())
         }
@@ -767,12 +877,26 @@ async fn service(ctx: &Ctx, cmd: &OrgServiceCommand) -> Result<()> {
 
             let s: ServiceRow = serde_json::from_value(value)?;
 
-            println!("Serviço:    {}", cell(s.id.as_deref()));
-            println!("Nome:       {}", cell(s.name.as_deref()));
-            println!("Tipo:       {}", cell(s.kind.as_deref()));
-            println!("Status:     {}", cell(s.status.as_deref()));
-            println!("Cancela em: {}", cell_date(s.cancel_scheduled_at.as_deref()));
-            println!("(configuração completa: --output json)");
+            let out = Style::stdout(ctx.format, Tool::Mjsv);
+            let safe = |s: String| out.safe(&s);
+            let nome = safe(cell(s.name.as_deref()));
+            if let Some(t) = out.title_rule(&format!("Serviço {nome}")) {
+                println!("{t}");
+            }
+            for line in super::auth::card(
+                &out,
+                12,
+                &[
+                    ("Serviço", safe(cell(s.id.as_deref()))),
+                    ("Nome", nome),
+                    ("Tipo", safe(cell(s.kind.as_deref()))),
+                    ("Status", out.state(&safe(cell(s.status.as_deref())))),
+                    ("Cancela em", cell_date(s.cancel_scheduled_at.as_deref())),
+                ],
+            ) {
+                println!("{line}");
+            }
+            println!("{}", out.dim("(configuração completa: --output json)"));
 
             Ok(())
         }
@@ -789,7 +913,7 @@ async fn service(ctx: &Ctx, cmd: &OrgServiceCommand) -> Result<()> {
                 return Ok(());
             }
 
-            println!("Serviço {service} renomeado para {name}.");
+            sucesso(ctx, &format!("Serviço {service} renomeado para {name}."));
 
             Ok(())
         }
@@ -798,12 +922,30 @@ async fn service(ctx: &Ctx, cmd: &OrgServiceCommand) -> Result<()> {
             service, now, reason, ..
         } => {
             if !ctx.assume_yes && !ctx.print_request {
-                let pergunta = if *now {
-                    format!("Cancelar o serviço {service} AGORA? Os recursos são apagados e não há como desfazer.")
+                let spec = if *now {
+                    // Nível 2: apaga recursos. Uma consulta mostra o nome e o tipo; se ela falha
+                    // o prompt degrada para o nível 1 sob a mesma régua e o cancelamento segue.
+                    // A consulta só enfeita o bloco: sem terminal estilizado ela não é feita.
+                    let view = if vai_mostrar_bloco(ctx) {
+                        match ctx
+                            .client
+                            .send_value(&Request::get(format!("/org/{org}/service/{service}")).target(target.clone()))
+                            .await
+                        {
+                            Ok(v) => serde_json::from_value::<ServiceRow>(v).ok(),
+                            Err(_) => None,
+                        }
+                    } else {
+                        None
+                    };
+                    cancel_now_spec(&org, service, view.as_ref())
                 } else {
-                    format!("Cancelar o serviço {service} ao fim do período pago?")
+                    ConfirmSpec::new(
+                        Tier::T1,
+                        format!("Cancelar o serviço {service} ao fim do período pago?"),
+                    )
                 };
-                prompt::confirm(&pergunta, ctx.format)?;
+                prompt::confirm_spec(&spec, ctx.format)?;
             }
 
             let mut body = json!({ "mode": if *now { "now" } else { "end_of_period" } });
@@ -823,9 +965,12 @@ async fn service(ctx: &Ctx, cmd: &OrgServiceCommand) -> Result<()> {
             }
 
             if *now {
-                println!("Serviço {service} cancelado.");
+                sucesso(ctx, &format!("Serviço {service} cancelado."));
             } else {
-                println!("Cancelamento agendado. Desfaça com `mjsv org service cancel-undo {service}`.");
+                sucesso(
+                    ctx,
+                    &format!("Cancelamento agendado. Desfaça com `mjsv org service cancel-undo {service}`."),
+                );
             }
 
             Ok(())
@@ -841,7 +986,7 @@ async fn service(ctx: &Ctx, cmd: &OrgServiceCommand) -> Result<()> {
                 return Ok(());
             }
 
-            println!("Cancelamento do serviço {service} desfeito.");
+            sucesso(ctx, &format!("Cancelamento do serviço {service} desfeito."));
 
             Ok(())
         }
@@ -881,6 +1026,60 @@ mod tests {
         };
         assert!(permission_mask(&ruim).is_err());
         assert!(permission_mask(&PermArgs::default()).unwrap().is_none());
+    }
+
+    fn org_view(name: Option<&str>) -> OrgView {
+        serde_json::from_value(json!({"id": "nUME7", "name": name, "users": [{}, {}, {}]})).unwrap()
+    }
+
+    #[test]
+    fn apagar_org_no_pipe_pergunta_o_nome_com_a_frase_de_hoje() {
+        let spec = delete_spec("nUME7", &org_view(Some("acme")));
+        let pipe = Style::plain(Tool::Mjsv);
+        assert_eq!(
+            spec.render(&pipe),
+            "Apagar a organização acme? Só o dono consegue e os serviços ativos ficam sem dono. \
+             Digite acme para confirmar: "
+        );
+        assert_eq!(spec.expected(), Some("acme"));
+        assert!(spec.check("acme").is_ok());
+        assert!(spec.check("Acme").is_err());
+    }
+
+    #[test]
+    fn apagar_org_com_nome_ilegivel_pede_o_id() {
+        let spec = delete_spec("nUME7", &org_view(Some("a\u{202e}b")));
+        assert_eq!(spec.expected(), Some("nUME7"));
+        let spec = delete_spec("nUME7", &org_view(None));
+        assert_eq!(spec.expected(), Some("nUME7"));
+    }
+
+    #[test]
+    fn apagar_org_em_terminal_tem_regua_sem_volta_e_linhas() {
+        use mjsv_core::style::{Charset, Depth};
+        let tty = Style::terminal(Tool::Mjsv, Charset::Ascii, Depth::None, 100);
+        let texto = delete_spec("nUME7", &org_view(Some("acme"))).render(&tty);
+        assert!(texto.starts_with("-- SEM VOLTA "), "{texto}");
+        assert!(texto.contains("org:      acme (nUME7)"), "{texto}");
+        assert!(texto.contains("membros:  3"), "{texto}");
+        assert!(texto.contains("Digite acme para confirmar:"), "{texto}");
+    }
+
+    #[test]
+    fn cancelar_agora_degrada_para_a_frase_de_hoje_sem_consulta() {
+        use mjsv_core::style::{Charset, Depth};
+        let sem = cancel_now_spec("nUME7", "k3TqZ", None);
+        assert_eq!(
+            sem.render(&Style::plain(Tool::Mjsv)),
+            "Cancelar o serviço k3TqZ AGORA? Os recursos são apagados e não há como desfazer. [s/N] "
+        );
+        let tty = Style::terminal(Tool::Mjsv, Charset::Ascii, Depth::None, 100);
+        assert!(sem.render(&tty).starts_with("-- DESTRUTIVO "));
+
+        let row: ServiceRow = serde_json::from_value(json!({"id": "k3TqZ", "name": "web-01", "type": "VPS"})).unwrap();
+        let com = cancel_now_spec("nUME7", "k3TqZ", Some(&row)).render(&tty);
+        assert!(com.contains("serviço:  web-01 (k3TqZ)"), "{com}");
+        assert!(com.contains("org:      nUME7"), "{com}");
     }
 
     #[test]

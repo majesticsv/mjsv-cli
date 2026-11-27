@@ -7,6 +7,7 @@ use anyhow::{anyhow, Result};
 use mjsv_core::client::Request;
 use mjsv_core::models::{FirewallView, Listing};
 use mjsv_core::output::{cell, Table};
+use mjsv_core::style::{sanitize, ConfirmSpec, SecretBox, Style, Tier, Tool};
 use mjsv_core::target::Target;
 use mjsv_core::Ctx;
 use serde::Deserialize;
@@ -15,13 +16,69 @@ use serde_json::{json, Value};
 use crate::cmd::fw::{format_ports, parse_ports};
 use crate::prompt;
 
+/// Estilo de stdout: decidido só por stdout ser um terminal (e pelo formato).
+pub fn estilo_out(ctx: &Ctx) -> Style {
+    Style::stdout(ctx.format, Tool::Mjsv)
+}
+
+/// Estilo de stderr, onde as perguntas aparecem.
+pub fn estilo_err(ctx: &Ctx) -> Style {
+    Style::stderr(ctx.format, Tool::Mjsv)
+}
+
 /// Pergunta antes de operação destrutiva. `--print-request` nunca pergunta: não há nada a
 /// destruir, e o dry-run em script precisa passar direto.
-pub fn confirmar(ctx: &Ctx, pergunta: &str) -> Result<()> {
+pub fn confirmar_spec(ctx: &Ctx, spec: &ConfirmSpec) -> Result<()> {
     if !ctx.assume_yes && !ctx.print_request {
-        prompt::confirm(pergunta, ctx.format)?;
+        prompt::confirm_spec(spec, ctx.format)?;
     }
     Ok(())
+}
+
+/// Nível 1 (CF-1): a frase de hoje atrás de um aviso, sem consulta extra.
+pub fn confirmar(ctx: &Ctx, pergunta: &str) -> Result<()> {
+    confirmar_spec(ctx, &ConfirmSpec::new(Tier::T1, pergunta))
+}
+
+/// Vale a pena buscar o recurso só para enfeitar a pergunta? Só se ela vai mesmo aparecer, num
+/// terminal estilizado: em pipe, com `--yes`, `--print-request` ou json/yaml a consulta seria uma
+/// ida à rede que ninguém vê.
+pub fn vai_mostrar_bloco(ctx: &Ctx) -> bool {
+    !ctx.assume_yes && !ctx.print_request && estilo_err(ctx).fancy()
+}
+
+/// Nome da VM para as linhas de um prompt de nível 2. Qualquer falha vira `None`: apagar nunca
+/// trava numa consulta cosmética, o prompt só perde as linhas.
+pub async fn nome_da_vm(ctx: &Ctx, vm: &str) -> Option<String> {
+    if !vai_mostrar_bloco(ctx) {
+        return None;
+    }
+    let req = Request::get(format!("/vm/{vm}")).target(Target::vm(vm));
+    let value = ctx.run(req).await.ok().flatten()?;
+    let nome = value.get("name").or_else(|| value.get("domainName"))?.as_str()?;
+    Some(sanitize(nome)).filter(|n| !n.is_empty())
+}
+
+/// Cartão de dados (DV-vm-show): régua de título e `Rótulo:   valor` na coluna 0.
+///
+/// `linhas` com rótulo vazio são continuação do valor anterior (a mensagem de estado), recuada na
+/// coluna do valor. `plain` é o texto de hoje, byte a byte, para quando stdout não é um terminal
+/// estilizado: as larguras de rótulo de cada comando são diferentes e não podem mudar.
+pub fn cartao(out: &Style, titulo: &str, linhas: &[(&str, String)], plain: &[String]) {
+    if !out.fancy() {
+        for l in plain {
+            println!("{l}");
+        }
+        return;
+    }
+    for l in out.data_card(titulo, linhas, 0) {
+        println!("{l}");
+    }
+}
+
+/// Caixa de segredo num único `write_all` (ver `Style::print_secret_box`).
+pub fn imprimir_caixa(out: &Style, caixa: &SecretBox) -> bool {
+    out.print_secret_box(caixa)
 }
 
 /// `1990` centavos em `R$ 19,90`.
@@ -64,16 +121,31 @@ pub async fn resolve(ctx: &Ctx, service: &str) -> Result<()> {
     }
 
     let listing: Listing<Value> = Listing::from_value(value)?;
+    let out = estilo_out(ctx);
     let Some(vm) = listing.data.first() else {
-        println!("Nenhuma VM para o serviço {service}.");
+        println!("{}", out.empty(&format!("Nenhuma VM para o serviço {service}.")));
         return Ok(());
     };
     let campo = |k: &str| vm.get(k).and_then(Value::as_str);
+    let nome = cell(campo("name").or(campo("domainName")));
+    let estado = cell(campo("state"));
 
-    println!("Serviço:  {service}");
-    println!("VM:       {}", cell(campo("id")));
-    println!("Nome:     {}", cell(campo("name").or(campo("domainName"))));
-    println!("Estado:   {}", cell(campo("state")));
+    cartao(
+        &out,
+        &format!("VM {nome}"),
+        &[
+            ("Serviço", sanitize(service)),
+            ("VM", sanitize(&cell(campo("id")))),
+            ("Nome", sanitize(&nome)),
+            ("Estado", out.state(&sanitize(&estado))),
+        ],
+        &[
+            format!("Serviço:  {service}"),
+            format!("VM:       {}", cell(campo("id"))),
+            format!("Nome:     {nome}"),
+            format!("Estado:   {estado}"),
+        ],
+    );
 
     Ok(())
 }
@@ -118,7 +190,7 @@ fn tabela_imagens(listing: &Listing<Imagem>, com_slug: bool) {
         ]);
         table.push(row);
     }
-    print!("{}", table.render());
+    print!("{}", table.render_out());
 }
 
 pub async fn images(ctx: &Ctx, vm: &str) -> Result<()> {
@@ -134,7 +206,10 @@ pub async fn images(ctx: &Ctx, vm: &str) -> Result<()> {
 
     let listing: Listing<Imagem> = Listing::from_value(value)?;
     if listing.data.is_empty() {
-        println!("Nenhuma imagem disponível na região desta VM.");
+        println!(
+            "{}",
+            estilo_out(ctx).empty("Nenhuma imagem disponível na região desta VM.")
+        );
         return Ok(());
     }
     tabela_imagens(&listing, false);
@@ -162,7 +237,7 @@ pub async fn cloud_images(ctx: &Ctx) -> Result<()> {
 
     let listing: Listing<Imagem> = Listing::from_value(value)?;
     if listing.data.is_empty() {
-        println!("Nenhuma imagem de nuvem disponível.");
+        println!("{}", estilo_out(ctx).empty("Nenhuma imagem de nuvem disponível."));
         return Ok(());
     }
     tabela_imagens(&listing, true);
@@ -183,7 +258,10 @@ pub async fn vpcs(ctx: &Ctx, vm: &str) -> Result<()> {
 
     let listing: Listing<Value> = Listing::from_value(value)?;
     if listing.data.is_empty() {
-        println!("Nenhuma outra VPC disponível para esta VM.");
+        println!(
+            "{}",
+            estilo_out(ctx).empty("Nenhuma outra VPC disponível para esta VM.")
+        );
         return Ok(());
     }
 
@@ -192,7 +270,7 @@ pub async fn vpcs(ctx: &Ctx, vm: &str) -> Result<()> {
         let c = |k: &str| v.get(k).and_then(Value::as_str);
         table.push(vec![cell(c("id")), cell(c("name")), cell(c("subnetCidr"))]);
     }
-    print!("{}", table.render());
+    print!("{}", table.render_out());
 
     Ok(())
 }
@@ -216,19 +294,38 @@ pub async fn move_vpc(ctx: &Ctx, vm: &str, vpc: &str) -> Result<()> {
     }
 
     println!(
-        "VM movida para a VPC {}. Novo IP privado: {}.",
-        cell(value.get("tenant").and_then(Value::as_str)),
-        cell(value.get("privateIp").and_then(Value::as_str))
+        "{}",
+        estilo_out(ctx).done(&format!(
+            "VM movida para a VPC {}. Novo IP privado: {}.",
+            cell(value.get("tenant").and_then(Value::as_str)),
+            cell(value.get("privateIp").and_then(Value::as_str))
+        ))
     );
 
     Ok(())
 }
 
 pub async fn rebuild(ctx: &Ctx, vm: &str, image: &str, pedir_senha: bool) -> Result<()> {
-    confirmar(
-        ctx,
-        &format!("Reinstalar a VM {vm} com a imagem {image} APAGA o disco e não tem volta. Continuar?"),
-    )?;
+    // Nível 2: uma consulta da VM dá o nome para as linhas. A imagem só é conhecida pelo id, e a
+    // organização pelo id também (o nome custaria outra consulta): as linhas degradam para eles.
+    let nome = nome_da_vm(ctx, vm).await;
+    let mut spec = ConfirmSpec::new(
+        Tier::T2,
+        format!("Reinstalar a VM {vm} com a imagem {image} APAGA o disco e não tem volta. Continuar?"),
+    )
+    .destructive()
+    .head(match &nome {
+        Some(n) => format!("Reinstalar a VM {n}?"),
+        None => format!("Reinstalar a VM {vm}?"),
+    })
+    .note("APAGA o disco e não tem volta.");
+    if let Some(n) = &nome {
+        spec = spec
+            .row("VM", format!("{n} ({vm})"))
+            .row("imagem", sanitize(image))
+            .row("org", ctx.org.as_deref().map(sanitize).unwrap_or_else(|| "-".into()));
+    }
+    confirmar_spec(ctx, &spec)?;
 
     let mut body = json!({ "isoId": image });
     if pedir_senha && !ctx.print_request {
@@ -250,22 +347,43 @@ pub async fn rebuild(ctx: &Ctx, vm: &str, image: &str, pedir_senha: bool) -> Res
     }
 
     // 202: a reinstalação é assíncrona, o estado da VM é o que mostra o andamento.
-    println!("Reinstalação iniciada. Acompanhe com `mjsv vm show {vm}`.");
+    let out = estilo_out(ctx);
+    println!(
+        "{}",
+        out.accepted(&format!("Reinstalação iniciada. Acompanhe com `mjsv vm show {vm}`."))
+    );
     if !pedir_senha {
-        println!("A senha de root foi gerada: recupere com `mjsv vm root-password {vm}`.");
+        println!(
+            "{}",
+            out.noop(&format!(
+                "A senha de root foi gerada: recupere com `mjsv vm root-password {vm}`."
+            ))
+        );
     }
 
     Ok(())
 }
 
 /// Imprime o segredo uma única vez em stdout. Nunca passa por `tracing`.
-fn imprimir_senha(ctx: &Ctx, value: &Value, rotulo: &str) {
+///
+/// Num terminal com arte vai na caixa de segredo (OK-secret-console, título `SEGREDO`: a senha de
+/// root pode ser buscada de novo, mas fica no histórico do terminal); senão, a linha de hoje.
+fn imprimir_senha(ctx: &Ctx, vm: &str, value: &Value, rotulo: &str) {
     if ctx.format.is_machine_readable() {
         crate::render_value(ctx.format, value);
         return;
     }
 
-    println!("{rotulo}: {}", cell(value.get("password").and_then(Value::as_str)));
+    let senha = value.get("password").and_then(Value::as_str);
+    if let Some(senha) = senha {
+        let caixa = SecretBox::new("SEGREDO", "fica no histórico do terminal")
+            .secret(sanitize(senha))
+            .row("VM", vm);
+        if imprimir_caixa(&estilo_out(ctx), &caixa) {
+            return;
+        }
+    }
+    println!("{rotulo}: {}", cell(senha));
 }
 
 pub async fn reset_password(ctx: &Ctx, vm: &str, pedir_senha: bool) -> Result<()> {
@@ -289,7 +407,7 @@ pub async fn reset_password(ctx: &Ctx, vm: &str, pedir_senha: bool) -> Result<()
         return Ok(());
     };
 
-    imprimir_senha(ctx, &value, "Nova senha de root");
+    imprimir_senha(ctx, vm, &value, "Nova senha de root");
 
     Ok(())
 }
@@ -300,7 +418,7 @@ pub async fn root_password(ctx: &Ctx, vm: &str) -> Result<()> {
         return Ok(());
     };
 
-    imprimir_senha(ctx, &value, "Senha de root");
+    imprimir_senha(ctx, vm, &value, "Senha de root");
 
     Ok(())
 }
@@ -321,10 +439,17 @@ pub async fn sync_dhcp_ip(ctx: &Ctx, vm: &str, ip: Option<&str>) -> Result<()> {
     }
 
     // `synced:false` com `ip:null` é uma VM sem vnic, não uma falha da chamada.
+    let out = estilo_out(ctx);
     if value.get("synced") == Some(&Value::Bool(true)) {
-        println!("IP sincronizado: {}.", cell(value.get("ip").and_then(Value::as_str)));
+        println!(
+            "{}",
+            out.done(&format!(
+                "IP sincronizado: {}.",
+                cell(value.get("ip").and_then(Value::as_str))
+            ))
+        );
     } else {
-        println!("Nada sincronizado: a VM não tem interface de rede.");
+        println!("{}", out.noop("Nada sincronizado: a VM não tem interface de rede."));
     }
 
     Ok(())
@@ -343,8 +468,19 @@ pub async fn vnc_token(ctx: &Ctx, vm: &str) -> Result<()> {
 
     // O token vale para um WebSocket no gateway da API e expira rápido; a senha é a do VNC em
     // texto claro. Os dois são segredo e saem só aqui.
-    println!("Token:  {}", cell(value.get("token").and_then(Value::as_str)));
-    println!("Senha:  {}", cell(value.get("vncPassword").and_then(Value::as_str)));
+    let token = value.get("token").and_then(Value::as_str);
+    let senha = value.get("vncPassword").and_then(Value::as_str);
+    if let (Some(t), Some(p)) = (token, senha) {
+        let caixa = SecretBox::new("USE AGORA", "o token expira em 60 segundos")
+            .captioned("token:", sanitize(t))
+            .captioned("senha:", sanitize(p))
+            .row("console VNC", format!("VM {vm}"));
+        if imprimir_caixa(&estilo_out(ctx), &caixa) {
+            return Ok(());
+        }
+    }
+    println!("Token:  {}", cell(token));
+    println!("Senha:  {}", cell(senha));
 
     Ok(())
 }
@@ -372,7 +508,7 @@ pub async fn update(ctx: &Ctx, vm: &str, pedir_vnc: bool) -> Result<()> {
         return Ok(());
     }
 
-    println!("VM {vm} atualizada.");
+    println!("{}", estilo_out(ctx).done(&format!("VM {vm} atualizada.")));
 
     Ok(())
 }
@@ -404,7 +540,12 @@ pub async fn ssh_keys(ctx: &Ctx, vm: &str, keys: &[String], clear: bool) -> Resu
         return Ok(());
     }
 
-    println!("Aplicação das chaves enviada (assíncrona). Confira o estado com `mjsv vm show {vm}`.");
+    println!(
+        "{}",
+        estilo_out(ctx).accepted(&format!(
+            "Aplicação das chaves enviada (assíncrona). Confira o estado com `mjsv vm show {vm}`."
+        ))
+    );
 
     Ok(())
 }
@@ -474,7 +615,12 @@ pub async fn rule_update(ctx: &Ctx, vm: &str, rule_id: &str, c: RuleChanges<'_>)
         return Ok(());
     }
 
-    println!("Regra {rule_id} atualizada. Confira com `mjsv vm firewall list {vm}`.");
+    println!(
+        "{}",
+        estilo_out(ctx).done(&format!(
+            "Regra {rule_id} atualizada. Confira com `mjsv vm firewall list {vm}`."
+        ))
+    );
 
     Ok(())
 }
@@ -492,7 +638,7 @@ pub fn imprimir_gameguard(value: &Value) -> Result<()> {
     for r in &view.gameguard {
         table.push(vec![cell(r.id.as_deref()), cell(r.profile.as_deref()), format_ports(r)]);
     }
-    print!("{}", table.render());
+    print!("{}", table.render_out());
 
     Ok(())
 }
@@ -531,7 +677,58 @@ pub async fn gameguard_rm(ctx: &Ctx, vm: &str, range_id: &str) -> Result<()> {
         return Ok(());
     }
 
-    println!("Faixa {range_id} removida.");
+    println!("{}", estilo_out(ctx).done(&format!("Faixa {range_id} removida.")));
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use mjsv_core::style::{strip_ansi, Charset, Depth};
+
+    fn terminal() -> Style {
+        Style::terminal(Tool::Mjsv, Charset::Unicode, Depth::TrueColor, 100)
+    }
+
+    #[test]
+    fn cartao_alinha_a_mensagem_de_estado_na_coluna_do_valor() {
+        let out = terminal();
+        let linhas = [
+            ("Nome", "db-01".to_string()),
+            ("Serviço", "t7Vn3".to_string()),
+            ("Estado", out.state("degraded")),
+            ("", "disco com erros".to_string()),
+            ("SO", "Debian 12".to_string()),
+        ];
+        let corpo: Vec<String> = out
+            .data_card("VM", &linhas, 0)
+            .iter()
+            .skip(1)
+            .map(|l| strip_ansi(l))
+            .collect();
+        assert_eq!(
+            corpo,
+            [
+                "Nome:     db-01",
+                "Serviço:  t7Vn3",
+                "Estado:   ▲ degraded",
+                "          disco com erros",
+                "SO:       Debian 12",
+            ]
+        );
+    }
+
+    #[test]
+    fn cartao_fora_do_terminal_nao_tem_regua_nem_marcador() {
+        let p = Style::plain(Tool::Mjsv);
+        assert!(p.title_rule("VM x").is_none());
+        assert_eq!(p.state("running"), "running");
+    }
+
+    #[test]
+    fn caixa_de_segredo_nao_aparece_sem_terminal() {
+        let p = Style::plain(Tool::Mjsv);
+        assert!(p.secret_box(&SecretBox::new("SEGREDO", "x").secret("abc")).is_none());
+    }
 }

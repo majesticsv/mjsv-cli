@@ -7,6 +7,7 @@
 use anyhow::{anyhow, bail, Context, Result};
 use mjsv_core::client::Request;
 use mjsv_core::output::{cell, Table};
+use mjsv_core::style::{sanitize, ConfirmSpec, Style, Tier, Tool};
 use mjsv_core::target::Target;
 use mjsv_core::Ctx;
 use serde::Deserialize;
@@ -24,12 +25,35 @@ fn confirmar(ctx: &Ctx, pergunta: &str) -> Result<()> {
     Ok(())
 }
 
+/// Confirmação de nível 1 (CF-1): impacto no serviço, recuperável. Só dados em mãos, sem consulta.
+/// `sentence` é a pergunta de hoje, que é o que um pipe vê.
+fn confirmar_t1(ctx: &Ctx, pergunta: &str) -> Result<()> {
+    if !ctx.assume_yes && !ctx.print_request {
+        prompt::confirm_spec(&ConfirmSpec::new(Tier::T1, pergunta), ctx.format)?;
+    }
+
+    Ok(())
+}
+
 fn gs_req(req: Request, id: &str) -> Request {
     req.target(Target::gameserver(id))
 }
 
+/// Como a linha de sucesso de `executar` é desenhada (OK-done).
+#[derive(Clone, Copy)]
+enum Aviso {
+    /// `✓` — feito.
+    Feito,
+    /// `▲` — feito, mas falta uma ação do usuário (reiniciar o servidor).
+    Atencao,
+}
+
 /// Executa e imprime o corpo cru, ou `msg` quando a saída é de tabela.
 async fn executar(ctx: &Ctx, req: Request, msg: &str) -> Result<()> {
+    executar_com(ctx, req, msg, Aviso::Feito).await
+}
+
+async fn executar_com(ctx: &Ctx, req: Request, msg: &str, aviso: Aviso) -> Result<()> {
     let Some(value) = ctx.run(req).await? else {
         return Ok(());
     };
@@ -37,10 +61,63 @@ async fn executar(ctx: &Ctx, req: Request, msg: &str) -> Result<()> {
     if ctx.format.is_machine_readable() {
         crate::render_value(ctx.format, &value);
     } else {
-        println!("{msg}");
+        let out = Style::stdout(ctx.format, Tool::Mjsv);
+        match aviso {
+            Aviso::Feito => println!("{}", out.done(msg)),
+            Aviso::Atencao => println!("{}", out.attention(msg)),
+        }
     }
 
     Ok(())
+}
+
+/// Nome do gameserver para o bloco de uma confirmação de nível 2 (uma consulta, spec CF-2).
+///
+/// Só consulta quando o prompt vai de fato desenhar o bloco (stderr é terminal estilizado): em um
+/// pipe a pergunta é a frase de hoje e a consulta seria tráfego à toa. Qualquer falha devolve
+/// `None` e o prompt degrada para o nível 1 sob a mesma régua — apagar nunca trava numa consulta
+/// cosmética. A rota de leitura (`GET /gameserver/:id`) não é a do `--print-request`: este nem
+/// chega aqui, o prompt é pulado.
+pub(crate) async fn nome_do_gameserver(ctx: &Ctx, id: &str) -> Option<String> {
+    if !Style::stderr(ctx.format, Tool::Mjsv).fancy() {
+        return None;
+    }
+
+    let req = gs_req(Request::get(format!("/gameserver/{id}")), id);
+    let value = ctx.client.send_value(&req).await.ok()?;
+    nome_na_resposta(&value)
+}
+
+/// O corpo pode vir cru ou embrulhado em `data`; o nome é texto da API, então é higienizado antes
+/// de entrar na arte.
+fn nome_na_resposta(value: &Value) -> Option<String> {
+    let nome = value
+        .get("name")
+        .or_else(|| value.get("data").and_then(|d| d.get("name")))?
+        .as_str()?;
+    let nome = sanitize(nome);
+
+    (!nome.trim().is_empty()).then_some(nome)
+}
+
+/// Linhas de contexto `gameserver` e `org` (a org só pelo id: o nome custaria outra consulta).
+pub(crate) fn linhas_do_gameserver(ctx: &Ctx, mut spec: ConfirmSpec, nome: &str, id: &str) -> ConfirmSpec {
+    spec = spec.row("gameserver", format!("{nome} ({id})"));
+    if let Some(org) = &ctx.org {
+        spec = spec.row("org", org.clone());
+    }
+
+    spec
+}
+
+/// Texto curto dos nomes de uma lista: os 2 primeiros e `· +N` (CF-2-files).
+fn resumo_de_nomes(out: &Style, nomes: &[String]) -> String {
+    let mut partes: Vec<String> = nomes.iter().take(2).map(|n| sanitize(n)).collect();
+    if nomes.len() > 2 {
+        partes.push(format!("+{}", nomes.len() - 2));
+    }
+
+    partes.join(out.sep())
 }
 
 /// Executa e imprime o corpo cru em qualquer formato.
@@ -193,7 +270,7 @@ async fn file_ls(ctx: &Ctx, id: &str, dir: &str) -> Result<()> {
             cell(e.modified_at.as_deref()),
         ]);
     }
-    print!("{}", table.render());
+    print!("{}", table.render_out());
 
     Ok(())
 }
@@ -245,16 +322,131 @@ async fn file_upload(ctx: &Ctx, id: &str, local: &str, remote: &str) -> Result<(
     let conteudo = std::fs::read(local).with_context(|| format!("falha ao ler {local}"))?;
     let bytes = conteudo.len();
 
-    let value = ctx
-        .client
-        .send_multipart(&req, nome, conteudo, &[("filePath", remote)])
-        .await?;
+    let campos = [("filePath", remote)];
+    let envio = ctx.client.send_multipart(&req, nome, conteudo, &campos);
+    let value = if ctx.format.is_machine_readable() {
+        envio.await?
+    } else {
+        com_progresso(nome, bytes, envio).await?
+    };
 
     if ctx.format.is_machine_readable() {
         crate::render_value(ctx.format, &value);
     } else {
-        println!("{local} enviado para {remote} ({bytes} bytes).");
+        let out = Style::stdout(ctx.format, Tool::Mjsv);
+        println!(
+            "{}",
+            out.done(&format!("{local} enviado para {remote} ({bytes} bytes)."))
+        );
     }
+
+    Ok(())
+}
+
+/// Espera o envio desenhando UMA linha de progresso em stderr (DV-upload).
+///
+/// O cliente HTTP manda o corpo de uma vez e não avisa quantos bytes já saíram, então o
+/// percentual é desconhecido e a linha cai na forma do spec para tamanho incerto: só o quadro do
+/// spinner e o tamanho total (`▀ Enviando world.zip  61,4 MiB`). Sem redesenho possível (pipe,
+/// `TERM=dumb`) não se imprime nada; a linha é apagada e o stderr esvaziado antes de o chamador
+/// escrever a frase final no stdout, e também quando o envio falha, para o cartão de erro não
+/// ficar colado nos restos do spinner.
+async fn com_progresso<T>(nome: &str, bytes: usize, envio: impl std::future::Future<Output = T>) -> T {
+    use std::io::Write;
+
+    let err = Style::stderr(mjsv_core::output::Format::Table, Tool::Mjsv);
+    if !err.can_redraw() {
+        return envio.await;
+    }
+
+    let rotulo = format!("Enviando {}", sanitize(nome));
+    let detalhe = tamanho_legivel(bytes as u64);
+    let mut tique = tokio::time::interval(std::time::Duration::from_millis(mjsv_core::style::SPINNER_INTERVAL_MS));
+    let mut quadro = 0usize;
+    tokio::pin!(envio);
+
+    let resultado = loop {
+        tokio::select! {
+            r = &mut envio => break r,
+            _ = tique.tick() => {
+                let linha = err.progress_line(quadro, &rotulo, None, &detalhe);
+                eprint!("{}{}", err.erase_line(), linha);
+                let _ = std::io::stderr().flush();
+                quadro += 1;
+            }
+        }
+    };
+
+    eprint!("{}", err.erase_line());
+    let _ = std::io::stderr().flush();
+
+    resultado
+}
+
+/// `61,4 MiB` (vírgula decimal, como o resto da saída em português). Abaixo de 1 KiB, bytes.
+fn tamanho_legivel(bytes: u64) -> String {
+    const UNIDADES: [&str; 4] = ["KiB", "MiB", "GiB", "TiB"];
+
+    if bytes < 1024 {
+        return format!("{bytes} B");
+    }
+
+    let mut valor = bytes as f64 / 1024.0;
+    let mut i = 0;
+    while valor >= 1024.0 && i + 1 < UNIDADES.len() {
+        valor /= 1024.0;
+        i += 1;
+    }
+
+    format!("{valor:.1} {}", UNIDADES[i]).replace('.', ",")
+}
+
+/// CF-2-files: lista os 2 primeiros nomes e `· +N`. A frase de hoje (que um pipe vê) continua
+/// listando todos os nomes.
+async fn confirmar_rm_arquivos(ctx: &Ctx, id: &str, dir: &str, names: &[String]) -> Result<()> {
+    if ctx.assume_yes || ctx.print_request {
+        return Ok(());
+    }
+
+    let frase = format!(
+        "Apagar {} de {dir} no gameserver {id}? Não há lixeira.",
+        names.join(", ")
+    );
+    let out = Style::stderr(ctx.format, Tool::Mjsv);
+    let plural = if names.len() == 1 { "arquivo" } else { "arquivos" };
+    let mut spec = ConfirmSpec::new(Tier::T2, frase)
+        .destructive()
+        .head(format!("Apagar {} {plural} de {}?", names.len(), sanitize(dir)))
+        .note("Não há lixeira.");
+
+    if let Some(nome) = nome_do_gameserver(ctx, id).await {
+        spec = spec.row("arquivos", resumo_de_nomes(&out, names));
+        spec = linhas_do_gameserver(ctx, spec, &nome, id);
+    }
+
+    prompt::confirm_spec(&spec, ctx.format)?;
+
+    Ok(())
+}
+
+/// CF-2 do `db rm`: os dados do banco somem.
+async fn confirmar_db_rm(ctx: &Ctx, id: &str, name: &str) -> Result<()> {
+    if ctx.assume_yes || ctx.print_request {
+        return Ok(());
+    }
+
+    let frase = format!("Apagar o banco {name} do gameserver {id}? Os dados são perdidos.");
+    let mut spec = ConfirmSpec::new(Tier::T2, frase)
+        .destructive()
+        .head(format!("Apagar o banco {}?", sanitize(name)))
+        .note("Os dados são perdidos.");
+
+    if let Some(nome) = nome_do_gameserver(ctx, id).await {
+        spec = spec.row("banco", sanitize(name));
+        spec = linhas_do_gameserver(ctx, spec, &nome, id);
+    }
+
+    prompt::confirm_spec(&spec, ctx.format)?;
 
     Ok(())
 }
@@ -309,13 +501,7 @@ async fn file(ctx: &Ctx, cmd: &GsFileCommand) -> Result<()> {
             executar(ctx, req, &format!("{archive} descompactado em {dir}.")).await
         }
         GsFileCommand::Rm { id, dir, names } => {
-            confirmar(
-                ctx,
-                &format!(
-                    "Apagar {} de {dir} no gameserver {id}? Não há lixeira.",
-                    names.join(", ")
-                ),
-            )?;
+            confirmar_rm_arquivos(ctx, id, dir, names).await?;
 
             // DELETE com corpo JSON: é assim que o backend recebe a lista de nomes.
             let req = gs_req(Request::delete(format!("/gameserver/{id}/file")), id)
@@ -343,10 +529,7 @@ async fn db(ctx: &Ctx, cmd: &GsDbCommand) -> Result<()> {
             mostrar(ctx, req).await
         }
         GsDbCommand::Delete { id, name } => {
-            confirmar(
-                ctx,
-                &format!("Apagar o banco {name} do gameserver {id}? Os dados são perdidos."),
-            )?;
+            confirmar_db_rm(ctx, id, name).await?;
 
             // O parâmetro da rota se chama `databaseId`, mas o handler procura pelo NOME.
             let req = gs_req(Request::delete(format!("/gameserver/{id}/database/{name}")), id);
@@ -412,7 +595,7 @@ async fn schedule(ctx: &Ctx, cmd: &GsScheduleCommand) -> Result<()> {
             executar(ctx, req, &format!("Agendamento {schedule} atualizado.")).await
         }
         GsScheduleCommand::Delete { id, schedule } => {
-            confirmar(
+            confirmar_t1(
                 ctx,
                 &format!("Apagar o agendamento {schedule} do gameserver {id} e suas tarefas?"),
             )?;
@@ -484,7 +667,7 @@ async fn task(ctx: &Ctx, cmd: &GsTaskCommand) -> Result<()> {
             executar(ctx, req, &format!("Tarefa {task} atualizada.")).await
         }
         GsTaskCommand::Delete { id, schedule, task } => {
-            confirmar(ctx, &format!("Apagar a tarefa {task} do agendamento {schedule}?"))?;
+            confirmar_t1(ctx, &format!("Apagar a tarefa {task} do agendamento {schedule}?"))?;
 
             let req = gs_req(
                 Request::delete(format!("/gameserver/{id}/schedules/{schedule}/tasks/{task}")),
@@ -603,10 +786,12 @@ async fn addon(ctx: &Ctx, cmd: &GsAddonCommand) -> Result<()> {
 
             let req = gs_req(Request::post(format!("/gameserver/{id}/addons")), id).body(corpo);
 
-            executar(
+            // Só o lock muda; o jar chega no próximo boot, então a linha pede uma ação (`▲`).
+            executar_com(
                 ctx,
                 req,
                 &format!("{project} ({provider}) adicionado — reinicie o servidor para instalar."),
+                Aviso::Atencao,
             )
             .await
         }
@@ -615,10 +800,11 @@ async fn addon(ctx: &Ctx, cmd: &GsAddonCommand) -> Result<()> {
 
             let req = gs_req(Request::delete(format!("/gameserver/{id}/addons")), id).body(json!({ "file": file }));
 
-            executar(
+            executar_com(
                 ctx,
                 req,
                 &format!("{file} removido — reinicie o servidor para aplicar."),
+                Aviso::Atencao,
             )
             .await
         }
@@ -665,6 +851,45 @@ mod tests {
         assert_eq!(corpo["hour"], "3");
         assert_eq!(corpo["dayOfWeek"], "1");
         assert!(cron_campos("* * *").is_err());
+    }
+
+    #[test]
+    fn nome_da_resposta_cru_ou_em_data() {
+        assert_eq!(nome_na_resposta(&json!({"name": "mc-02"})).as_deref(), Some("mc-02"));
+        assert_eq!(
+            nome_na_resposta(&json!({"data": {"name": "mc-02"}})).as_deref(),
+            Some("mc-02")
+        );
+        assert_eq!(nome_na_resposta(&json!({"name": "  "})), None);
+        assert_eq!(nome_na_resposta(&json!({"name": 3})), None);
+        // Controle e ESC não entram na arte.
+        assert_eq!(
+            nome_na_resposta(&json!({"name": "a\u{1b}[31mb"})).as_deref(),
+            Some("a[31mb")
+        );
+    }
+
+    #[test]
+    fn resumo_mostra_dois_e_o_resto() {
+        use mjsv_core::style::Charset;
+        let uni = Style::terminal(Tool::Mjsv, Charset::Unicode, mjsv_core::style::Depth::None, 100);
+        let asc = Style::terminal(Tool::Mjsv, Charset::Ascii, mjsv_core::style::Depth::None, 100);
+        let n: Vec<String> = ["old.jar", "backup.zip", "x", "y", "z"]
+            .iter()
+            .map(|s| s.to_string())
+            .collect();
+
+        assert_eq!(resumo_de_nomes(&uni, &n[..1]), "old.jar");
+        assert_eq!(resumo_de_nomes(&uni, &n[..2]), "old.jar · backup.zip");
+        assert_eq!(resumo_de_nomes(&uni, &n), "old.jar · backup.zip · +3");
+        assert_eq!(resumo_de_nomes(&asc, &n), "old.jar, backup.zip, +3");
+    }
+
+    #[test]
+    fn tamanho_legivel_usa_virgula() {
+        assert_eq!(tamanho_legivel(512), "512 B");
+        assert_eq!(tamanho_legivel(64_382_217), "61,4 MiB");
+        assert_eq!(tamanho_legivel(2048), "2,0 KiB");
     }
 
     #[test]

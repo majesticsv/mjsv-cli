@@ -11,7 +11,8 @@ use serde_json::json;
 
 use crate::cli::{ProtectionCommand, ProtectionGameguardCommand};
 use crate::cmd::fw::parse_ports;
-use crate::cmd::vm_extra::{confirmar, imprimir_gameguard};
+use crate::cmd::vm_extra::{cartao, confirmar, estilo_out, imprimir_gameguard};
+use mjsv_core::style::sanitize;
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -62,14 +63,31 @@ async fn show(ctx: &Ctx, service: &str) -> Result<()> {
 
     let s: Servico = serde_json::from_value(value)?;
 
-    println!("Nome:      {}", cell(s.name.as_deref()));
-    println!("Serviço:   {}", cell(s.id.as_deref()));
-    println!("Estado:    {}", cell(s.status.as_deref()));
-    println!("Telemetria: {}", sim_nao(s.telemetry_available));
-    println!("Túnel:     {}", sim_nao(s.tunnel_configured));
+    let out = estilo_out(ctx);
+    let nome = cell(s.name.as_deref());
+    let estado = cell(s.status.as_deref());
+    cartao(
+        &out,
+        &format!("Proteção {nome}"),
+        &[
+            ("Nome", sanitize(&nome)),
+            ("Serviço", sanitize(&cell(s.id.as_deref()))),
+            ("Estado", out.state(&sanitize(&estado))),
+            ("Telemetria", sim_nao(s.telemetry_available).to_string()),
+            ("Túnel", sim_nao(s.tunnel_configured).to_string()),
+        ],
+        // O texto de hoje, com o alinhamento torto de `Telemetria:` que ele sempre teve.
+        &[
+            format!("Nome:      {nome}"),
+            format!("Serviço:   {}", cell(s.id.as_deref())),
+            format!("Estado:    {estado}"),
+            format!("Telemetria: {}", sim_nao(s.telemetry_available)),
+            format!("Túnel:     {}", sim_nao(s.tunnel_configured)),
+        ],
+    );
 
     if s.addresses.is_empty() {
-        println!("Nenhum endereço protegido.");
+        println!("{}", out.empty("Nenhum endereço protegido."));
         return Ok(());
     }
 
@@ -82,7 +100,7 @@ async fn show(ctx: &Ctx, service: &str) -> Result<()> {
             cell(a.region_id.as_deref()),
         ]);
     }
-    print!("{}", table.render());
+    print!("{}", table.render_out());
 
     Ok(())
 }
@@ -158,7 +176,7 @@ async fn gameguard_rm(ctx: &Ctx, service: &str, addr: &str, range: &str) -> Resu
         return Ok(());
     }
 
-    println!("Faixa {range} removida.");
+    println!("{}", estilo_out(ctx).done(&format!("Faixa {range} removida.")));
 
     Ok(())
 }

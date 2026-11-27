@@ -3,7 +3,7 @@ members = ["crates/mjsv-core", "crates/mjsv"]
 resolver = "2"
 
 [workspace.package]
-version = "0.2.1"
+version = "0.3.0"
 edition = "2021"
 license = "MIT"
 repository = "https://github.com/majesticsv/mjsv-cli"
@@ -35,3 +35,11 @@ chrono = { version = "0.4", features = ["serde"] }
 clap = { version = "4", features = ["derive", "env", "wrap_help"] }
 clap_complete = "4"
 rpassword = "7"
+# Largura de exibição (CJK e emoji ocupam 2 células; acento combinado, 0). `chars().count()` desalinha
+# tabelas e cartões justamente com nome de VM digitado pelo usuário.
+unicode-width = "0.2"
+# NFC para comparar o nome digitado na confirmação de nível 3: "é" pré-composto e "e" + acento têm de
+# valer o mesmo, senão quem cola o nome de outro terminal nunca confirma.
+unicode-normalization = "0.1"
+# Já vem no Cargo.lock por causa do `wrap_help` do clap; aqui serve para a largura do terminal.
+terminal_size = "0.4"
