@@ -454,9 +454,6 @@ pub async fn notification(ctx: &Ctx, cmd: &NotificationCommand) -> Result<()> {
                 prompt::confirm("Apagar todas as notificações já lidas?", ctx.format)?;
             }
 
-            // No backend, `DELETE org/:orgId/:notificationId` é declarada ANTES desta rota e
-            // captura `read` como id — o decode do sqid falha e a resposta é 404. Enquanto o
-            // handler não for reordenado, esta chamada não chega ao código certo.
             let req = Request::delete(format!("/notifications/org/{org}/read")).target(target);
             let Some(value) = ctx.run(req).await? else {
                 return Ok(());

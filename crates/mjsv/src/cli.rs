@@ -1431,10 +1431,8 @@ pub enum OrgRoleCommand {
         perms: PermArgs,
     },
 
-    /// Atualiza um cargo.
-    ///
-    /// Só nome e posição. A API ainda não aceita alterar permissões aqui: `--flags`/`--mask` são
-    /// recusados pelo CLI; para mudar permissões, apague e recrie o cargo.
+    /// Atualiza um cargo: nome, posição e/ou permissões (`--flags` ou `--mask` substituem o conjunto
+    /// inteiro). Não dá para conceder mais do que o seu próprio cargo tem.
     Update {
         /// Id do cargo.
         role: String,
@@ -1547,9 +1545,6 @@ pub enum NotificationCommand {
     Delete { id: String },
 
     /// Apaga todas as lidas. Pede confirmação.
-    ///
-    /// Bug conhecido do backend: a rota é capturada por `DELETE .../:notificationId` e responde 404.
-    #[command(hide = true)]
     ClearRead,
 }
 

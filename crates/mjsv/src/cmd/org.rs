@@ -637,16 +637,16 @@ async fn role(ctx: &Ctx, cmd: &OrgRoleCommand) -> Result<()> {
             if let Some(v) = position {
                 body["position"] = json!(v);
             }
-            if permission_mask(perms)?.is_some() {
-                // O DTO do backend recusa `permissions` neste PUT (conflito entre a conversão para
-                // BigInt e a validação de string): melhor avisar aqui do que devolver um 400 opaco.
-                return Err(anyhow!(
-                    "a API ainda não aceita alterar as permissões de um cargo; apague e recrie o cargo com `org role create`"
-                ));
+            // Texto decimal, como no `org role create`: o backend valida `^\d{1,19}$` e converte para
+            // BigInt no serviço, que também recusa conceder mais do que o próprio cargo de quem pede.
+            if let Some(mask) = permission_mask(perms)? {
+                body["permissions"] = json!(mask);
             }
 
             if body.as_object().is_some_and(|o| o.is_empty()) {
-                return Err(anyhow!("nada para atualizar: use --name ou --position"));
+                return Err(anyhow!(
+                    "nada para atualizar: use --name, --position, --flags ou --mask"
+                ));
             }
 
             let req = Request::put(format!("/org/{org}/role/{role}"))

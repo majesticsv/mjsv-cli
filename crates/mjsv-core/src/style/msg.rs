@@ -276,7 +276,7 @@ impl Style {
         Some(lines.join("\n"))
     }
 
-    /// `mjsvadm user password-reset` e afins, que só imprimem JSON: uma linha de glifo em STDERR
+    /// Comandos que só imprimem o JSON da API: uma linha de glifo em STDERR
     /// (para o JSON do stdout continuar encanável). Proposta da especificação, bloqueada por texto
     /// novo por comando; a forma degradada é `✓ {comando}: concluído`.
     pub fn staff_done_line(&self, text: &str) -> Option<String> {
