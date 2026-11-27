@@ -2,11 +2,12 @@ use anyhow::Result;
 use mjsv_core::client::Request;
 use mjsv_core::models::{Listing, Vm};
 use mjsv_core::output::{cell, cell_date, Table};
+use mjsv_core::style::{sanitize, ConfirmSpec, Tier};
 use mjsv_core::target::Target;
 use mjsv_core::Ctx;
 
 use crate::cli::VmCommand;
-use crate::prompt;
+use crate::cmd::vm_extra::{cartao, confirmar_spec, estilo_out};
 
 /// Lista as VMs da organização.
 ///
@@ -28,7 +29,15 @@ async fn list(ctx: &Ctx) -> Result<()> {
     let listing: Listing<Vm> = serde_json::from_value(value)?;
 
     if listing.data.is_empty() {
-        println!("Nenhuma VM nesta organização.");
+        // EM-hint: quem acabou de criar a conta cai aqui, e o próximo passo é o catálogo.
+        println!(
+            "{}",
+            estilo_out(ctx).empty_hint(
+                "Nenhuma VM nesta organização.",
+                "comece pelo catálogo",
+                "mjsv product list"
+            )
+        );
         return Ok(());
     }
 
@@ -71,19 +80,40 @@ async fn show(ctx: &Ctx, id: &str) -> Result<()> {
 
     let vm: Vm = serde_json::from_value(value)?;
 
-    println!("Nome:     {}", cell(vm.name.as_deref()));
-    println!("Serviço:  {}", cell(vm.service_id.as_deref()));
-    println!("Estado:   {}", cell(vm.state.as_deref()));
-    if let Some(msg) = vm.state_msg.as_deref().filter(|m| !m.is_empty()) {
-        println!("          {msg}");
-    }
-    println!("SO:       {}", cell(vm.os_name.as_deref()));
-    println!(
-        "Recursos: {} vCPU, {}",
+    let out = estilo_out(ctx);
+    let nome = cell(vm.name.as_deref());
+    let estado = cell(vm.state.as_deref());
+    let msg = vm.state_msg.as_deref().filter(|m| !m.is_empty());
+    let recursos = format!(
+        "{} vCPU, {}",
         vm.vcpu.map(|v| v.to_string()).unwrap_or_else(|| "-".into()),
         vm.memory_mb.map(format_memoria).unwrap_or_else(|| "-".into())
     );
-    println!("Criada:   {}", cell_date(vm.created_at.as_deref()));
+
+    // O texto de hoje (stdout que não é terminal estilizado) fica byte a byte como era.
+    let mut plain = vec![
+        format!("Nome:     {nome}"),
+        format!("Serviço:  {}", cell(vm.service_id.as_deref())),
+        format!("Estado:   {estado}"),
+    ];
+    let mut linhas = vec![
+        ("Nome", sanitize(&nome)),
+        ("Serviço", sanitize(&cell(vm.service_id.as_deref()))),
+        // O texto vem da API: limpo antes de entrar na arte (a palavra pintada vem depois).
+        ("Estado", out.state(&sanitize(&estado))),
+    ];
+    if let Some(m) = msg {
+        plain.push(format!("          {m}"));
+        linhas.push(("", sanitize(m)));
+    }
+    plain.push(format!("SO:       {}", cell(vm.os_name.as_deref())));
+    plain.push(format!("Recursos: {recursos}"));
+    plain.push(format!("Criada:   {}", cell_date(vm.created_at.as_deref())));
+    linhas.push(("SO", sanitize(&cell(vm.os_name.as_deref()))));
+    linhas.push(("Recursos", recursos));
+    linhas.push(("Criada", cell_date(vm.created_at.as_deref())));
+
+    cartao(&out, &format!("VM {nome}"), &linhas, &plain);
 
     Ok(())
 }
@@ -94,9 +124,13 @@ async fn show(ctx: &Ctx, id: &str) -> Result<()> {
 /// confirmação: ele pode corromper o sistema de arquivos do convidado, o primeiro não.
 async fn power(ctx: &Ctx, action: &str, id: &str, destrutivo: bool) -> Result<()> {
     if destrutivo && !ctx.assume_yes && !ctx.print_request {
-        prompt::confirm(
-            &format!("`{action}` corta a energia da VM {id} sem avisar o sistema convidado. Continuar?"),
-            ctx.format,
+        // Nível 1: o serviço sai do ar, mas a VM volta a ligar. Sem consulta extra.
+        confirmar_spec(
+            ctx,
+            &ConfirmSpec::new(
+                Tier::T1,
+                format!("`{action}` corta a energia da VM {id} sem avisar o sistema convidado. Continuar?"),
+            ),
         )?;
     }
 
@@ -112,7 +146,12 @@ async fn power(ctx: &Ctx, action: &str, id: &str, destrutivo: bool) -> Result<()
 
     // A operação é assíncrona: o control plane reconcilia depois. Dizer "ligada" aqui seria
     // mentira — o que aconteceu foi o pedido ser aceito.
-    println!("Pedido `{action}` enviado para {id}. Acompanhe com `mjsv vm power {id}`.");
+    println!(
+        "{}",
+        estilo_out(ctx).accepted(&format!(
+            "Pedido `{action}` enviado para {id}. Acompanhe com `mjsv vm power {id}`."
+        ))
+    );
 
     Ok(())
 }

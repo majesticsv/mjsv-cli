@@ -12,7 +12,7 @@ use serde::Deserialize;
 use serde_json::json;
 
 use crate::cli::VolumeCommand;
-use crate::cmd::vm_extra::{confirmar, reais, resolver_vm_id};
+use crate::cmd::vm_extra::{confirmar, estilo_out, reais, resolver_vm_id};
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -80,7 +80,14 @@ async fn list(ctx: &Ctx) -> Result<()> {
 
     let listing: Listing<Volume> = Listing::from_value(value)?;
     if listing.data.is_empty() {
-        println!("Nenhum volume nesta organização.");
+        println!(
+            "{}",
+            estilo_out(ctx).empty_hint(
+                "Nenhum volume nesta organização.",
+                "veja os planos",
+                "mjsv volume products --vm <serviço>"
+            )
+        );
         return Ok(());
     }
     tabela_volumes(&listing.data);
@@ -104,7 +111,7 @@ async fn available(ctx: &Ctx, vm_service: &str) -> Result<()> {
 
     let listing: Listing<Volume> = Listing::from_value(value)?;
     if listing.data.is_empty() {
-        println!("Nenhum volume desanexado no nó desta VM.");
+        println!("{}", estilo_out(ctx).empty("Nenhum volume desanexado no nó desta VM."));
         return Ok(());
     }
     tabela_volumes(&listing.data);
@@ -129,7 +136,10 @@ async fn products(ctx: &Ctx, vm_service: &str) -> Result<()> {
     // Lista vazia também é o que a API devolve quando a VPC da VM não tem região.
     let listing: Listing<Produto> = Listing::from_value(value)?;
     if listing.data.is_empty() {
-        println!("Nenhum plano de volume disponível para a região desta VM.");
+        println!(
+            "{}",
+            estilo_out(ctx).empty("Nenhum plano de volume disponível para a região desta VM.")
+        );
         return Ok(());
     }
 
@@ -164,8 +174,11 @@ async fn attach(ctx: &Ctx, volume: &str, vm_service: &str) -> Result<()> {
     }
 
     println!(
-        "Volume {volume} anexado a {vm_service} como {}. Monte-o no sistema convidado.",
-        cell(value.get("targetDev").and_then(|v| v.as_str()))
+        "{}",
+        estilo_out(ctx).done(&format!(
+            "Volume {volume} anexado a {vm_service} como {}. Monte-o no sistema convidado.",
+            cell(value.get("targetDev").and_then(|v| v.as_str()))
+        ))
     );
 
     Ok(())
@@ -191,7 +204,7 @@ async fn detach(ctx: &Ctx, volume: &str) -> Result<()> {
         return Ok(());
     }
 
-    println!("Volume {volume} desanexado.");
+    println!("{}", estilo_out(ctx).done(&format!("Volume {volume} desanexado.")));
 
     Ok(())
 }
