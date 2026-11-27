@@ -155,7 +155,7 @@ async fn show(ctx: &Ctx, org: Option<&str>) -> Result<()> {
     let view: OrgView = serde_json::from_value(value)?;
 
     let out = Style::stdout(ctx.format, Tool::Mjsv);
-    let safe = |s: String| if out.fancy() { sanitize(&s) } else { s };
+    let safe = |s: String| out.safe(&s);
     if let Some(t) = out.title_rule(&format!("Organização {}", safe(cell(view.name.as_deref())))) {
         println!("{t}");
     }
@@ -864,7 +864,7 @@ async fn service(ctx: &Ctx, cmd: &OrgServiceCommand) -> Result<()> {
             let s: ServiceRow = serde_json::from_value(value)?;
 
             let out = Style::stdout(ctx.format, Tool::Mjsv);
-            let safe = |s: String| if out.fancy() { sanitize(&s) } else { s };
+            let safe = |s: String| out.safe(&s);
             let nome = safe(cell(s.name.as_deref()));
             if let Some(t) = out.title_rule(&format!("Serviço {nome}")) {
                 println!("{t}");

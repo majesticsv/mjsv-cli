@@ -7,12 +7,11 @@ use anyhow::{anyhow, Result};
 use mjsv_core::client::Request;
 use mjsv_core::models::{FirewallView, Listing};
 use mjsv_core::output::{cell, Table};
-use mjsv_core::style::{sanitize, width, ConfirmSpec, SecretBox, Style, Tier, Tool};
+use mjsv_core::style::{sanitize, ConfirmSpec, SecretBox, Style, Tier, Tool};
 use mjsv_core::target::Target;
 use mjsv_core::Ctx;
 use serde::Deserialize;
 use serde_json::{json, Value};
-use std::io::Write;
 
 use crate::cmd::fw::{format_ports, parse_ports};
 use crate::prompt;
@@ -66,48 +65,20 @@ pub async fn nome_da_vm(ctx: &Ctx, vm: &str) -> Option<String> {
 /// coluna do valor. `plain` é o texto de hoje, byte a byte, para quando stdout não é um terminal
 /// estilizado: as larguras de rótulo de cada comando são diferentes e não podem mudar.
 pub fn cartao(out: &Style, titulo: &str, linhas: &[(&str, String)], plain: &[String]) {
-    let Some(regua) = out.title_rule(&sanitize(titulo)) else {
+    if !out.fancy() {
         for l in plain {
             println!("{l}");
         }
         return;
-    };
-    println!("{regua}");
-    for l in corpo_do_cartao(out, linhas) {
+    }
+    for l in out.data_card(titulo, linhas, 0) {
         println!("{l}");
     }
 }
 
-fn corpo_do_cartao(out: &Style, linhas: &[(&str, String)]) -> Vec<String> {
-    let rotuladas: Vec<(&str, &str)> = linhas
-        .iter()
-        .filter(|(k, _)| !k.is_empty())
-        .map(|(k, v)| (*k, v.as_str()))
-        .collect();
-    let col = rotuladas.iter().map(|(k, _)| width(k)).max().unwrap_or(0) + 3;
-    let mut prontas = out.card_rows(&rotuladas).into_iter();
-    linhas
-        .iter()
-        .map(|(k, v)| {
-            if k.is_empty() {
-                format!("{}{v}", " ".repeat(col))
-            } else {
-                prontas.next().unwrap_or_default()
-            }
-        })
-        .collect()
-}
-
-/// Escreve a caixa de segredo num único `write_all` com stdout travado: o segredo nunca fica
-/// entremeado a outra saída. `false` quando não há arte (o chamador imprime as linhas de hoje).
+/// Caixa de segredo num único `write_all` (ver `Style::print_secret_box`).
 pub fn imprimir_caixa(out: &Style, caixa: &SecretBox) -> bool {
-    let Some(b) = out.secret_box(caixa) else {
-        return false;
-    };
-    let mut o = std::io::stdout().lock();
-    let _ = o.write_all(format!("{b}\n").as_bytes());
-    let _ = o.flush();
-    true
+    out.print_secret_box(caixa)
 }
 
 /// `1990` centavos em `R$ 19,90`.
@@ -730,7 +701,12 @@ mod tests {
             ("", "disco com erros".to_string()),
             ("SO", "Debian 12".to_string()),
         ];
-        let corpo: Vec<String> = corpo_do_cartao(&out, &linhas).iter().map(|l| strip_ansi(l)).collect();
+        let corpo: Vec<String> = out
+            .data_card("VM", &linhas, 0)
+            .iter()
+            .skip(1)
+            .map(|l| strip_ansi(l))
+            .collect();
         assert_eq!(
             corpo,
             [

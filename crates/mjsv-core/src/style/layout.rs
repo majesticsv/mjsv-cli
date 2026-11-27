@@ -179,6 +179,64 @@ impl Style {
         self.rows(pairs, "", false)
     }
 
+    /// Texto vindo da API, limpo de controles só quando a saída é estilizada: fora dela o byte a
+    /// byte de hoje vale mais que a higiene (e o destino não é um terminal que interprete escapes).
+    pub fn safe(&self, s: &str) -> String {
+        if self.fancy() {
+            super::text::sanitize(s)
+        } else {
+            s.to_string()
+        }
+    }
+
+    /// Cartão de dados completo: régua de título e `Rótulo:   valor` num terminal estilizado; fora
+    /// dele, `Rótulo:` preenchido até `plain_width` colunas, o recuo que cada comando já tinha (por
+    /// isso a largura é parâmetro: a saída encanada não pode mudar um espaço). Rótulo vazio é
+    /// continuação do valor anterior, recuada na coluna do valor.
+    pub fn data_card(&self, title: &str, pairs: &[(&str, String)], plain_width: usize) -> Vec<String> {
+        let Some(rule) = self.title_rule(&super::text::sanitize(title)) else {
+            return pairs
+                .iter()
+                .map(|(k, v)| {
+                    if k.is_empty() {
+                        format!("{}{v}", " ".repeat(plain_width))
+                    } else {
+                        format!("{}{v}", super::text::pad(&format!("{k}:"), plain_width))
+                    }
+                })
+                .collect();
+        };
+        let labelled: Vec<(&str, &str)> = pairs
+            .iter()
+            .filter(|(k, _)| !k.is_empty())
+            .map(|(k, v)| (*k, v.as_str()))
+            .collect();
+        let col = labelled.iter().map(|(k, _)| width(k)).max().unwrap_or(0) + 3;
+        let mut ready = self.card_rows(&labelled).into_iter();
+        let mut out = vec![rule];
+        out.extend(pairs.iter().map(|(k, v)| {
+            if k.is_empty() {
+                format!("{}{v}", " ".repeat(col))
+            } else {
+                ready.next().unwrap_or_default()
+            }
+        }));
+        out
+    }
+
+    /// Escreve a caixa de segredo num único `write_all` com stdout travado: o segredo nunca fica
+    /// entremeado a outra saída. `false` quando não há arte (o chamador imprime as linhas de hoje).
+    pub fn print_secret_box(&self, b: &super::msg::SecretBox) -> bool {
+        use std::io::Write;
+        let Some(text) = self.secret_box(b) else {
+            return false;
+        };
+        let mut o = std::io::stdout().lock();
+        let _ = o.write_all(format!("{text}\n").as_bytes());
+        let _ = o.flush();
+        true
+    }
+
     /// Uma dica: `rótulo: comando`. O comando é o texto padrão, nunca em negrito, sem crase, e é a
     /// última coisa da linha. `tente:` e `abra:` são reservados a erros.
     pub fn hint(&self, label: &str, cmd: &str, indent: &str) -> String {
@@ -236,6 +294,24 @@ mod tests {
     use super::super::testing::*;
     use super::super::Tool;
     use super::*;
+
+    #[test]
+    fn cartao_de_dados_estiliza_no_terminal_e_preserva_o_recuo_fora_dele() {
+        let pares = [
+            ("Nome", "db-01".to_string()),
+            ("", "obs".to_string()),
+            ("SO", "Debian".to_string()),
+        ];
+        let linhas = uni(Tool::Mjsv).data_card("VM db-01", &pares, 12);
+        assert!(linhas[0].starts_with("── VM db-01 "), "{linhas:?}");
+        assert!(
+            linhas[2].ends_with("obs") && linhas[2].starts_with("      "),
+            "{linhas:?}"
+        );
+        let plano = Style::plain(Tool::Mjsv).data_card("VM db-01", &pares, 12);
+        assert_eq!(plano, ["Nome:       db-01", "            obs", "SO:         Debian"]);
+        assert_eq!(Style::plain(Tool::Mjsv).safe("a\u{1b}[31mb"), "a\u{1b}[31mb");
+    }
 
     #[test]
     fn regua_de_titulo_do_cliente_e_de_staff() {

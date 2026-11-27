@@ -4,7 +4,7 @@ use anyhow::{anyhow, Result};
 use mjsv_core::client::Request;
 use mjsv_core::models::Listing;
 use mjsv_core::output::{cell, cell_date, Table};
-use mjsv_core::style::{sanitize, Marker, Style, Tool};
+use mjsv_core::style::{Marker, Style, Tool};
 use mjsv_core::target::Target;
 use mjsv_core::Ctx;
 use serde::Deserialize;
@@ -108,7 +108,7 @@ fn print_me(ctx: &Ctx, me: &Me) {
 fn me_lines(out: &Style, me: &Me, org: Option<&str>, api: &str) -> Vec<String> {
     // Texto da API dentro de um cartão desenhado: sem controle nem bidi. Fora de um terminal
     // estilizado fica o texto de hoje.
-    let safe = |s: String| if out.fancy() { sanitize(&s) } else { s };
+    let safe = |s: String| out.safe(&s);
 
     let org_cell = match org {
         Some(o) => safe(o.to_string()),

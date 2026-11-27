@@ -137,7 +137,7 @@ fn report_login(ctx: &Ctx, identity: &Identity, first: bool) -> Result<()> {
 fn login_view_text(out: &Style, identity: &Identity, first: bool, base_url: &str) -> String {
     // Nome e id vêm da API e entram em arte: sem controle nem bidi. Fora de um terminal estilizado
     // o texto é o de hoje, byte a byte.
-    let safe = |s: &str| if out.fancy() { sanitize(s) } else { s.to_string() };
+    let safe = |s: &str| out.safe(s);
 
     let orgs = match identity.orgs.as_slice() {
         [] => OrgSummary::None,
@@ -205,7 +205,7 @@ pub async fn whoami(ctx: &Ctx) -> Result<()> {
     let identity: Identity = serde_json::from_value(value)?;
 
     let out = Style::stdout(ctx.format, Tool::Mjsv);
-    let safe = |s: &str| if out.fancy() { sanitize(s) } else { s.to_string() };
+    let safe = |s: &str| out.safe(s);
     let dash = |v: &Option<String>| safe(v.as_deref().unwrap_or("-"));
 
     for line in whoami_lines(&out, &identity, ctx.org.as_deref(), ctx.client.base_url(), &safe, &dash) {

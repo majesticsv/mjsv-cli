@@ -132,6 +132,22 @@ backend só descarta sessões do mesmo `serviceId`.
 Em saída de máquina os comandos destrutivos **exigem `--yes`**: não há como perguntar, e um script
 que apaga recurso sem ninguém confirmar é pior do que um que falha.
 
+### Saída no terminal
+
+Quando **stdout** é um terminal, o `mjsv` acrescenta arte (banners, réguas de título, caixas de
+segredo) e marcadores de estado; quando é um **stderr** de terminal, os avisos, erros e prompts
+ganham glifos e cor. Cada fluxo é decidido sozinho: em pipe ou redirecionamento o texto é exatamente
+o de sempre, sem um byte de enfeite.
+
+- `--output json` e `--output yaml` nunca recebem arte nem cor: o corpo da API é repassado como veio.
+- `NO_COLOR` desliga a cor (a arte continua). `TERM=dumb` volta ao texto simples.
+- `MJSV_NO_BANNER=1` suprime banners e ilustrações; glifos e cartões continuam.
+- Terminais sem Unicode usam o desenho ASCII (os acentos do português ficam).
+- Os prompts de confirmação vão para o **stderr**, então `mjsv ... > arquivo` não os engole. Só
+  apagar coisa de alto impacto pede para digitar o nome do recurso; `--yes` pula o prompt, mas não
+  esconde a arte num terminal.
+- `--print-request` não muda.
+
 ### `--print-request`
 
 Mostra a requisição que seria enviada — método, URL, cabeçalhos de alvo e corpo — sem enviá-la. O

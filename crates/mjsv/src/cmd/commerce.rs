@@ -244,16 +244,8 @@ pub async fn coupon(ctx: &Ctx, code: &str) -> Result<()> {
 /// O cartão do cupom (DV-vm-show): régua de título fina e rótulos esmaecidos num terminal; fora
 /// dele, o bloco de hoje, byte a byte (rótulo + dois pontos preenchidos até a coluna 12).
 fn cupom_linhas(out: &Style, linhas: &[(&str, String)]) -> Vec<String> {
-    let Some(regua) = out.title_rule(&format!("Cupom {}", sanitize(&linhas[0].1))) else {
-        return linhas
-            .iter()
-            .map(|(k, v)| format!("{:<12}{v}", format!("{k}:")))
-            .collect();
-    };
-    let limpas: Vec<(&str, String)> = linhas.iter().map(|(k, v)| (*k, sanitize(v))).collect();
-    let mut todas = vec![regua];
-    todas.extend(out.card_rows(&limpas));
-    todas
+    let limpas: Vec<(&str, String)> = linhas.iter().map(|(k, v)| (*k, out.safe(v))).collect();
+    out.data_card(&format!("Cupom {}", linhas[0].1), &limpas, 12)
 }
 
 #[derive(Debug, Deserialize)]
