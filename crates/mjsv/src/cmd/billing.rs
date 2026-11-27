@@ -8,6 +8,7 @@ use mjsv_core::target::Target;
 use mjsv_core::Ctx;
 
 use crate::cli::{OrderCommand, SshKeyCommand, TicketCommand};
+use crate::cmd::commerce;
 use crate::prompt;
 
 // ─────────────────────────── pedidos ───────────────────────────
@@ -90,9 +91,17 @@ async fn order_cancel(ctx: &Ctx, id: &str) -> Result<()> {
 /// Vai pelo `client.download` e não pelo caminho normal: o `send_value` lê a resposta como texto e
 /// tenta parsear JSON, o que transformaria o PDF em uma string reinterpretada como UTF-8 — o
 /// arquivo sairia gravado e não abriria.
-async fn order_invoice(ctx: &Ctx, id: &str, destino: Option<&str>) -> Result<()> {
+///
+/// `via_post` escolhe a rota: `GET invoice-pdf` (normal) ou `POST generate-pdf`. Os dois handlers
+/// chamam o mesmo gerador e devolvem o mesmo PDF; a única diferença é o verbo (o POST responde 201).
+async fn order_invoice(ctx: &Ctx, id: &str, destino: Option<&str>, via_post: bool) -> Result<()> {
     let (_, target) = ctx.org_target()?;
-    let req = Request::get(format!("/order/{id}/invoice-pdf")).target(target);
+    let req = if via_post {
+        Request::post(format!("/order/{id}/generate-pdf"))
+    } else {
+        Request::get(format!("/order/{id}/invoice-pdf"))
+    }
+    .target(target);
 
     if ctx.print_request {
         println!("{}", req.describe(ctx.client.base_url()));
@@ -121,7 +130,19 @@ pub async fn order(ctx: &Ctx, cmd: &OrderCommand) -> Result<()> {
         OrderCommand::Pending => order_list(ctx, "/order/pending", "Nenhum pedido pendente.").await,
         OrderCommand::Show { id } => order_show(ctx, id).await,
         OrderCommand::Cancel { id } => order_cancel(ctx, id).await,
-        OrderCommand::Invoice { id, output } => order_invoice(ctx, id, output.as_deref()).await,
+        OrderCommand::Invoice { id, output } => order_invoice(ctx, id, output.as_deref(), false).await,
+        OrderCommand::GeneratePdf { id, output } => order_invoice(ctx, id, output.as_deref(), true).await,
+        OrderCommand::Delete { id } => commerce::order_delete(ctx, id).await,
+        OrderCommand::Create(args) => commerce::order_create(ctx, args, false).await,
+        OrderCommand::Quote(args) => commerce::order_create(ctx, args, true).await,
+        OrderCommand::Group { orders } => commerce::order_group(ctx, orders).await,
+        OrderCommand::Pay {
+            id,
+            method,
+            use_balance,
+        } => commerce::order_pay(ctx, id, method, *use_balance).await,
+        OrderCommand::Coupon { code } => commerce::coupon(ctx, code).await,
+        OrderCommand::Metadata => commerce::metadata(ctx, "/order/metadata").await,
     }
 }
 
@@ -138,9 +159,23 @@ pub async fn order(ctx: &Ctx, cmd: &OrderCommand) -> Result<()> {
 /// explicitamente.
 pub async fn ticket(ctx: &Ctx, cmd: &TicketCommand) -> Result<()> {
     match cmd {
-        TicketCommand::List => {
+        TicketCommand::List {
+            category,
+            service,
+            page,
+        } => {
+            // As três listagens são ORG: o guard delas resolve a org pelo cabeçalho e filtra por
+            // ela, então um id de categoria/serviço de outra org volta como lista vazia, não 403.
             let (_, target) = ctx.org_target()?;
-            let Some(value) = ctx.run(Request::get("/ticket").target(target)).await? else {
+            let path = match (category, service) {
+                (Some(c), _) => format!("/ticket/category/{c}"),
+                (None, Some(s)) => format!("/ticket/service/{s}"),
+                (None, None) => "/ticket".to_string(),
+            };
+            let req = Request::get(path).target(target);
+            let req = crate::cmd::org::with_page(req, page)?;
+
+            let Some(value) = ctx.run(req).await? else {
                 return Ok(());
             };
 
@@ -152,7 +187,7 @@ pub async fn ticket(ctx: &Ctx, cmd: &TicketCommand) -> Result<()> {
             let listing: Listing<Ticket> = Listing::from_value(value)?;
 
             if listing.data.is_empty() {
-                println!("Nenhum ticket nesta organização.");
+                println!("Nenhum ticket encontrado.");
                 return Ok(());
             }
 
@@ -166,6 +201,57 @@ pub async fn ticket(ctx: &Ctx, cmd: &TicketCommand) -> Result<()> {
                 ]);
             }
             print!("{}", table.render());
+
+            Ok(())
+        }
+
+        TicketCommand::Message { id } => {
+            // Escopo ORG, ao contrário de `ticket messages`: aqui o id é da mensagem, e o guard
+            // só consegue resolver a org (a mensagem de outra org volta 404).
+            let (_, target) = ctx.org_target()?;
+            let req = Request::get(format!("/ticket/message/{id}")).target(target);
+            let Some(value) = ctx.run(req).await? else {
+                return Ok(());
+            };
+
+            if ctx.format.is_machine_readable() {
+                crate::render_value(ctx.format, &value);
+                return Ok(());
+            }
+
+            let listing: Listing<TicketMessage> = Listing::from_value(value)?;
+
+            let Some(m) = listing.data.first() else {
+                println!("Mensagem não encontrada.");
+                return Ok(());
+            };
+
+            let autor = m
+                .author
+                .as_ref()
+                .and_then(|a| a.name.as_deref())
+                .or(m.author_id.as_deref())
+                .unwrap_or("desconhecido");
+            println!("Autor:   {autor}");
+            println!("Data:    {}", cell_date(m.created_at.as_deref()));
+            println!("\n{}", m.content.as_deref().unwrap_or("").trim());
+
+            Ok(())
+        }
+
+        TicketCommand::Reopen { id } => {
+            // Escopo TICKET com o próprio id; o guard resolve a org do ticket e confere o papel lá.
+            let req = Request::put(format!("/ticket/{id}/open")).target(Target::ticket(id));
+            let Some(value) = ctx.run(req).await? else {
+                return Ok(());
+            };
+
+            if ctx.format.is_machine_readable() {
+                crate::render_value(ctx.format, &value);
+                return Ok(());
+            }
+
+            println!("Ticket {id} reaberto.");
 
             Ok(())
         }

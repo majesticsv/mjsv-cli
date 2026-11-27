@@ -256,8 +256,7 @@ pub async fn token(ctx: &Ctx, cmd: &TokenCommand) -> Result<()> {
 }
 
 pub async fn org_list(ctx: &Ctx) -> Result<()> {
-    // As orgs vêm de `/auth/verify` porque `GET /org` é administrativo — um usuário comum toma
-    // 403 nela.
+    // As orgs do usuário vêm de `/auth/verify`.
     let Some(value) = ctx.run(auth::verify_request()).await? else {
         return Ok(());
     };

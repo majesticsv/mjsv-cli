@@ -1,9 +1,8 @@
-//! Núcleo compartilhado pelo `mjsv` (público) e pelo `mjsvadm` (privado).
+//! Núcleo do `mjsv`.
 //!
 //! Aqui fica tudo o que não é comando: cliente HTTP, cabeçalhos de alvo, login, configuração e
-//! renderização. Os dois binários falam com a mesma API, então autenticação e tradução de erro
-//! precisam ser escritas uma vez só — e nada específico de rota administrativa entra aqui, porque
-//! este crate é público.
+//! renderização. Autenticação e tradução de erro
+//! ficam escritas uma vez só.
 
 pub mod auth;
 pub mod client;

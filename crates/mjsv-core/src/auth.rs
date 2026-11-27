@@ -73,8 +73,7 @@ pub fn sign_in_recovery_request(otp_login_token: &str, recovery_code: &str) -> R
 
 /// `GET /auth/verify` — valida o token guardado e devolve identidade + orgs.
 ///
-/// É também o único jeito de um usuário comum descobrir suas organizações: `GET /org` é
-/// administrativo.
+/// É também a fonte das organizações do usuário.
 pub fn verify_request() -> Request {
     Request::get("/auth/verify").target(Target::root())
 }

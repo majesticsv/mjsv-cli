@@ -174,5 +174,23 @@ pub async fn run(ctx: &Ctx, cmd: &VmCommand) -> Result<()> {
         VmCommand::Metrics { id } => metrics(ctx, id).await,
         VmCommand::Console { id } => console(ctx, id).await,
         VmCommand::Firewall(sub) => crate::cmd::fw::run(ctx, sub).await,
+        VmCommand::Resolve { id } => crate::cmd::vm_extra::resolve(ctx, id).await,
+        VmCommand::Incidents { id, filter } => {
+            crate::cmd::incidents::list(ctx, &format!("/vm/{id}/incidents"), Target::vm(id), filter).await
+        }
+        VmCommand::Incident { id, incident } => {
+            crate::cmd::incidents::detail(ctx, &format!("/vm/{id}/incidents/{incident}"), Target::vm(id)).await
+        }
+        VmCommand::Images { id } => crate::cmd::vm_extra::images(ctx, id).await,
+        VmCommand::CloudImages => crate::cmd::vm_extra::cloud_images(ctx).await,
+        VmCommand::Vpcs { id } => crate::cmd::vm_extra::vpcs(ctx, id).await,
+        VmCommand::Move { id, vpc } => crate::cmd::vm_extra::move_vpc(ctx, id, vpc).await,
+        VmCommand::Rebuild { id, image, password } => crate::cmd::vm_extra::rebuild(ctx, id, image, *password).await,
+        VmCommand::ResetPassword { id, password } => crate::cmd::vm_extra::reset_password(ctx, id, *password).await,
+        VmCommand::RootPassword { id } => crate::cmd::vm_extra::root_password(ctx, id).await,
+        VmCommand::SyncDhcpIp { id, ip } => crate::cmd::vm_extra::sync_dhcp_ip(ctx, id, ip.as_deref()).await,
+        VmCommand::VncToken { id } => crate::cmd::vm_extra::vnc_token(ctx, id).await,
+        VmCommand::Update { id, vnc_password } => crate::cmd::vm_extra::update(ctx, id, *vnc_password).await,
+        VmCommand::SshKeys { id, keys, clear } => crate::cmd::vm_extra::ssh_keys(ctx, id, keys, *clear).await,
     }
 }

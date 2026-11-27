@@ -6,6 +6,7 @@ use mjsv_core::target::Target;
 use mjsv_core::Ctx;
 
 use crate::cli::GsCommand;
+use crate::cmd::gs_ext;
 use crate::prompt;
 
 /// Lista os gameservers da organização.
@@ -140,5 +141,15 @@ pub async fn run(ctx: &Ctx, cmd: &GsCommand) -> Result<()> {
         GsCommand::Databases { id } => simple_get(ctx, id, "/databases").await,
         GsCommand::Schedules { id } => simple_get(ctx, id, "/schedules").await,
         GsCommand::Sftp { id } => simple_get(ctx, id, "/sftpuser").await,
+        GsCommand::ByService { service } => gs_ext::by_service(ctx, service).await,
+        GsCommand::Startup { id, env } => gs_ext::startup(ctx, id, env).await,
+        GsCommand::File(c) => gs_ext::run_file(ctx, c).await,
+        GsCommand::Db(c) => gs_ext::run_db(ctx, c).await,
+        GsCommand::Schedule(c) => gs_ext::run_schedule(ctx, c).await,
+        GsCommand::Addon(c) => gs_ext::run_addon(ctx, c).await,
+        GsCommand::Modpack(c) => gs_ext::run_modpack(ctx, c).await,
+        GsCommand::Setup { game } => gs_ext::setup(ctx, game).await,
+        GsCommand::Fields { game } => gs_ext::fields(ctx, game).await,
+        GsCommand::Options { game, field, param } => gs_ext::options(ctx, game, field, param).await,
     }
 }
