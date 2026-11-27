@@ -17,6 +17,7 @@ use serde_json::{json, Value};
 use crate::cli::{
     OrgCommand, OrgInviteCommand, OrgMemberCommand, OrgRoleCommand, OrgServiceCommand, PageArgs, PermArgs,
 };
+use crate::cmd::vm_extra::vai_mostrar_bloco;
 use crate::prompt;
 
 /// Uma frase de sucesso (OK-done): `✓` num terminal, o texto de hoje fora dele.
@@ -110,7 +111,8 @@ async fn create(ctx: &Ctx, name: &str) -> Result<()> {
         return Ok(());
     }
 
-    let id = value.get("id").and_then(Value::as_str).unwrap_or("?");
+    // O id vem do servidor e vai para um terminal: sem ESC nem bidi.
+    let id = sanitize(value.get("id").and_then(Value::as_str).unwrap_or("?"));
     sucesso(
         ctx,
         &format!("Organização criada: {name} ({id}). Use com `mjsv org use {id}`."),
@@ -194,18 +196,30 @@ async fn rename(ctx: &Ctx, org: &str, name: &str) -> Result<()> {
 
 async fn delete(ctx: &Ctx, org: &str) -> Result<()> {
     if !ctx.assume_yes && !ctx.print_request {
-        // Nível 3: a única confirmação do cliente que pede o nome. Uma consulta busca o nome como
-        // o servidor o devolve; se ela falha, recusa (apagar sem ver o que se apaga é pior do que
-        // pedir `--yes`).
-        let value = ctx
-            .client
-            .send_value(&Request::get(format!("/org/{org}")).target(Target::org(org)))
-            .await?;
-        if value.is_null() {
-            return Err(anyhow!("organização {org} não encontrada"));
-        }
-        let view: OrgView = serde_json::from_value(value)?;
-        prompt::confirm_spec(&delete_spec(org, &view), ctx.format)?;
+        // Nível 3: a única confirmação do cliente que pede o nome. A consulta só existe para
+        // desenhar o bloco: sem terminal estilizado (pipe, json/yaml) ela seria uma chamada a
+        // mais que ninguém vê e mudaria o erro que o script recebe. Se ela falha, apagar não
+        // trava: o prompt cai para a frase de hoje (nível 1, com o id) em vez de recusar.
+        let view = if vai_mostrar_bloco(ctx) {
+            match ctx
+                .client
+                .send_value(&Request::get(format!("/org/{org}")).target(Target::org(org)))
+                .await
+            {
+                Ok(v) if !v.is_null() => serde_json::from_value::<OrgView>(v).ok(),
+                _ => None,
+            }
+        } else {
+            None
+        };
+        let spec = match &view {
+            Some(view) => delete_spec(org, view),
+            None => ConfirmSpec::new(
+                Tier::T1,
+                format!("Apagar a organização {org}? Só o dono consegue e os serviços ativos ficam sem dono."),
+            ),
+        };
+        prompt::confirm_spec(&spec, ctx.format)?;
     }
 
     let req = Request::delete(format!("/org/{org}")).target(Target::org(org));
@@ -911,13 +925,18 @@ async fn service(ctx: &Ctx, cmd: &OrgServiceCommand) -> Result<()> {
                 let spec = if *now {
                     // Nível 2: apaga recursos. Uma consulta mostra o nome e o tipo; se ela falha
                     // o prompt degrada para o nível 1 sob a mesma régua e o cancelamento segue.
-                    let view = match ctx
-                        .client
-                        .send_value(&Request::get(format!("/org/{org}/service/{service}")).target(target.clone()))
-                        .await
-                    {
-                        Ok(v) => serde_json::from_value::<ServiceRow>(v).ok(),
-                        Err(_) => None,
+                    // A consulta só enfeita o bloco: sem terminal estilizado ela não é feita.
+                    let view = if vai_mostrar_bloco(ctx) {
+                        match ctx
+                            .client
+                            .send_value(&Request::get(format!("/org/{org}/service/{service}")).target(target.clone()))
+                            .await
+                        {
+                            Ok(v) => serde_json::from_value::<ServiceRow>(v).ok(),
+                            Err(_) => None,
+                        }
+                    } else {
+                        None
                     };
                     cancel_now_spec(&org, service, view.as_ref())
                 } else {

@@ -166,7 +166,7 @@ async fn create(
         "{}",
         estilo_out(ctx).done(&format!(
             "VPC criada: {}. Veja com `mjsv vpc list`.",
-            cell(value.get("id").and_then(Value::as_str))
+            sanitize(&cell(value.get("id").and_then(Value::as_str)))
         ))
     );
 

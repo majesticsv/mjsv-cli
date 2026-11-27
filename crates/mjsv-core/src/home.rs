@@ -15,19 +15,21 @@ use crate::style::{api_host, InfoLine, Style};
 use crate::target::Target;
 
 /// Tempo máximo para TODAS as buscas da tela inicial juntas.
-const BUDGET: Duration = Duration::from_secs(3);
+/// Os ajudantes abaixo são públicos para o `mjsvadm` montar a tela inicial dele no próprio repositório:
+/// a rota de visão geral de infra é só da equipe e não deve morar nesta biblioteca pública.
+pub const BUDGET: Duration = Duration::from_secs(3);
 
-async fn get(client: &Client, req: Request) -> Option<Value> {
+pub async fn get(client: &Client, req: Request) -> Option<Value> {
     client.send_value(&req).await.ok()
 }
 
-fn count_of(value: Value) -> Option<i64> {
+pub fn count_of(value: Value) -> Option<i64> {
     Listing::<Value>::from_value(value)
         .ok()
         .map(|l| l.count.unwrap_or(l.data.len() as i64))
 }
 
-fn plural(n: i64, one: &str, many: &str) -> String {
+pub fn plural(n: i64, one: &str, many: &str) -> String {
     format!("{n} {}", if n == 1 { one } else { many })
 }
 
@@ -111,53 +113,4 @@ pub async fn customer_infos(style: &Style, client: &Client, org: Option<&str>) -
     tokio::time::timeout(BUDGET, work)
         .await
         .unwrap_or_else(|_| vec![InfoLine::text(api_host(client.base_url()))])
-}
-
-/// Linhas para a tela inicial do `mjsvadm` (linhas 6-7; a 5 é a frase fixa de ROOT).
-pub async fn staff_infos(style: &Style, client: &Client) -> Vec<InfoLine> {
-    let host = InfoLine::text(api_host(client.base_url()));
-
-    if !client.has_token() {
-        return vec![InfoLine::kv("sessão", "nenhuma"), InfoLine::kv("próximo", "mjsv login")];
-    }
-
-    let work = async {
-        let identity: Identity = match client.send(&auth::verify_request()).await {
-            Ok(i) => i,
-            Err(crate::error::ApiError::Unauthorized) => {
-                return vec![
-                    InfoLine::kv("sessão", "expirada"),
-                    InfoLine::kv("próximo", "mjsv login"),
-                ];
-            }
-            Err(_) => return vec![host.clone()],
-        };
-        let who = identity.email.clone().or(identity.username.clone()).unwrap_or_default();
-
-        let (overview, orgs) = tokio::join!(
-            get(client, Request::get("/rota/de/staff").target(Target::root())),
-            get(client, Request::get("/org").target(Target::root())),
-        );
-        let vms = overview
-            .as_ref()
-            .and_then(|v| v.pointer("/vms/byState"))
-            .and_then(Value::as_object)
-            .map(|m| {
-                m.values()
-                    .filter_map(|n| n.to_string().trim_matches('"').parse::<i64>().ok())
-                    .sum::<i64>()
-            });
-        let orgs = orgs.and_then(count_of);
-
-        let mut parts = vec![who];
-        if let Some(v) = vms {
-            parts.push(plural(v, "VM", "VMs"));
-        }
-        if let Some(o) = orgs {
-            parts.push(plural(o, "org", "orgs"));
-        }
-        vec![host.clone(), InfoLine::kv("staff", parts.join(style.sep()))]
-    };
-
-    tokio::time::timeout(BUDGET, work).await.unwrap_or_else(|_| vec![host])
 }

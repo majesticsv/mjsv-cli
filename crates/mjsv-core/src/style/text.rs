@@ -13,6 +13,31 @@ pub fn width(s: &str) -> usize {
     UnicodeWidthStr::width(strip_ansi(s).as_str())
 }
 
+/// Quebra uma linha de prosa em `max` células nas palavras, com `hang` de recuo nas continuações.
+/// Linhas que cabem passam intactas; uma palavra maior que a linha (URL, id) nunca é cortada.
+pub fn wrap_words(line: &str, max: usize, hang: &str) -> Vec<String> {
+    if width(line) <= max {
+        return vec![line.to_string()];
+    }
+    let mut out: Vec<String> = Vec::new();
+    let mut cur = String::new();
+    for word in line.split(' ') {
+        if cur.is_empty() {
+            cur.push_str(word);
+        } else if width(&cur) + 1 + width(word) <= max {
+            cur.push(' ');
+            cur.push_str(word);
+        } else {
+            out.push(std::mem::take(&mut cur));
+            cur = format!("{hang}{word}");
+        }
+    }
+    if !cur.is_empty() {
+        out.push(cur);
+    }
+    out
+}
+
 /// Remove sequências CSI (`ESC [ ... letra`).
 pub fn strip_ansi(s: &str) -> String {
     let mut out = String::with_capacity(s.len());

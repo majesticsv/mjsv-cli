@@ -167,11 +167,19 @@ impl Style {
         );
         let mut text = vec![self.bold("Nenhum serviço ainda")];
         text.extend(rows);
-        yard.iter()
+        let lines: Vec<String> = yard
+            .iter()
             .zip(text)
             .map(|(y, t)| format!("{}    {t}", self.dim(y)))
-            .collect::<Vec<_>>()
-            .join("\n")
+            .collect();
+        // A largura do pátio com o texto passa de 60 colunas: medir a arte em vez de confiar no
+        // limiar de `narrow()`, porque uma linha mais larga que o terminal quebra e destrói o
+        // desenho. Cabendo `colunas - 1`, ele aparece; senão, a frase mais a dica.
+        let largura = lines.iter().map(|l| super::text::width(l)).max().unwrap_or(0);
+        if largura > self.caps.width.saturating_sub(1) {
+            return self.empty_hint_plain(sentence, sentence, "comece pelo catálogo", "mjsv product list");
+        }
+        lines.join("\n")
     }
 
     // -- cartões de sucesso ----------------------------------------------------------------------
@@ -433,8 +441,20 @@ pub fn api_host(url: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::super::testing::*;
-    use super::super::{Style, Tool};
+    use super::super::{Charset, Depth, Style, Tool};
     use super::*;
+
+    #[test]
+    fn patio_so_aparece_se_couber_no_terminal() {
+        let largo = Style::terminal(Tool::Mjsv, Charset::Unicode, Depth::None, 100);
+        assert!(largo.empty_courtyard().lines().count() > 2);
+        // 60 a 65 colunas: o pátio com o texto tem 66 células e quebraria o desenho.
+        let medio = Style::terminal(Tool::Mjsv, Charset::Unicode, Depth::None, 62);
+        assert!(medio.empty_courtyard().starts_with("Nenhum serviço."));
+        for l in largo.empty_courtyard().lines() {
+            assert!(super::super::text::width(l) <= 99);
+        }
+    }
 
     #[test]
     fn glifos_so_em_terminal_estilizado() {

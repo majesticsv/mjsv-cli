@@ -4,7 +4,7 @@ use anyhow::{anyhow, Result};
 use mjsv_core::client::Request;
 use mjsv_core::models::{Listing, Order, SshKey, Ticket, TicketMessage};
 use mjsv_core::output::{cell, cell_date, Table};
-use mjsv_core::style::{CardError, ConfirmSpec, Style, Tier, Tool};
+use mjsv_core::style::{sanitize, CardError, ConfirmSpec, Style, Tier, Tool};
 use mjsv_core::target::Target;
 use mjsv_core::Ctx;
 
@@ -51,12 +51,14 @@ async fn order_list(ctx: &Ctx, path: &str, titulo_vazio: &str, vazio: Vazio) -> 
         return Ok(());
     }
 
+    // Vírgula só quando a tabela sai estilizada; um pipe segue vendo o ponto de hoje.
+    let styled = Style::stdout(ctx.format, Tool::Mjsv).fancy();
     let mut table = Table::new(&["id", "status", "total", "vencimento", "criado"]);
     for o in &listing.data {
         table.push(vec![
             cell(o.id.as_deref()),
             cell(o.status.as_deref()),
-            o.valor_formatado(),
+            o.valor(styled),
             cell_date(o.due_date.as_deref()),
             cell_date(o.created_at.as_deref()),
         ]);
@@ -375,7 +377,8 @@ pub async fn ticket(ctx: &Ctx, cmd: &TicketCommand) -> Result<()> {
             let criado: Ticket = serde_json::from_value(value)?;
             println!(
                 "{}",
-                Style::stdout(ctx.format, Tool::Mjsv).done(&format!("Ticket {} aberto.", cell(criado.id.as_deref())))
+                Style::stdout(ctx.format, Tool::Mjsv)
+                    .done(&format!("Ticket {} aberto.", sanitize(&cell(criado.id.as_deref()))))
             );
 
             Ok(())
@@ -460,6 +463,9 @@ pub async fn ssh_key(ctx: &Ctx, cmd: &SshKeyCommand) -> Result<()> {
                 return Ok(());
             }
 
+            // Num terminal ASCII as reticências viram `...`; um pipe mantém o `…` de hoje.
+            let estilo = Style::stdout(ctx.format, Tool::Mjsv);
+            let reticencias = if estilo.fancy() { estilo.ellipsis() } else { "…" };
             let mut table = Table::new(&["id", "nome", "impressão", "criada"]);
             for k in &listing.data {
                 table.push(vec![
@@ -469,7 +475,7 @@ pub async fn ssh_key(ctx: &Ctx, cmd: &SshKeyCommand) -> Result<()> {
                     // estoura a linha sem dizer nada a mais.
                     k.public_key
                         .as_deref()
-                        .map(resumo_da_chave)
+                        .map(|k| resumo_da_chave(k, reticencias))
                         .unwrap_or_else(|| "-".into()),
                     cell_date(k.created_at.as_deref()),
                 ]);
@@ -567,13 +573,14 @@ fn erro_chave_privada(file: &str, conteudo: &str, plain: String) -> anyhow::Erro
     .into()
 }
 
-fn resumo_da_chave(chave: &str) -> String {
+/// `reticencias` é `…` no texto de hoje (pipe) e o que o estilo pedir num terminal (`...` em ASCII).
+fn resumo_da_chave(chave: &str, reticencias: &str) -> String {
     let mut partes = chave.split_whitespace();
     let tipo = partes.next().unwrap_or("");
     let corpo = partes.next().unwrap_or("");
 
     if corpo.len() > 16 {
-        format!("{tipo} …{}", &corpo[corpo.len() - 12..])
+        format!("{tipo} {reticencias}{}", &corpo[corpo.len() - 12..])
     } else {
         chave.to_string()
     }
@@ -586,7 +593,7 @@ mod tests {
     #[test]
     fn resumo_mostra_o_tipo_e_o_fim_da_chave() {
         let k = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKcFmsr7z8QwEXEMPLO usuario@maquina";
-        let r = resumo_da_chave(k);
+        let r = resumo_da_chave(k, "…");
 
         assert!(r.starts_with("ssh-ed25519 …"), "{r}");
         assert!(r.ends_with("QwEXEMPLO"), "{r}");
@@ -594,7 +601,7 @@ mod tests {
 
     #[test]
     fn chave_curta_demais_sai_inteira() {
-        assert_eq!(resumo_da_chave("ssh-rsa AAAA"), "ssh-rsa AAAA");
+        assert_eq!(resumo_da_chave("ssh-rsa AAAA", "…"), "ssh-rsa AAAA");
     }
 
     #[test]

@@ -64,12 +64,10 @@ pub struct LoginRefused {
 
 impl std::fmt::Display for LoginRefused {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(match self.stage {
-            LoginStage::Any => "login recusado: usuário, senha ou código 2FA não conferem",
-            LoginStage::Password => "login recusado: usuário ou senha não conferem",
-            LoginStage::OtpCode => "login recusado: código 2FA não confere",
-            LoginStage::RecoveryCode => "login recusado: código de recuperação não confere",
-        })
+        // Um texto só, o da especificação (ER-login), com ou sem terminal: a API não diz qual das
+        // etapas errou de forma confiável, e a frase por etapa fazia o stderr de um pipe divergir
+        // do contrato. A etapa fica no tipo para quem quiser distinguir no código.
+        f.write_str("login recusado: usuário, senha ou código 2FA não conferem")
     }
 }
 

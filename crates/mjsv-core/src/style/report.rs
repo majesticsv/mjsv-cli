@@ -12,7 +12,7 @@ use crate::config::{Credentials, API_URL_ENV, TOKEN_ENV};
 use crate::error::{ApiError, LoginRefused, OrgNotInAccount, TokenRefused};
 use crate::prompt::{NoTerminalHint, PromptError};
 
-use super::text::{sanitize, width};
+use super::text::{sanitize, width, wrap_words};
 use super::{Glyph, Style};
 
 /// Um erro que carrega o próprio cartão. É a saída de emergência para código de comando que quer
@@ -177,6 +177,7 @@ impl Style {
                 || top.is::<LoginRefused>()
                 || top.is::<TokenRefused>()
                 || top.is::<OrgNotInAccount>()
+                || (top.is::<serde_json::Error>() && err.chain().count() == 1)
         });
         // "organização X não encontrada" é um 404 decidido no cliente (erro de texto puro, sem
         // contexto por cima): mesmo cartão do 404.
@@ -195,6 +196,15 @@ impl Style {
             l
         } else if let Some(e) = err.downcast_ref::<ApiError>() {
             self.api_card(e, rc)
+        } else if let Some(e) = err.downcast_ref::<serde_json::Error>() {
+            // Corpo de forma errada decodificado pelo próprio comando: o mesmo cartão de ER-decode.
+            self.api_card(
+                &ApiError::Decode {
+                    path: crate::client::last_path(),
+                    message: e.to_string(),
+                },
+                rc,
+            )
         } else if let Some(e) = err.downcast_ref::<PromptError>() {
             self.prompt_card(e)
         } else if let Some(e) = err.downcast_ref::<LoginRefused>() {
@@ -326,7 +336,12 @@ impl Style {
                 } else {
                     l.push(pair);
                 }
-                l.push(format!("{i}{cause}"));
+                // A explicação é prosa: quebra em `colunas - 1` com o recuo do bloco.
+                l.extend(wrap_words(
+                    &format!("{i}{cause}"),
+                    self.caps.width.saturating_sub(1).max(20),
+                    i,
+                ));
                 l.push(self.hint_default("tente", hint));
                 l
             }
@@ -595,13 +610,24 @@ mod tests {
                 },
                 &rc()
             ),
-            "erro: login recusado: usuário ou senha não conferem"
+            "erro: login recusado: usuário, senha ou código 2FA não conferem"
         );
         assert_eq!(
             render(&p, anyhow::anyhow!("nada a alterar"), &rc()),
             "erro: nada a alterar"
         );
         assert_eq!(render(&p, PromptError::Cancelled, &rc()), "erro: cancelado");
+    }
+
+    #[test]
+    fn corpo_de_forma_errada_vira_o_cartao_de_decode_so_no_terminal() {
+        let e = serde_json::from_value::<Vec<u8>>(serde_json::json!("<html>")).unwrap_err();
+        let texto = e.to_string();
+        let card = render(&uni(Tool::Mjsv), e, &rc());
+        assert!(card.starts_with("✗ Resposta inesperada da API"), "{card}");
+        assert!(card.contains("tente: mjsv --version"), "{card}");
+        let e = serde_json::from_value::<Vec<u8>>(serde_json::json!("<html>")).unwrap_err();
+        assert_eq!(render(&Style::plain(Tool::Mjsv), e, &rc()), format!("erro: {texto}"));
     }
 
     #[test]

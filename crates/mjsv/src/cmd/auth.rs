@@ -224,16 +224,16 @@ fn whoami_lines(
     safe: &dyn Fn(&str) -> String,
     dash: &dyn Fn(&Option<String>) -> String,
 ) -> Vec<String> {
-    // Sem organização, o marcador `▲` mora dentro da célula do valor; sem terminal estilizado o
-    // texto é o da especificação (a dica entra na própria linha, em vez de ficar só no erro
-    // seguinte).
+    // Sem organização, o marcador `▲` e a dica moram dentro da célula do valor. Sem terminal
+    // estilizado o texto é o de hoje, byte a byte: o contrato de pipe vale mais que o bloco
+    // `plain` da especificação, que acrescentava a dica.
     let org_cell = match org {
         Some(o) => safe(o),
         None if out.fancy() => format!(
             "{} nenhuma selecionada (mjsv org use <id>)",
             out.marker(Marker::Attention)
         ),
-        None => "(nenhuma selecionada — `mjsv org use <id>`)".to_string(),
+        None => "(nenhuma selecionada)".to_string(),
     };
 
     let mut lines = Vec::new();
@@ -481,7 +481,7 @@ mod tests {
     }
 
     #[test]
-    fn whoami_sem_org_usa_marcador_na_celula_e_texto_da_spec_no_pipe() {
+    fn whoami_sem_org_usa_marcador_na_celula_e_texto_de_hoje_no_pipe() {
         let id = identity(&[]);
         let safe = |s: &str| s.to_string();
         let dash = |v: &Option<String>| v.clone().unwrap_or_else(|| "-".into());
@@ -495,7 +495,7 @@ mod tests {
         let linhas = whoami_lines(&pipe, &id, None, "https://api", &safe, &dash);
         assert_eq!(linhas.len(), 6);
         assert_eq!(linhas[0], "Usuário:      ana");
-        assert_eq!(linhas[4], "Organização:  (nenhuma selecionada — `mjsv org use <id>`)");
+        assert_eq!(linhas[4], "Organização:  (nenhuma selecionada)");
         assert_eq!(linhas[5], "API:          https://api");
     }
 

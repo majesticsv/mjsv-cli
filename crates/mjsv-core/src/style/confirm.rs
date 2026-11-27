@@ -7,7 +7,7 @@
 
 use unicode_normalization::UnicodeNormalization;
 
-use super::text::{is_clean, width};
+use super::text::{is_clean, width, wrap_words};
 use super::{Glyph, RuleSpec, Style};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -155,6 +155,11 @@ impl ConfirmSpec {
         }
     }
 
+    /// Quebra uma linha de prosa em `colunas - 1` (ver [`wrap_words`]).
+    fn fit(&self, s: &Style, line: String, hang: &str) -> Vec<String> {
+        wrap_words(&line, s.caps.width.saturating_sub(1).max(20), hang)
+    }
+
     /// O texto da pergunta, pronto para escrever (termina em espaço, sem quebra de linha final).
     pub fn render(&self, s: &Style) -> String {
         let yn = || s.bold("[s/N]");
@@ -209,20 +214,20 @@ impl ConfirmSpec {
                 let tail = format!(" {}", self.ask);
                 if width(&full) > 72 && self.sentence.ends_with(&tail) {
                     let body = &self.sentence[..self.sentence.len() - tail.len()];
-                    lines.push(body.to_string());
+                    lines.extend(self.fit(s, body.to_string(), ind));
                     lines.push(format!("{} {}", self.ask, yn()));
                 } else {
-                    lines.push(format!("{} {}", self.sentence, yn()));
+                    lines.extend(self.fit(s, format!("{} {}", self.sentence, yn()), ""));
                 }
             }
             // CF-A0: `[#]` e a pergunta de hoje.
-            (Tier::T0, true) => lines.push(format!("{lead} {} {}", self.sentence, yn())),
+            (Tier::T0, true) => lines.extend(self.fit(s, format!("{lead} {} {}", self.sentence, yn()), ind)),
             // CF-1: aviso + frase quebrada na coluna de texto; com linhas, a cabeça em negrito.
             (Tier::T1, false) => {
                 if self.rows.is_empty() {
-                    lines.push(format!("{lead} {}", self.derived_head()));
+                    lines.extend(self.fit(s, format!("{lead} {}", self.derived_head()), ind));
                 } else {
-                    lines.push(format!("{lead} {}", s.bold(&self.derived_head())));
+                    lines.extend(self.fit(s, format!("{lead} {}", s.bold(&self.derived_head())), ind));
                     lines.extend(rows);
                 }
                 lines.push(ask_line(ind));
@@ -230,9 +235,9 @@ impl ConfirmSpec {
             // CF-A1: `[#]` + a pergunta + a linha `org:`; sem linhas, a pergunta inteira numa linha.
             (Tier::T1, true) => {
                 if self.rows.is_empty() {
-                    lines.push(format!("{lead} {} {}", self.sentence, yn()));
+                    lines.extend(self.fit(s, format!("{lead} {} {}", self.sentence, yn()), ind));
                 } else {
-                    lines.push(format!("{lead} {}", s.bold(&self.derived_head())));
+                    lines.extend(self.fit(s, format!("{lead} {}", s.bold(&self.derived_head())), ind));
                     lines.extend(rows);
                     lines.push(ask_line(ind));
                 }
@@ -242,9 +247,9 @@ impl ConfirmSpec {
             (Tier::T2, _) | (Tier::T3, _) => {
                 lines.push(rule(false));
                 if self.rows.is_empty() {
-                    lines.push(format!("{lead} {}", self.derived_head()));
+                    lines.extend(self.fit(s, format!("{lead} {}", self.derived_head()), ind));
                 } else {
-                    lines.push(format!("{lead} {}", s.bold(&self.derived_head())));
+                    lines.extend(self.fit(s, format!("{lead} {}", s.bold(&self.derived_head())), ind));
                     lines.extend(rows);
                 }
                 if let Some(n) = &self.note {
@@ -269,8 +274,22 @@ impl ConfirmSpec {
 #[cfg(test)]
 mod tests {
     use super::super::testing::*;
-    use super::super::{Style, Tool};
+    use super::super::{Charset, Depth, Style, Tool};
     use super::*;
+
+    #[test]
+    fn prosa_quebra_em_colunas_menos_um_com_recuo() {
+        let st = Style::terminal(Tool::Mjsv, Charset::Unicode, Depth::None, 40);
+        let sp = ConfirmSpec::new(
+            Tier::T1,
+            "Matar a VM k3TqZ agora? O processo é interrompido sem aviso. Continuar?",
+        );
+        let texto = sp.render(&st);
+        for l in texto.lines() {
+            assert!(width(l) <= 39, "{l}");
+        }
+        assert!(texto.lines().count() >= 3, "{texto}");
+    }
 
     #[test]
     fn fora_do_terminal_e_a_frase_de_hoje() {
