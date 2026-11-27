@@ -2,6 +2,7 @@ use anyhow::Result;
 use mjsv_core::client::Request;
 use mjsv_core::models::{GameServer, Listing};
 use mjsv_core::output::{cell, Table};
+use mjsv_core::style::{ConfirmSpec, Style, Tier, Tool};
 use mjsv_core::target::Target;
 use mjsv_core::Ctx;
 
@@ -29,7 +30,16 @@ async fn list(ctx: &Ctx) -> Result<()> {
     let listing: Listing<GameServer> = serde_json::from_value(value)?;
 
     if listing.data.is_empty() {
-        println!("Nenhum gameserver nesta organização.");
+        // EM-hint: o cliente novo cai aqui no primeiro dia; fora de um terminal é a frase de hoje.
+        let out = Style::stdout(ctx.format, Tool::Mjsv);
+        println!(
+            "{}",
+            out.empty_hint(
+                "Nenhum gameserver nesta organização.",
+                "comece pelo catálogo",
+                "mjsv product list"
+            )
+        );
         return Ok(());
     }
 
@@ -66,8 +76,10 @@ async fn show(ctx: &Ctx, id: &str) -> Result<()> {
 /// pedido.
 async fn power(ctx: &Ctx, id: &str, action: &str) -> Result<()> {
     if action == "kill" && !ctx.assume_yes && !ctx.print_request {
-        prompt::confirm(
-            &format!("`kill` mata o processo do gameserver {id} sem salvar. Continuar?"),
+        // CF-1: perda de serviço, recuperável; só dados em mãos (sem consulta extra).
+        let frase = format!("`kill` mata o processo do gameserver {id} sem salvar. Continuar?");
+        prompt::confirm_spec(
+            &ConfirmSpec::new(Tier::T1, frase).head(format!("`kill` mata o processo do gameserver {id} sem salvar.")),
             ctx.format,
         )?;
     }
@@ -85,7 +97,10 @@ async fn power(ctx: &Ctx, id: &str, action: &str) -> Result<()> {
         return Ok(());
     }
 
-    println!("Pedido `{action}` enviado para {id}.");
+    // O `Acompanhe com` do spec citaria um comando que o gameserver não tem (`gs power`): o texto
+    // fica o de hoje e só o glifo `○` muda — o servidor ainda não está no estado pedido.
+    let out = Style::stdout(ctx.format, Tool::Mjsv);
+    println!("{}", out.accepted(&format!("Pedido `{action}` enviado para {id}.")));
 
     Ok(())
 }
@@ -93,12 +108,20 @@ async fn power(ctx: &Ctx, id: &str, action: &str) -> Result<()> {
 /// Reinstala o gameserver — mesma forma de `power`: id só no cabeçalho, corpo vazio.
 async fn reinstall(ctx: &Ctx, id: &str) -> Result<()> {
     if !ctx.assume_yes && !ctx.print_request {
-        prompt::confirm(
-            &format!(
-                "Reinstalar {id} reexecuta o script de instalação e pode sobrescrever arquivos do servidor. Continuar?"
-            ),
-            ctx.format,
-        )?;
+        // CF-2: apaga/sobrescreve arquivos de um recurso. Uma consulta traz o nome para o bloco;
+        // se falhar o prompt degrada para o nível 1 sob a mesma régua (nunca bloqueia).
+        let frase = format!(
+            "Reinstalar {id} reexecuta o script de instalação e pode sobrescrever arquivos do servidor. Continuar?"
+        );
+        let mut spec = ConfirmSpec::new(Tier::T2, frase)
+            .destructive()
+            .head(format!("Reinstalar o gameserver {id}?"))
+            .note("Reexecuta o script de instalação e pode sobrescrever arquivos do servidor.");
+        if let Some(nome) = gs_ext::nome_do_gameserver(ctx, id).await {
+            spec = spec.head(format!("Reinstalar o gameserver {nome}?"));
+            spec = gs_ext::linhas_do_gameserver(ctx, spec, &nome, id);
+        }
+        prompt::confirm_spec(&spec, ctx.format)?;
     }
 
     let req = Request::post("/gameserver/reinstall").target(Target::gameserver(id));
@@ -112,7 +135,8 @@ async fn reinstall(ctx: &Ctx, id: &str) -> Result<()> {
         return Ok(());
     }
 
-    println!("Reinstalação de {id} iniciada.");
+    let out = Style::stdout(ctx.format, Tool::Mjsv);
+    println!("{}", out.accepted(&format!("Reinstalação de {id} iniciada.")));
 
     Ok(())
 }
