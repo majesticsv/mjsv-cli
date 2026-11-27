@@ -701,10 +701,10 @@ fn dv_cartoes() {
         v
     });
     check("DV-adm-whoami", Tool::Mjsvadm, |s| {
-        let mut v = vec![s.title_rule("Staff joao.silva").unwrap()];
+        let mut v = vec![s.title_rule("Staff staff.demo").unwrap()];
         v.extend(s.card_rows(&[
-            ("Usuário", "joao.silva".to_string()),
-            ("E-mail", "joao.silva@mjsv.io".into()),
+            ("Usuário", "staff.demo".to_string()),
+            ("E-mail", "staff.demo@mjsv.io".into()),
             ("Id", "Aa1Bc".into()),
             ("Permissões", "0x7FFFFFFF".into()),
             ("Contexto", s.paint(Sty::Plate, "ROOT / 0000")),

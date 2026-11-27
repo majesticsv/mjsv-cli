@@ -2321,25 +2321,25 @@
  },
  "DV-adm-whoami": {
   "plain": [
-   "Usuário:     joao.silva",
-   "E-mail:      joao.silva@mjsv.io",
+   "Usuário:     staff.demo",
+   "E-mail:      staff.demo@mjsv.io",
    "Id:          Aa1Bc",
    "Permissões:  0x7FFFFFFF",
    "Contexto:    ROOT / 0000"
   ],
   "unicode": {
    "none": [
-    "══ Staff joao.silva ════════════════════════════════════════",
-    "Usuário:     joao.silva",
-    "E-mail:      joao.silva@mjsv.io",
+    "══ Staff staff.demo ════════════════════════════════════════",
+    "Usuário:     staff.demo",
+    "E-mail:      staff.demo@mjsv.io",
     "Id:          Aa1Bc",
     "Permissões:  0x7FFFFFFF",
     "Contexto:    ROOT / 0000"
    ],
    "true": [
-    "\u001b[38;2;214;31;38m══\u001b[0m \u001b[1mStaff joao.silva\u001b[0m \u001b[38;2;214;31;38m════════════════════════════════════════\u001b[0m",
-    "\u001b[2mUsuário:\u001b[0m     joao.silva",
-    "\u001b[2mE-mail:\u001b[0m      joao.silva@mjsv.io",
+    "\u001b[38;2;214;31;38m══\u001b[0m \u001b[1mStaff staff.demo\u001b[0m \u001b[38;2;214;31;38m════════════════════════════════════════\u001b[0m",
+    "\u001b[2mUsuário:\u001b[0m     staff.demo",
+    "\u001b[2mE-mail:\u001b[0m      staff.demo@mjsv.io",
     "\u001b[2mId:\u001b[0m          Aa1Bc",
     "\u001b[2mPermissões:\u001b[0m  0x7FFFFFFF",
     "\u001b[2mContexto:\u001b[0m    \u001b[1;38;2;255;255;255;48;2;214;31;38mROOT / 0000\u001b[0m"
@@ -2347,17 +2347,17 @@
   },
   "ascii": {
    "none": [
-    "== Staff joao.silva ========================================",
-    "Usuário:     joao.silva",
-    "E-mail:      joao.silva@mjsv.io",
+    "== Staff staff.demo ========================================",
+    "Usuário:     staff.demo",
+    "E-mail:      staff.demo@mjsv.io",
     "Id:          Aa1Bc",
     "Permissões:  0x7FFFFFFF",
     "Contexto:    ROOT / 0000"
    ],
    "true": [
-    "\u001b[38;2;214;31;38m==\u001b[0m \u001b[1mStaff joao.silva\u001b[0m \u001b[38;2;214;31;38m========================================\u001b[0m",
-    "\u001b[2mUsuário:\u001b[0m     joao.silva",
-    "\u001b[2mE-mail:\u001b[0m      joao.silva@mjsv.io",
+    "\u001b[38;2;214;31;38m==\u001b[0m \u001b[1mStaff staff.demo\u001b[0m \u001b[38;2;214;31;38m========================================\u001b[0m",
+    "\u001b[2mUsuário:\u001b[0m     staff.demo",
+    "\u001b[2mE-mail:\u001b[0m      staff.demo@mjsv.io",
     "\u001b[2mId:\u001b[0m          Aa1Bc",
     "\u001b[2mPermissões:\u001b[0m  0x7FFFFFFF",
     "\u001b[2mContexto:\u001b[0m    \u001b[1;38;2;255;255;255;48;2;214;31;38mROOT / 0000\u001b[0m"

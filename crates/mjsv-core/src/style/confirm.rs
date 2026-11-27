@@ -7,7 +7,7 @@
 
 use unicode_normalization::UnicodeNormalization;
 
-use super::text::{is_clean, width, wrap_words};
+use super::text::{is_clean, sanitize, width, wrap_words};
 use super::{Glyph, RuleSpec, Style};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -162,7 +162,6 @@ impl ConfirmSpec {
 
     /// O texto da pergunta, pronto para escrever (termina em espaço, sem quebra de linha final).
     pub fn render(&self, s: &Style) -> String {
-        let yn = || s.bold("[s/N]");
         let typed_plain = |name: &str| format!("{} Digite {name} para confirmar: ", self.sentence);
 
         if !s.fancy() {
@@ -172,6 +171,29 @@ impl ConfirmSpec {
             };
         }
 
+        // Tudo o que a API devolveu (nome, org, nó) vai para o cartão exatamente na hora em que o
+        // operador decide algo destrutivo; um nome com ESC/OSC/bidi não pode repintar esse momento.
+        // Só o desenho é saneado: a frase de hoje e o nome digitado (`typed`) ficam como estão.
+        self.sanitized().render_styled(s)
+    }
+
+    /// Cópia com os textos de exibição sem controles, bidi e largura zero.
+    fn sanitized(&self) -> ConfirmSpec {
+        let mut c = self.clone();
+        c.sentence = sanitize(&c.sentence);
+        c.head = c.head.as_deref().map(sanitize);
+        c.ask = sanitize(&c.ask);
+        c.note = c.note.as_deref().map(sanitize);
+        c.tag = c.tag.as_deref().map(sanitize);
+        for (k, v) in &mut c.rows {
+            *k = sanitize(k);
+            *v = sanitize(v);
+        }
+        c
+    }
+
+    fn render_styled(&self, s: &Style) -> String {
+        let yn = || s.bold("[s/N]");
         let staff = s.staff();
         let ind = if staff { s.root_indent() } else { s.indent() };
         // Cabeça do bloco: `[#]` em staff, `▲` no cliente.
@@ -276,6 +298,24 @@ mod tests {
     use super::super::testing::*;
     use super::super::{Charset, Depth, Style, Tool};
     use super::*;
+
+    #[test]
+    fn cartao_saneia_o_que_veio_da_api() {
+        let st = Style::terminal(Tool::Mjsvadm, Charset::Unicode, Depth::None, 80);
+        let evil = "ev\x1b[31mil\x1b]0;pwn\x07\u{202e}knab\u{200b}\u{85}ok";
+        let sp = ConfirmSpec::new(Tier::T2, format!("Remover a VM {evil}? Continuar?"))
+            .head(format!("Remover a VM {evil}?"))
+            .row("VM", evil)
+            .note(evil);
+        let out = sp.render(&st);
+        assert!(
+            !out.chars()
+                .any(|c| c == '\x1b' || c == '\x07' || c == '\u{202e}' || c == '\u{200b}' || c == '\u{85}'),
+            "{out:?}"
+        );
+        // Fora do terminal a frase de hoje não muda.
+        assert!(sp.render(&Style::plain(Tool::Mjsvadm)).contains('\x1b'));
+    }
 
     #[test]
     fn prosa_quebra_em_colunas_menos_um_com_recuo() {

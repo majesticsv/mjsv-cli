@@ -119,7 +119,8 @@ impl Style {
         } else {
             super::art::COMPACT_ASCII
         }) + 1;
-        let with_crown = spec.crown && !self.narrow() && used + crown_w < n;
+        // A coroa é arte: `MJSV_NO_BANNER` a remove (a régua termina na tag).
+        let with_crown = spec.crown && self.art() && !self.narrow() && used + crown_w < n;
         let tail = if with_crown { crown_w } else { 0 };
         segs.push((Some(rs), ch.repeat(n.saturating_sub(used + tail))));
 
@@ -334,6 +335,15 @@ mod tests {
         assert!(a.starts_with("== STAFF / ROOT == SEM VOLTA ="), "{a}");
         assert!(a.ends_with(r" \_/^\_/"), "{a}");
         assert_eq!(width(&a), 60);
+    }
+
+    #[test]
+    fn sem_banner_a_coroa_da_regua_sai() {
+        let mut s = uni(Tool::Mjsvadm);
+        s.caps.no_banner = true;
+        let r = s.rule(&RuleSpec::new().staff().plate().tag("SEM VOLTA").crown());
+        assert!(!r.contains('█'), "{r}");
+        assert_eq!(width(&r), 60);
     }
 
     #[test]

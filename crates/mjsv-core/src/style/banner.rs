@@ -214,7 +214,7 @@ mod tests {
             "mjsvadm 0.3.0",
             &[
                 InfoLine::text("courtyard-api.mjsv.io"),
-                InfoLine::kv("staff", "joao.silva@mjsv.io, 214 VMs, 58 orgs"),
+                InfoLine::kv("staff", "staff.demo@mjsv.io, 214 VMs, 58 orgs"),
             ],
         );
         let want = r#"         /\             == STAFF / ROOT =================
@@ -224,7 +224,7 @@ mod tests {
 |  |_| |_  _| |_|  |    A D M   mjsvadm 0.3.0
 |        \/        |    [#] comandos afetam toda a plataforma
 '-._    .--.    _.-'    courtyard-api.mjsv.io
-    '--|####|--'        staff: joao.silva@mjsv.io, 214 VMs, 58 orgs"#;
+    '--|####|--'        staff: staff.demo@mjsv.io, 214 VMs, 58 orgs"#;
         assert_eq!(l.join("\n"), want);
     }
 

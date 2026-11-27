@@ -11,12 +11,13 @@ use serde_json::Value;
 use crate::auth;
 use crate::client::{Client, Request};
 use crate::models::{Identity, Listing};
-use crate::style::{api_host, InfoLine, Style};
+use crate::style::{api_host, sanitize, InfoLine, Style};
 use crate::target::Target;
 
-/// Tempo máximo para TODAS as buscas da tela inicial juntas.
 /// Os ajudantes abaixo são públicos para o `mjsvadm` montar a tela inicial dele no próprio repositório:
 /// a rota de visão geral de infra é só da equipe e não deve morar nesta biblioteca pública.
+///
+/// Tempo máximo para TODAS as buscas da tela inicial juntas.
 pub const BUDGET: Duration = Duration::from_secs(3);
 
 pub async fn get(client: &Client, req: Request) -> Option<Value> {
@@ -80,6 +81,8 @@ pub async fn customer_infos(style: &Style, client: &Client, org: Option<&str>) -
             .and_then(|o| o.name.clone())
             .map(|n| format!("{n} ({org_id})"))
             .unwrap_or_else(|| org_id.to_string());
+        // Nome de org vem da API: um NEL ou ESC racharia a linha do banner.
+        let name = sanitize(&name);
 
         let (vms, gss) = tokio::join!(
             get(
