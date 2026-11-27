@@ -1,14 +1,15 @@
 //! Corpo `multipart/form-data` montado por quem chama.
 //!
 //! O backend usa `nestjs-form-data`, e cada rota escolhe os próprios nomes de parte (`file` e
-//! `filePath` na escrita de arquivo do gameserver; `data` e `icon` na criação de produto; `icon` ou
-//! `builtin` na troca de ícone). Por isso o cliente não conhece nenhum nome: quem chama diz o
+//! `filePath` na escrita de arquivo do gameserver, por exemplo). Por isso o cliente não conhece nenhum nome: quem chama diz o
 //! nome, o nome do arquivo e o tipo de cada parte.
 //!
 //! O formulário é um valor (`Clone`, `Debug`) que viaja dentro do [`Request`](crate::Request): o
 //! mesmo objeto que vai para a rede é o que o `--print-request` descreve.
 
 use anyhow::{anyhow, Result};
+
+use crate::style::sanitize;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 enum Content {
@@ -74,15 +75,18 @@ impl Form {
         Ok(self)
     }
 
+    #[doc(hidden)]
     pub fn len(&self) -> usize {
         self.parts.len()
     }
 
+    #[doc(hidden)]
     pub fn is_empty(&self) -> bool {
         self.parts.is_empty()
     }
 
     /// Nomes das partes, na ordem de envio.
+    #[doc(hidden)]
     pub fn names(&self) -> Vec<&str> {
         self.parts.iter().map(|p| p.name.as_str()).collect()
     }
@@ -125,9 +129,10 @@ impl Form {
             match &p.content {
                 Content::Text(v) => {
                     out.push_str(&format!(
-                        "  [{n}] {} — campo de texto, {} bytes\n      valor: {v}\n",
-                        p.name,
-                        v.len()
+                        "  [{n}] {} — campo de texto, {} bytes\n      valor: {}\n",
+                        sanitize(&p.name),
+                        v.len(),
+                        sanitize(v)
                     ));
                 }
                 Content::File {
@@ -136,8 +141,9 @@ impl Form {
                     bytes,
                 } => {
                     out.push_str(&format!(
-                        "  [{n}] {} — arquivo `{filename}`, {} bytes, {}\n",
-                        p.name,
+                        "  [{n}] {} — arquivo `{}`, {} bytes, {}\n",
+                        sanitize(&p.name),
+                        sanitize(filename),
                         bytes.len(),
                         content_type.as_deref().unwrap_or("sem content-type"),
                     ));
@@ -159,9 +165,9 @@ mod tests {
             .text("data", "{}")
             .file("icon", "a.png", Some("image/png"), vec![1, 2, 3])
             .unwrap()
-            .text("builtin", "/i/apps/x.webp");
+            .text("meta", "x");
 
-        assert_eq!(f.names(), ["data", "icon", "builtin"]);
+        assert_eq!(f.names(), ["data", "icon", "meta"]);
         assert_eq!(f.len(), 3);
         assert!(!f.is_empty());
         assert!(Form::new().is_empty());
@@ -201,6 +207,16 @@ mod tests {
         assert!(d.contains(r#"valor: {"name":"vps"}"#), "{d}");
         assert!(d.contains("[2] icon — arquivo `logo.png`, 17 bytes, image/png"), "{d}");
         assert!(!d.contains("SEGREDO"), "{d}");
+    }
+
+    #[test]
+    fn descricao_nao_deixa_escapes_chegarem_ao_terminal() {
+        let d = Form::new()
+            .text("a\x1b[31m", "v\x1b[0m\u{202e}x")
+            .file("f", "n\x1b[31m\u{202e}.png", None, vec![1])
+            .unwrap()
+            .describe();
+        assert!(!d.contains('\x1b') && !d.contains('\u{202e}'), "{d:?}");
     }
 
     #[test]

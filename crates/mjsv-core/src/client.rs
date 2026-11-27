@@ -52,7 +52,7 @@ pub struct Request {
     pub query: Vec<(String, String)>,
     pub body: Option<Value>,
     /// Corpo `multipart/form-data`. Exclusivo com `body` (o último a ser definido vence).
-    pub multipart: Option<Form>,
+    pub(crate) multipart: Option<Form>,
 }
 
 impl Request {
@@ -226,6 +226,11 @@ impl Client {
             builder = builder.query(&req.query);
         }
 
+        debug_assert!(
+            req.body.is_none() || req.multipart.is_none(),
+            "Request com body e multipart ao mesmo tempo"
+        );
+
         if let Some(body) = &req.body {
             builder = builder.json(body);
         }
@@ -380,13 +385,13 @@ mod tests {
             .text("data", "{}")
             .file("icon", "a.png", Some("image/png"), b"PNGBYTES".to_vec())
             .unwrap();
-        let texto = Request::put("/product/abc/icon")
+        let texto = Request::put("/thing/abc/upload")
             .target(Target::root())
             .multipart(form)
             .describe(DEFAULT_API_URL);
 
         assert!(
-            texto.starts_with("PUT https://courtyard-api.mjsv.io/product/abc/icon\n"),
+            texto.starts_with("PUT https://courtyard-api.mjsv.io/thing/abc/upload\n"),
             "{texto}"
         );
         assert!(texto.contains("Bearer <omitido>"), "{texto}");
