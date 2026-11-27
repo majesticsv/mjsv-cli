@@ -6,6 +6,7 @@
 
 use anyhow::{anyhow, bail, Context, Result};
 use mjsv_core::client::Request;
+use mjsv_core::multipart::Form;
 use mjsv_core::output::{cell, Table};
 use mjsv_core::style::{sanitize, ConfirmSpec, Style, Tier, Tool};
 use mjsv_core::target::Target;
@@ -311,19 +312,21 @@ async fn file_upload(ctx: &Ctx, id: &str, local: &str, remote: &str) -> Result<(
         .filter(|n| !n.is_empty())
         .ok_or_else(|| anyhow!("o destino `{remote}` precisa terminar no nome do arquivo"))?;
 
-    let req = gs_req(Request::post(format!("/gameserver/{id}/file")), id);
-
-    if ctx.print_request {
-        println!("{}", req.describe(ctx.client.base_url()));
-        println!("(multipart: file={local} como `{nome}`, filePath={remote})");
-        return Ok(());
-    }
-
     let conteudo = std::fs::read(local).with_context(|| format!("falha ao ler {local}"))?;
     let bytes = conteudo.len();
 
-    let campos = [("filePath", remote)];
-    let envio = ctx.client.send_multipart(&req, nome, conteudo, &campos);
+    // Partes do backend: `filePath` (texto) e `file` (conteúdo; o `filename` é o nome final).
+    let form = Form::new()
+        .text("filePath", remote)
+        .file("file", nome, None, conteudo)?;
+    let req = gs_req(Request::post(format!("/gameserver/{id}/file")), id).multipart(form);
+
+    if ctx.print_request {
+        println!("{}", req.describe(ctx.client.base_url()));
+        return Ok(());
+    }
+
+    let envio = ctx.client.send_value(&req);
     let value = if ctx.format.is_machine_readable() {
         envio.await?
     } else {

@@ -11,6 +11,7 @@ pub mod ctx;
 pub mod error;
 pub mod home;
 pub mod models;
+pub mod multipart;
 pub mod output;
 pub mod prompt;
 pub mod routes;
