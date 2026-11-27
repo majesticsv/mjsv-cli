@@ -6,6 +6,7 @@ use serde::de::DeserializeOwned;
 use serde_json::Value;
 
 use crate::error::{is_otp_setup_required, message_from_body, ApiError};
+use crate::multipart::Form;
 use crate::target::Target;
 
 pub const DEFAULT_API_URL: &str = "https://courtyard-api.mjsv.io";
@@ -50,6 +51,8 @@ pub struct Request {
     pub target: Option<Target>,
     pub query: Vec<(String, String)>,
     pub body: Option<Value>,
+    /// Corpo `multipart/form-data`. Exclusivo com `body` (o último a ser definido vence).
+    pub(crate) multipart: Option<Form>,
 }
 
 impl Request {
@@ -60,6 +63,7 @@ impl Request {
             target: None,
             query: Vec::new(),
             body: None,
+            multipart: None,
         }
     }
 
@@ -95,6 +99,14 @@ impl Request {
 
     pub fn body(mut self, body: Value) -> Self {
         self.body = Some(body);
+        self.multipart = None;
+        self
+    }
+
+    /// Corpo multipart, com o método que a rota pedir (`Request::post`, `put`, `patch`).
+    pub fn multipart(mut self, form: Form) -> Self {
+        self.multipart = Some(form);
+        self.body = None;
         self
     }
 
@@ -122,6 +134,11 @@ impl Request {
             out.push('\n');
             out.push_str(&serde_json::to_string_pretty(b).unwrap_or_else(|_| b.to_string()));
             out.push('\n');
+        }
+
+        if let Some(f) = &self.multipart {
+            out.push('\n');
+            out.push_str(&f.describe());
         }
 
         out
@@ -209,46 +226,21 @@ impl Client {
             builder = builder.query(&req.query);
         }
 
+        debug_assert!(
+            req.body.is_none() || req.multipart.is_none(),
+            "Request com body e multipart ao mesmo tempo"
+        );
+
         if let Some(body) = &req.body {
             builder = builder.json(body);
         }
 
-        self.finish(builder, url, req).await
-    }
-
-    /// Envia um arquivo como `multipart/form-data` (hoje, só a escrita de arquivo do gameserver).
-    ///
-    /// O backend lê o conteúdo do campo `file` e o diretório de destino de `filePath`; o nome que o
-    /// arquivo terá no servidor é o `filename` da parte, não algo do corpo — por isso ele é um
-    /// parâmetro próprio aqui.
-    pub async fn send_multipart(
-        &self,
-        req: &Request,
-        filename: &str,
-        content: Vec<u8>,
-        fields: &[(&str, &str)],
-    ) -> Result<Value, ApiError> {
-        let url = format!("{}{}", self.base_url, req.path);
-
-        let mut form = reqwest::multipart::Form::new();
-        for (k, v) in fields {
-            form = form.text((*k).to_string(), (*v).to_string());
-        }
-        form = form.part(
-            "file",
-            reqwest::multipart::Part::bytes(content).file_name(filename.to_string()),
-        );
-
-        let mut builder = self.http.post(&url).multipart(form);
-
-        if let Some(token) = &self.token {
-            builder = builder.bearer_auth(token);
-        }
-
-        if let Some(t) = &req.target {
-            builder = builder
-                .header("MJSV-TargetId", &t.id)
-                .header("MJSV-TargetType", t.kind.as_str());
+        if let Some(form) = &req.multipart {
+            let form = form.to_reqwest().map_err(|e| ApiError::Decode {
+                path: req.path.clone(),
+                message: e.to_string(),
+            })?;
+            builder = builder.multipart(form);
         }
 
         self.finish(builder, url, req).await
@@ -385,6 +377,43 @@ mod tests {
             .describe(DEFAULT_API_URL);
 
         assert!(texto.contains("\"name\": \"laptop\""), "{texto}");
+    }
+
+    #[test]
+    fn describe_de_multipart_lista_as_partes_e_nunca_os_bytes() {
+        let form = Form::new()
+            .text("data", "{}")
+            .file("icon", "a.png", Some("image/png"), b"PNGBYTES".to_vec())
+            .unwrap();
+        let texto = Request::put("/thing/abc/upload")
+            .target(Target::root())
+            .multipart(form)
+            .describe(DEFAULT_API_URL);
+
+        assert!(
+            texto.starts_with("PUT https://courtyard-api.mjsv.io/thing/abc/upload\n"),
+            "{texto}"
+        );
+        assert!(texto.contains("Bearer <omitido>"), "{texto}");
+        assert!(texto.contains("MJSV-TargetId: 0000"), "{texto}");
+        assert!(
+            texto.contains("[2] icon — arquivo `a.png`, 8 bytes, image/png"),
+            "{texto}"
+        );
+        assert!(!texto.contains("PNGBYTES"), "{texto}");
+    }
+
+    #[test]
+    fn multipart_e_body_se_excluem() {
+        let r = Request::post("/x")
+            .multipart(Form::new().text("a", "b"))
+            .body(json!({}));
+        assert!(r.multipart.is_none() && r.body.is_some());
+
+        let r = Request::post("/x")
+            .body(json!({}))
+            .multipart(Form::new().text("a", "b"));
+        assert!(r.multipart.is_some() && r.body.is_none());
     }
 
     #[test]

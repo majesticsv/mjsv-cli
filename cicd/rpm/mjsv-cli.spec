@@ -53,6 +53,9 @@ install -m 0644 completions/mjsv.bash %{buildroot}%{_datadir}/bash-completion/co
 %{_datadir}/bash-completion/completions/mjsv
 
 %changelog
+* Fri Nov 27 2026 MJSV <infra@mjsv.io> - 0.3.1-1
+- Core: multipart/form-data genérico (método, partes de texto e de arquivo com nome, filename e
+  content-type escolhidos por quem chama); --print-request descreve as partes sem imprimir bytes.
 * Fri Nov 27 2026 MJSV <infra@mjsv.io> - 0.3.0-1
 - Cobertura de todas as rotas de cliente da API (vpc, volume, protection, notification, session,
   profile, product, payment; vm, gs, org, order e ticket completos).
