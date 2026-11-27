@@ -33,8 +33,7 @@ pub struct OrgRole {
 
 /// O que `/auth/sign-in`, `/auth/sign-in/otp` e `/auth/verify` devolvem.
 ///
-/// As orgs vêm daqui, e não de `GET /org` — essa rota é administrativa. É a única fonte de
-/// descoberta de organização que um usuário comum tem.
+/// As orgs do usuário vêm daqui.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Identity {

@@ -69,7 +69,7 @@ async fn list(ctx: &Ctx, vm: &str) -> Result<()> {
     Ok(())
 }
 
-fn format_ports(rule: &FirewallRule) -> String {
+pub(crate) fn format_ports(rule: &FirewallRule) -> String {
     match (rule.port_start, rule.port_end) {
         (Some(a), Some(b)) if a == b => a.to_string(),
         (Some(a), Some(b)) => format!("{a}-{b}"),
@@ -127,7 +127,7 @@ async fn add(
 }
 
 /// Aceita `443` ou `27015-27020`.
-fn parse_ports(spec: &str) -> Result<(u32, u32)> {
+pub(crate) fn parse_ports(spec: &str) -> Result<(u32, u32)> {
     let spec = spec.trim();
 
     let (start, end) = match spec.split_once('-') {
@@ -169,9 +169,7 @@ async fn delete(ctx: &Ctx, vm: &str, rule_id: &str) -> Result<()> {
 
 /// EIPs da VM.
 ///
-/// A rota é `/vm/:vmServiceId/eips` e não `GET /eips`: essa última tem só `@SystemFlag` e nenhum
-/// `@UserFlag`, e o guard nega qualquer requisição não-admin em rotas sem userFlag. Ou seja,
-/// `/eips` é administrativa e pertence ao `mjsvadm`.
+/// A rota usada é `/vm/:vmServiceId/eips`, a de escopo de cliente.
 pub async fn eip(ctx: &Ctx, cmd: &EipCommand) -> Result<()> {
     match cmd {
         EipCommand::List { vm } => {
@@ -251,6 +249,37 @@ pub async fn run(ctx: &Ctx, cmd: &FirewallCommand) -> Result<()> {
             .await
         }
         FirewallCommand::Delete { vm, rule_id } => delete(ctx, vm, rule_id).await,
+        FirewallCommand::RuleUpdate {
+            vm,
+            rule_id,
+            action,
+            protocol,
+            ports,
+            source,
+            description,
+            position,
+            enabled,
+        } => {
+            crate::cmd::vm_extra::rule_update(
+                ctx,
+                vm,
+                rule_id,
+                crate::cmd::vm_extra::RuleChanges {
+                    action: action.as_deref(),
+                    protocol: protocol.as_deref(),
+                    ports: ports.as_deref(),
+                    source: source.as_deref(),
+                    description: description.as_deref(),
+                    position: *position,
+                    enabled: *enabled,
+                },
+            )
+            .await
+        }
+        FirewallCommand::GameguardSet { vm, ports, profile } => {
+            crate::cmd::vm_extra::gameguard_set(ctx, vm, ports, profile).await
+        }
+        FirewallCommand::GameguardRm { vm, range_id } => crate::cmd::vm_extra::gameguard_rm(ctx, vm, range_id).await,
     }
 }
 

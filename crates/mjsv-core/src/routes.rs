@@ -15,13 +15,16 @@ use crate::client::Method;
 /// De onde sai o par de cabeçalhos de uma rota.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Scope {
-    /// `ROOT` + `0000` — contexto administrativo, e também o que o painel manda em rota de conta.
+    /// `ROOT` + `0000` — o que o painel manda em rota de conta.
     Root,
     /// `ORG` + o sqid da org, que também é o `:id` do caminho.
     Org,
     Vm,
     GameServer,
     Ticket,
+    /// `SERVICE` + o id do serviço — rotas que recebem o serviço sem saber o tipo do recurso
+    /// (`/vm/service/:serviceId`, `/gameserver/service/:serviceId`, `/protection/:serviceId`).
+    Service,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -134,6 +137,262 @@ pub const ROUTES: &[RouteSpec] = &[
     r(Method::Get, "/ssh-keys/org/{orgId}", Scope::Org),
     r(Method::Post, "/ssh-keys/org/{orgId}", Scope::Org),
     r(Method::Delete, "/ssh-keys/org/{orgId}/{keyId}", Scope::Org),
+    // `/vm/admin/cloud-images` não é rota administrativa: aceita a flag de usuário VM_LIST com alvo
+    // ORG e é o que alimenta o seletor de imagens do painel. `/vm/service/{serviceId}` é a única
+    // rota de VM com alvo SERVICE (as demais são VIRTUALMACHINE).
+    r(Method::Get, "/storage-volumes/org/{orgId}", Scope::Org),
+    r(
+        Method::Get,
+        "/storage-volumes/org/{orgId}/available/vm/{vmId}",
+        Scope::Org,
+    ),
+    r(Method::Post, "/storage-volumes/org/{orgId}/{volId}/detach", Scope::Org),
+    r(Method::Post, "/storage-volumes/org/{orgId}/{volId}/attach", Scope::Org),
+    r(
+        Method::Get,
+        "/storage-products/available/org/{orgId}/vm/{vmId}",
+        Scope::Org,
+    ),
+    r(Method::Get, "/protection/{serviceId}", Scope::Service),
+    r(Method::Get, "/protection/{serviceId}/telemetry", Scope::Service),
+    r(Method::Get, "/protection/{serviceId}/incidents", Scope::Service),
+    r(
+        Method::Get,
+        "/protection/{serviceId}/incidents/{incidentId}",
+        Scope::Service,
+    ),
+    r(
+        Method::Get,
+        "/protection/{serviceId}/addresses/{addrId}/firewall",
+        Scope::Service,
+    ),
+    r(
+        Method::Put,
+        "/protection/{serviceId}/addresses/{addrId}/firewall/gameguard",
+        Scope::Service,
+    ),
+    r(
+        Method::Delete,
+        "/protection/{serviceId}/addresses/{addrId}/firewall/gameguard/{rangeId}",
+        Scope::Service,
+    ),
+    r(Method::Delete, "/virt-tenants/org/{orgId}/{tenantId}", Scope::Org),
+    r(Method::Get, "/virt-regions", Scope::Org),
+    r(Method::Get, "/virt-tenants/org/{orgId}", Scope::Org),
+    r(Method::Post, "/virt-tenants/org/{orgId}", Scope::Org),
+    r(Method::Get, "/vm/admin/cloud-images", Scope::Org),
+    r(
+        Method::Delete,
+        "/vm/{vmServiceId}/firewall/gameguard/{rangeId}",
+        Scope::Vm,
+    ),
+    r(Method::Get, "/vm/service/{serviceId}", Scope::Service),
+    r(Method::Get, "/vm/{vmServiceId}/incidents", Scope::Vm),
+    r(Method::Get, "/vm/{vmServiceId}/incidents/{incidentId}", Scope::Vm),
+    r(Method::Get, "/vm/{vmServiceId}/isos", Scope::Vm),
+    r(Method::Get, "/vm/{vmServiceId}/vpcs", Scope::Vm),
+    r(Method::Post, "/vm/{vmServiceId}/move", Scope::Vm),
+    r(Method::Post, "/vm/{vmServiceId}/rebuild", Scope::Vm),
+    r(Method::Post, "/vm/{vmServiceId}/reset-password", Scope::Vm),
+    r(Method::Post, "/vm/{vmServiceId}/root-password", Scope::Vm),
+    r(Method::Post, "/vm/{vmServiceId}/sync-dhcp-ip", Scope::Vm),
+    r(Method::Post, "/vm/{vmServiceId}/vnc-token", Scope::Vm),
+    r(Method::Put, "/vm/{vmServiceId}", Scope::Vm),
+    r(Method::Put, "/vm/{vmServiceId}/firewall/gameguard", Scope::Vm),
+    r(Method::Put, "/vm/{vmServiceId}/firewall/rules/{ruleId}", Scope::Vm),
+    r(Method::Put, "/vm/{vmServiceId}/ssh-keys", Scope::Vm),
+    r(Method::Get, "/gameserver/service/{serviceId}", Scope::Service),
+    r(
+        Method::Put,
+        "/gameserver/{gameServerServiceId}/startup",
+        Scope::GameServer,
+    ),
+    r(
+        Method::Get,
+        "/gameserver/{gameServerServiceId}/directories",
+        Scope::GameServer,
+    ),
+    r(
+        Method::Get,
+        "/gameserver/{gameServerServiceId}/download",
+        Scope::GameServer,
+    ),
+    r(Method::Get, "/gameserver/{gameServerServiceId}/file", Scope::GameServer),
+    r(
+        Method::Get,
+        "/gameserver/{gameServerServiceId}/manager-lock",
+        Scope::GameServer,
+    ),
+    r(Method::Put, "/gameserver/{gameServerServiceId}/file", Scope::GameServer),
+    r(
+        Method::Post,
+        "/gameserver/{gameServerServiceId}/directory",
+        Scope::GameServer,
+    ),
+    r(
+        Method::Post,
+        "/gameserver/{gameServerServiceId}/files/compress",
+        Scope::GameServer,
+    ),
+    r(
+        Method::Post,
+        "/gameserver/{gameServerServiceId}/files/decompress",
+        Scope::GameServer,
+    ),
+    r(
+        Method::Delete,
+        "/gameserver/{gameServerServiceId}/file",
+        Scope::GameServer,
+    ),
+    r(
+        Method::Post,
+        "/gameserver/{gameServerServiceId}/file",
+        Scope::GameServer,
+    ),
+    r(
+        Method::Post,
+        "/gameserver/{gameServerServiceId}/addons",
+        Scope::GameServer,
+    ),
+    r(
+        Method::Delete,
+        "/gameserver/{gameServerServiceId}/addons",
+        Scope::GameServer,
+    ),
+    r(
+        Method::Post,
+        "/gameserver/{gameServerServiceId}/addons/updates",
+        Scope::GameServer,
+    ),
+    r(
+        Method::Post,
+        "/gameserver/{gameServerServiceId}/database/{databaseName}/password",
+        Scope::GameServer,
+    ),
+    r(
+        Method::Post,
+        "/gameserver/{gameServerServiceId}/database",
+        Scope::GameServer,
+    ),
+    r(
+        Method::Delete,
+        "/gameserver/{gameServerServiceId}/database/{databaseId}",
+        Scope::GameServer,
+    ),
+    r(
+        Method::Get,
+        "/gameserver/{gameServerServiceId}/schedules/{scheduleId}",
+        Scope::GameServer,
+    ),
+    r(
+        Method::Post,
+        "/gameserver/{gameServerServiceId}/schedules",
+        Scope::GameServer,
+    ),
+    r(
+        Method::Put,
+        "/gameserver/{gameServerServiceId}/schedules/{scheduleId}",
+        Scope::GameServer,
+    ),
+    r(
+        Method::Delete,
+        "/gameserver/{gameServerServiceId}/schedules/{scheduleId}",
+        Scope::GameServer,
+    ),
+    r(
+        Method::Post,
+        "/gameserver/{gameServerServiceId}/schedules/{scheduleId}/tasks",
+        Scope::GameServer,
+    ),
+    r(
+        Method::Put,
+        "/gameserver/{gameServerServiceId}/schedules/{scheduleId}/tasks/{taskId}",
+        Scope::GameServer,
+    ),
+    r(
+        Method::Delete,
+        "/gameserver/{gameServerServiceId}/schedules/{scheduleId}/tasks/{taskId}",
+        Scope::GameServer,
+    ),
+    // Catálogo: não é de ninguém, então o guard só exige sessão + permissão de gameserver. O painel
+    // manda ORG com a org ativa, e é isso que o CLI faz — não há id de org no caminho.
+    r(Method::Get, "/larder/{game}/setup", Scope::Org),
+    r(Method::Get, "/larder/{game}/fields", Scope::Org),
+    r(Method::Get, "/larder/{game}/options/{field}", Scope::Org),
+    r(Method::Get, "/larder/{game}/search/modpacks", Scope::Org),
+    r(Method::Get, "/larder/{game}/modpack/{provider}/{id}", Scope::Org),
+    r(Method::Get, "/larder/{game}/search/addons", Scope::Org),
+    r(Method::Get, "/larder/{game}/addons/categories", Scope::Org),
+    r(Method::Get, "/larder/{game}/addon/{provider}/{id}", Scope::Org),
+    r(Method::Get, "/larder/{game}/addon/{provider}/{id}/versions", Scope::Org),
+    r(Method::Post, "/larder/{game}/addons/resolve", Scope::Org),
+    r(Method::Post, "/larder/{game}/addons/lookup", Scope::Org),
+    r(Method::Post, "/larder/{game}/addons/updates", Scope::Org),
+    r(Method::Post, "/larder/{game}/lookup", Scope::Org),
+    r(Method::Post, "/larder/{game}/resolve", Scope::Org),
+    r(Method::Get, "/notifications/org/{orgId}", Scope::Org),
+    r(Method::Get, "/notifications/org/{orgId}/count", Scope::Org),
+    r(Method::Get, "/notifications/org/{orgId}/count-by-type", Scope::Org),
+    r(Method::Get, "/notifications/org/{orgId}/type/{type}", Scope::Org),
+    r(
+        Method::Patch,
+        "/notifications/org/{orgId}/{notificationId}/read",
+        Scope::Org,
+    ),
+    r(Method::Patch, "/notifications/org/{orgId}/read-all", Scope::Org),
+    r(
+        Method::Delete,
+        "/notifications/org/{orgId}/{notificationId}",
+        Scope::Org,
+    ),
+    r(Method::Delete, "/notifications/org/{orgId}/read", Scope::Org),
+    r(Method::Get, "/auth/session", Scope::Root),
+    r(Method::Get, "/user/me", Scope::Root),
+    r(Method::Put, "/user/me", Scope::Root),
+    r(Method::Post, "/org", Scope::Root),
+    r(Method::Get, "/org/{id}", Scope::Org),
+    r(Method::Delete, "/org/{id}", Scope::Org),
+    r(Method::Put, "/org/{id}", Scope::Org),
+    r(Method::Delete, "/org/{id}/leave", Scope::Org),
+    r(Method::Get, "/org/{id}/member", Scope::Org),
+    r(Method::Post, "/org/{id}/member", Scope::Org),
+    r(Method::Get, "/org/{id}/invite", Scope::Org),
+    r(Method::Delete, "/org/{id}/invite/{inviteId}", Scope::Org),
+    r(Method::Delete, "/org/{id}/member/{userId}", Scope::Org),
+    r(Method::Delete, "/org/{id}/member/{userId}/role", Scope::Org),
+    r(Method::Post, "/org/{id}/member/{userId}/role", Scope::Org),
+    r(Method::Get, "/org/{id}/role", Scope::Org),
+    r(Method::Put, "/org/{id}/positionswap", Scope::Org),
+    r(Method::Post, "/org/{id}/role", Scope::Org),
+    r(Method::Delete, "/org/{id}/role/{roleId}", Scope::Org),
+    r(Method::Put, "/org/{id}/role/{roleId}", Scope::Org),
+    r(Method::Get, "/org/{id}/service", Scope::Org),
+    r(Method::Get, "/org/{id}/service/{serviceId}", Scope::Org),
+    r(Method::Post, "/org/{id}/service/{serviceId}/rename", Scope::Org),
+    r(Method::Post, "/org/{id}/service/{serviceId}/cancel", Scope::Org),
+    r(Method::Post, "/org/{id}/service/{serviceId}/cancel/undo", Scope::Org),
+    r(Method::Get, "/auditlogs/org/{orgId}", Scope::Org),
+    // Catálogo, cupom e metadados são públicos (sem alvo); Root é só o rótulo mais próximo.
+    r(Method::Get, "/coupon/code/{code}", Scope::Root),
+    r(Method::Get, "/product", Scope::Root),
+    r(Method::Get, "/product/metadata", Scope::Root),
+    r(Method::Get, "/product/{id}", Scope::Root),
+    r(Method::Get, "/product/{id}/isos", Scope::Root),
+    r(Method::Get, "/order/metadata", Scope::Root),
+    r(Method::Get, "/payment/methods", Scope::Root),
+    // Checkout não passa pelo guard de permissões: a ordem vem no corpo e a posse é conferida
+    // pela participação na org, então o painel manda o alvo de conta.
+    r(Method::Post, "/payment/checkout", Scope::Root),
+    r(Method::Delete, "/order/{orderId}", Scope::Org),
+    r(Method::Post, "/order", Scope::Org),
+    r(Method::Post, "/order/group", Scope::Org),
+    r(Method::Post, "/order/quote", Scope::Org),
+    r(Method::Post, "/order/{orderId}/generate-pdf", Scope::Org),
+    // Listagens de ticket por categoria/serviço/mensagem são ORG; só reabrir é TICKET.
+    r(Method::Get, "/ticket/category/{categoryId}", Scope::Org),
+    r(Method::Get, "/ticket/message/{messageId}", Scope::Org),
+    r(Method::Get, "/ticket/service/{serviceId}", Scope::Org),
+    r(Method::Put, "/ticket/{ticketId}/open", Scope::Ticket),
 ];
 
 #[cfg(test)]
@@ -202,6 +461,21 @@ mod tests {
     }
 
     #[test]
+    fn rota_de_ticket_so_reabrir_e_ticket_e_as_listagens_sao_org() {
+        // `/ticket/category/{categoryId}`, `/ticket/service/{serviceId}` e `/ticket/message/{id}`
+        // parecem filhas de `/ticket/{ticketId}`, mas o guard delas resolve a org: mandar TICKET
+        // aí devolve lista vazia em vez de erro.
+        for t in [
+            "/ticket/category/{categoryId}",
+            "/ticket/service/{serviceId}",
+            "/ticket/message/{messageId}",
+        ] {
+            let spec = ROUTES.iter().find(|s| s.template == t).expect(t);
+            assert_eq!(spec.scope, Scope::Org, "{t}");
+        }
+    }
+
+    #[test]
     fn rota_de_vm_e_chaveada_pelo_servico() {
         // O parâmetro se chama `vmServiceId` de propósito: passar o id da VM aí devolve 403,
         // porque o handler compara o cabeçalho com o valor do caminho e ambos têm de ser o
@@ -217,6 +491,37 @@ mod tests {
     }
 
     #[test]
+    fn rota_de_notificacao_e_auditoria_traz_o_orgid_no_caminho() {
+        // Estas famílias nomeiam o parâmetro `{orgId}` (e não `{id}`) e o handler recusa com 400
+        // quando o cabeçalho de alvo não é ORG com o mesmo valor — por isso o escopo é ORG.
+        for spec in ROUTES
+            .iter()
+            .filter(|s| s.template.starts_with("/notifications/org/") || s.template.starts_with("/auditlogs/org/"))
+        {
+            assert_eq!(spec.scope, Scope::Org, "{} {}", spec.method.as_str(), spec.template);
+            assert!(spec.template.contains("/org/{orgId}"), "{}", spec.template);
+        }
+    }
+
+    #[test]
+    fn rota_de_conta_do_usuario_nao_leva_alvo_de_org() {
+        // `/user/me`, `/auth/session` e `POST /org` só pedem login: o painel manda ROOT/0000 e o
+        // guard não confere nada. Mandar ORG aqui não quebra, mas mente sobre o escopo.
+        for (m, t) in [
+            ("GET", "/user/me"),
+            ("PUT", "/user/me"),
+            ("GET", "/auth/session"),
+            ("POST", "/org"),
+        ] {
+            let spec = ROUTES
+                .iter()
+                .find(|s| s.method.as_str() == m && s.template == t)
+                .unwrap_or_else(|| panic!("{m} {t} não está na tabela"));
+            assert_eq!(spec.scope, Scope::Root, "{m} {t}");
+        }
+    }
+
+    #[test]
     fn rota_de_escopo_root_nao_tem_parametro_de_dono() {
         for spec in ROUTES.iter().filter(|s| s.scope == Scope::Root) {
             assert!(
@@ -226,5 +531,50 @@ mod tests {
                 spec.template
             );
         }
+    }
+
+    #[test]
+    fn rota_de_escopo_service_traz_o_id_do_servico_no_caminho() {
+        // Com alvo SERVICE o handler compara o cabeçalho com `:serviceId` do caminho; um caminho
+        // sem ele não teria o que conferir e o 400 de divergência viraria acesso errado.
+        for spec in ROUTES.iter().filter(|s| s.scope == Scope::Service) {
+            assert!(
+                spec.template.contains("{serviceId}"),
+                "{} {} é de escopo SERVICE mas não traz serviceId no caminho",
+                spec.method.as_str(),
+                spec.template
+            );
+        }
+    }
+
+    #[test]
+    fn rota_de_volume_e_vpc_leva_a_org_no_caminho_e_no_cabecalho() {
+        for spec in ROUTES.iter().filter(|s| s.template.contains("/org/{orgId}")) {
+            assert_eq!(
+                spec.scope,
+                Scope::Org,
+                "{} {} tem orgId no caminho mas não está no escopo ORG",
+                spec.method.as_str(),
+                spec.template
+            );
+        }
+    }
+
+    #[test]
+    fn catalogo_e_org_sem_id_de_org_e_gameserver_por_servico_e_service() {
+        // O catálogo (`/larder/{game}/...`) não tem recurso dono: o caminho só traz o jogo, e o alvo
+        // é a org ativa. Mandar GAMESERVER aqui também passaria no guard, mas exigiria um servidor
+        // que o usuário não tem de ter só para pesquisar mods.
+        for spec in ROUTES.iter().filter(|s| s.template.starts_with("/larder/")) {
+            assert_eq!(spec.scope, Scope::Org, "{} deveria ser ORG", spec.template);
+            assert!(spec.template.starts_with("/larder/{game}/"), "{}", spec.template);
+        }
+
+        // `GET /gameserver/service/{serviceId}` não sabe o tipo do recurso: SERVICE, não GAMESERVER.
+        let por_servico = ROUTES
+            .iter()
+            .find(|s| s.template == "/gameserver/service/{serviceId}")
+            .expect("rota ausente");
+        assert_eq!(por_servico.scope, Scope::Service);
     }
 }

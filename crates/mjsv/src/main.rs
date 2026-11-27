@@ -8,7 +8,7 @@ use mjsv_core::config::{Config, Credentials};
 use mjsv_core::output::{to_json, to_yaml, Format};
 use mjsv_core::Ctx;
 
-use cli::{Cli, Command, OrgCommand};
+use cli::{Cli, Command};
 
 pub fn render_value(format: Format, value: &serde_json::Value) {
     match format {
@@ -100,9 +100,8 @@ async fn run(cli: Cli) -> anyhow::Result<()> {
     match &cli.command {
         Command::Login(args) => cmd::auth::login(&ctx, args).await,
         Command::Logout => cmd::auth::logout(&ctx).await,
-        Command::Whoami => cmd::auth::whoami(&ctx).await,
-        Command::Org(OrgCommand::List) => cmd::auth::org_list(&ctx).await,
-        Command::Org(OrgCommand::Use { org }) => cmd::auth::org_use(&ctx, org).await,
+        Command::Whoami { full } => cmd::account::whoami(&ctx, *full).await,
+        Command::Org(sub) => cmd::org::run(&ctx, sub).await,
         Command::Vm(sub) => cmd::vm::run(&ctx, sub).await,
         Command::Gs(sub) => cmd::gs::run(&ctx, sub).await,
         Command::Eip(sub) => cmd::fw::eip(&ctx, sub).await,
@@ -110,6 +109,16 @@ async fn run(cli: Cli) -> anyhow::Result<()> {
         Command::Ticket(sub) => cmd::billing::ticket(&ctx, sub).await,
         Command::SshKey(sub) => cmd::billing::ssh_key(&ctx, sub).await,
         Command::Token(sub) => cmd::auth::token(&ctx, sub).await,
+        Command::Vpc(sub) => cmd::vpc::run(&ctx, sub).await,
+        Command::Volume(sub) => cmd::volume::run(&ctx, sub).await,
+        Command::Protection(sub) => cmd::protection::run(&ctx, sub).await,
+        Command::Notification(sub) => cmd::account::notification(&ctx, sub).await,
+        Command::Session(sub) => cmd::account::session(&ctx, sub).await,
+        Command::Profile(sub) => cmd::account::profile(&ctx, sub).await,
+
+        Command::Product(sub) => cmd::commerce::product(&ctx, sub).await,
+        Command::Payment(sub) => cmd::commerce::payment(&ctx, sub).await,
+
         // Tratado antes de montar o contexto.
         Command::Completions { .. } => Ok(()),
     }

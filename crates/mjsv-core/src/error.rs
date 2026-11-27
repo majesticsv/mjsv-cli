@@ -12,15 +12,14 @@ pub enum ApiError {
     Unauthorized,
 
     /// O 403 quase nunca é falta de permissão de verdade: é o alvo errado. O painel manda
-    /// `ORG`/sqid para rota de cliente e `ROOT`/`0000` para rota administrativa, e a rota rejeita
-    /// o par que não for o dela.
+    /// `ORG`/sqid para rota de organização, e a rota rejeita o par que não for o dela.
     #[error("acesso negado a {path} (enviado MJSV-TargetType: {}, MJSV-TargetId: {})\n\
-             confira se o comando é de escopo de organização (--org) ou administrativo", target.kind, target.id)]
+             confira se o comando é de escopo de organização e se --org aponta para a org certa", target.kind, target.id)]
     Forbidden { path: String, target: Box<Target> },
 
-    /// `checkAdminOtpRequired` no backend devolve 428 com `code: OTP_SETUP_REQUIRED` para
-    /// qualquer rota administrativa quando a conta não tem 2FA. Não é erro de uso do CLI.
-    #[error("esta conta precisa de 2FA para usar rotas administrativas — ative em https://mjsv.io/dashboard/me antes de continuar")]
+    /// A API devolve 428 com `code: OTP_SETUP_REQUIRED` quando a conta não tem 2FA.
+    /// Não é erro de uso do CLI.
+    #[error("esta conta precisa de 2FA para esta operação — ative em https://mjsv.io/dashboard/me antes de continuar")]
     OtpSetupRequired,
 
     #[error("não encontrado: {0}")]

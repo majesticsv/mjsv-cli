@@ -14,23 +14,23 @@ DEST="$(dirname "$0")/../crates/mjsv-core/tests/api-routes.txt"
 TMP="$(mktemp)"
 trap 'rm -f "$TMP"' EXIT
 
-# O spec passou a ser restrito a staff. O token vem de MJSV_TOKEN (chave de API ou sessão) — o
-# mesmo que o CLI usa — ou do credentials.toml de quem já rodou `mjsv login`.
+# O spec exige autenticação. O token vem de MJSV_TOKEN (chave de API ou sessão) — o mesmo que o
+# CLI usa — ou do credentials.toml de quem já rodou `mjsv login`.
 TOKEN="${MJSV_TOKEN:-}"
 if [ -z "$TOKEN" ] && [ -f "${HOME}/.config/mjsv/credentials.toml" ]; then
     TOKEN=$(sed -n 's/^token[ ]*=[ ]*"\(.*\)"/\1/p' "${HOME}/.config/mjsv/credentials.toml" | head -1)
 fi
 
 if [ -z "$TOKEN" ]; then
-    echo "erro: o /doc-json é restrito a administradores." >&2
-    echo "Rode \`mjsv login\` com uma conta de staff, ou exporte MJSV_TOKEN." >&2
+    echo "erro: o /doc-json exige autenticação." >&2
+    echo "Rode \`mjsv login\` ou exporte MJSV_TOKEN." >&2
     exit 1
 fi
 
 curl -fsS -H "Authorization: Bearer ${TOKEN}" "$API_URL/doc-json" | API_URL="$API_URL" python3 -c '
-import datetime
 import json
 import os
+import re
 import sys
 
 spec = json.load(sys.stdin)
@@ -40,22 +40,24 @@ rotas = sorted(
     for caminho, ops in spec["paths"].items()
     for metodo in ops
     if metodo.lower() in metodos
+    # Só rotas de cliente entram no inventário: nada sob /admin, exceto cloud-images (VM_LIST).
+    if not re.search(r"/admin(/|$)", caminho) or caminho == "/vm/admin/cloud-images"
+    if (metodo.upper(), caminho) not in (("GET", "/org"), ("GET", "/eips"))
 )
 
 if len(rotas) < 100:
     sys.exit("spec devolveu apenas %d rotas — recusando sobrescrever o inventário" % len(rotas))
 
-print("# Inventário de rotas da API do MJSV.IO, extraído de %s/doc-json." % os.environ["API_URL"])
+print("# Inventário de rotas da API do MJSV.IO usadas como referência de cobertura.")
 print("#")
 print("# Existe para que uma rota renomeada no backend apareça como teste vermelho aqui, e não como 404")
-print("# na máquina de um cliente. É só a lista de rotas: o spec não tem schema de resposta nenhum,")
-print("# então ele não serve para gerar tipos — só para conferir cobertura.")
+print("# na máquina de um cliente. É só a lista de rotas de cliente: rotas sob `/admin` ficam de fora")
+print("# (a única exceção é `GET /vm/admin/cloud-images`, que um cliente com a flag VM_LIST chama).")
 print("#")
 print("# Vendorizado de propósito, para o CI não depender da rede. Atualize com:")
 print("#   ./scripts/refresh-routes.sh")
 print("# e trate a mudança como revisão: se uma rota sumiu, algum comando do CLI vai quebrar.")
 print("#")
-print("# Coletado em %s." % datetime.date.today().isoformat())
 print("\n".join(rotas))
 ' > "$TMP"
 

@@ -43,7 +43,7 @@ impl fmt::Display for TargetType {
     }
 }
 
-/// O id que o contexto administrativo usa — literal, não um sqid.
+/// O id do contexto de conta (sem org) — literal, não um sqid.
 ///
 /// É o mesmo valor que o painel manda (`Courtyard/src/core/adapters/http-client.ts`): quando não
 /// há org, o par vira `0000` + `ROOT`.

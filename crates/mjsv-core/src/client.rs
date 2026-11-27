@@ -199,6 +199,48 @@ impl Client {
             builder = builder.json(body);
         }
 
+        self.finish(builder, url, req).await
+    }
+
+    /// Envia um arquivo como `multipart/form-data` (hoje, só a escrita de arquivo do gameserver).
+    ///
+    /// O backend lê o conteúdo do campo `file` e o diretório de destino de `filePath`; o nome que o
+    /// arquivo terá no servidor é o `filename` da parte, não algo do corpo — por isso ele é um
+    /// parâmetro próprio aqui.
+    pub async fn send_multipart(
+        &self,
+        req: &Request,
+        filename: &str,
+        content: Vec<u8>,
+        fields: &[(&str, &str)],
+    ) -> Result<Value, ApiError> {
+        let url = format!("{}{}", self.base_url, req.path);
+
+        let mut form = reqwest::multipart::Form::new();
+        for (k, v) in fields {
+            form = form.text((*k).to_string(), (*v).to_string());
+        }
+        form = form.part(
+            "file",
+            reqwest::multipart::Part::bytes(content).file_name(filename.to_string()),
+        );
+
+        let mut builder = self.http.post(&url).multipart(form);
+
+        if let Some(token) = &self.token {
+            builder = builder.bearer_auth(token);
+        }
+
+        if let Some(t) = &req.target {
+            builder = builder
+                .header("MJSV-TargetId", &t.id)
+                .header("MJSV-TargetType", t.kind.as_str());
+        }
+
+        self.finish(builder, url, req).await
+    }
+
+    async fn finish(&self, builder: reqwest::RequestBuilder, url: String, req: &Request) -> Result<Value, ApiError> {
         let response = builder.send().await.map_err(|source| ApiError::Transport {
             url: url.clone(),
             source,
@@ -235,7 +277,15 @@ impl Client {
     pub async fn download(&self, req: &Request) -> Result<Vec<u8>, ApiError> {
         let url = format!("{}{}", self.base_url, req.path);
 
-        let mut builder = self.http.get(&url);
+        // Respeita o método da requisição: `POST /order/{id}/generate-pdf` também devolve binário.
+        let method = match req.method {
+            Method::Get => reqwest::Method::GET,
+            Method::Post => reqwest::Method::POST,
+            Method::Put => reqwest::Method::PUT,
+            Method::Patch => reqwest::Method::PATCH,
+            Method::Delete => reqwest::Method::DELETE,
+        };
+        let mut builder = self.http.request(method, &url);
 
         if let Some(token) = &self.token {
             builder = builder.bearer_auth(token);

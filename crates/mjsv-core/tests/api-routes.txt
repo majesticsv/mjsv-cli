@@ -1,14 +1,12 @@
-# Inventário de rotas da API do MJSV.IO, extraído de https://courtyard-api.mjsv.io/doc-json.
+# Inventário de rotas da API do MJSV.IO usadas como referência de cobertura.
 #
 # Existe para que uma rota renomeada no backend apareça como teste vermelho aqui, e não como 404
-# na máquina de um cliente. É só a lista de rotas: o spec não tem schema de resposta nenhum,
-# então ele não serve para gerar tipos — só para conferir cobertura.
+# na máquina de um cliente. É só a lista de rotas de cliente: rotas sob `/admin` ficam de fora
+# (a única exceção é `GET /vm/admin/cloud-images`, que um cliente com a flag VM_LIST chama).
 #
 # Vendorizado de propósito, para o CI não depender da rede. Atualize com:
 #   ./scripts/refresh-routes.sh
 # e trate a mudança como revisão: se uma rota sumiu, algum comando do CLI vai quebrar.
-#
-# Coletado em 2026-11-05.
 DELETE /auth/token/{tokenId}
 DELETE /bandwidth/profiles/{tenantId}
 DELETE /coupon/{id}
