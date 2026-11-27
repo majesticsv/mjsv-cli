@@ -4,12 +4,14 @@
 use anyhow::Result;
 use mjsv_core::client::Request;
 use mjsv_core::output::{cell, Table};
+use mjsv_core::style::{sanitize, Marker};
 use mjsv_core::target::Target;
 use mjsv_core::Ctx;
 use serde::Deserialize;
 use serde_json::Value;
 
 use crate::cli::IncidentFilter;
+use crate::cmd::vm_extra::{cartao, estilo_out};
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -119,27 +121,56 @@ pub async fn list(ctx: &Ctx, path: &str, target: Target, f: &IncidentFilter) -> 
     }
 
     let page: Page = serde_json::from_value(value)?;
+    let out = estilo_out(ctx);
 
     // A API responde 200 com `available:false` quando o backend de telemetria não está
     // configurado ou caiu — tratar como lista vazia esconderia o motivo.
     if page.available == Some(false) {
+        // EM-unknown: `▲`, nunca o `✓` de "tudo certo" — não saber não é o mesmo que não ter.
         println!(
-            "Incidentes indisponíveis: {}",
-            page.reason.as_deref().unwrap_or("sem motivo informado")
+            "{}",
+            out.empty_unknown(&format!(
+                "Incidentes indisponíveis: {}",
+                page.reason.as_deref().unwrap_or("sem motivo informado")
+            ))
         );
         return Ok(());
     }
 
     if page.items.is_empty() {
-        println!("Nenhum incidente no período.");
+        // Só é boa notícia sem filtro: com um filtro que estreita, é uma lista vazia como outra.
+        let filtrado = f.status.is_some() || f.ip.is_some() || f.from.is_some() || f.to.is_some() || f.cursor.is_some();
+        let frase = "Nenhum incidente no período.";
+        println!(
+            "{}",
+            if filtrado {
+                out.empty(frase)
+            } else {
+                out.empty_clear(frase)
+            }
+        );
         return Ok(());
     }
 
+    let estilizado = out.fancy();
     if !page.addresses.is_empty() {
-        println!("Endereços: {}", page.addresses.join(", "));
+        println!("Endereços: {}", sanitize(&page.addresses.join(", ")));
     }
     if let Some(n) = page.active_count {
-        println!("Ativos:    {n}");
+        if estilizado {
+            // O marcador vai DEPOIS do número: antes dele lê-se como aritmética.
+            let marca = if n > 0 {
+                out.trailing(Marker::Attention)
+            } else {
+                String::new()
+            };
+            println!("Ativos: {n}{marca}");
+        } else {
+            println!("Ativos:    {n}");
+        }
+    }
+    if estilizado && (!page.addresses.is_empty() || page.active_count.is_some()) {
+        println!();
     }
 
     let mut table = Table::new(&[
@@ -169,7 +200,14 @@ pub async fn list(ctx: &Ctx, path: &str, target: Target, f: &IncidentFilter) -> 
     print!("{}", table.render_out());
 
     if let Some(c) = page.next_cursor.as_deref().filter(|c| !c.is_empty()) {
-        println!("Mais resultados: repita com --cursor {c}");
+        let linha = format!("Mais resultados: repita com --cursor {c}");
+        if estilizado {
+            // O cursor é o que se copia: a linha toda esmaecida, sem cortar nada.
+            println!();
+            println!("{}", out.dim(&linha));
+        } else {
+            println!("{linha}");
+        }
     }
 
     Ok(())
@@ -189,16 +227,33 @@ pub async fn detail(ctx: &Ctx, path: &str, target: Target) -> Result<()> {
     }
 
     let i: Item = serde_json::from_value(value.clone())?;
-    println!("Incidente: {}", cell(i.id.as_deref()));
-    println!("Estado:    {}", cell(i.status.as_deref()));
-    println!(
-        "Início:    {}",
-        i.started_at.map(format_unix).unwrap_or_else(|| "-".into())
+    let out = estilo_out(ctx);
+    let id = cell(i.id.as_deref());
+    let estado = cell(i.status.as_deref());
+    let inicio = i.started_at.map(format_unix).unwrap_or_else(|| "-".into());
+    let nota = "(séries de tráfego e análise: use --output json)";
+
+    cartao(
+        &out,
+        &format!("Incidente {id}"),
+        &[
+            ("Incidente", sanitize(&id)),
+            ("Estado", out.state(&sanitize(&estado))),
+            ("Início", inicio.clone()),
+            ("IP", sanitize(&cell(i.ip.as_deref()))),
+            ("Camada", sanitize(&texto(&i.layer))),
+            ("Vetor", sanitize(&texto(&i.vector))),
+        ],
+        &[
+            format!("Incidente: {id}"),
+            format!("Estado:    {estado}"),
+            format!("Início:    {inicio}"),
+            format!("IP:        {}", cell(i.ip.as_deref())),
+            format!("Camada:    {}", texto(&i.layer)),
+            format!("Vetor:     {}", texto(&i.vector)),
+        ],
     );
-    println!("IP:        {}", cell(i.ip.as_deref()));
-    println!("Camada:    {}", texto(&i.layer));
-    println!("Vetor:     {}", texto(&i.vector));
-    println!("(séries de tráfego e análise: use --output json)");
+    println!("{}", if out.fancy() { out.dim(nota) } else { nota.to_string() });
 
     Ok(())
 }

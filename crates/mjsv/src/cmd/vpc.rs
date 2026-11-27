@@ -9,7 +9,8 @@ use serde::Deserialize;
 use serde_json::{json, Value};
 
 use crate::cli::VpcCommand;
-use crate::cmd::vm_extra::confirmar;
+use crate::cmd::vm_extra::{confirmar_spec, estilo_out, vai_mostrar_bloco};
+use mjsv_core::style::{sanitize, ConfirmSpec, Tier};
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -59,7 +60,14 @@ async fn list(ctx: &Ctx) -> Result<()> {
 
     let listing: Listing<Vpc> = Listing::from_value(value)?;
     if listing.data.is_empty() {
-        println!("Nenhuma VPC nesta organização.");
+        println!(
+            "{}",
+            estilo_out(ctx).empty_hint(
+                "Nenhuma VPC nesta organização.",
+                "crie uma",
+                "mjsv vpc create --region <id> --name <nome>"
+            )
+        );
         return Ok(());
     }
 
@@ -98,7 +106,7 @@ async fn regions(ctx: &Ctx) -> Result<()> {
 
     let listing: Listing<Value> = Listing::from_value(value)?;
     if listing.data.is_empty() {
-        println!("Nenhuma região disponível.");
+        println!("{}", estilo_out(ctx).empty("Nenhuma região disponível."));
         return Ok(());
     }
 
@@ -155,18 +163,46 @@ async fn create(
     }
 
     println!(
-        "VPC criada: {}. Veja com `mjsv vpc list`.",
-        cell(value.get("id").and_then(Value::as_str))
+        "{}",
+        estilo_out(ctx).done(&format!(
+            "VPC criada: {}. Veja com `mjsv vpc list`.",
+            cell(value.get("id").and_then(Value::as_str))
+        ))
     );
 
     Ok(())
+}
+
+/// A VPC `id` dentro da listagem da organização. Qualquer falha é `None`: o prompt só perde as
+/// linhas, apagar nunca trava numa consulta cosmética.
+async fn buscar(ctx: &Ctx, org_id: &str, id: &str) -> Option<Vpc> {
+    let (_, target) = ctx.org_target().ok()?;
+    let req = Request::get(format!("/virt-tenants/org/{org_id}")).target(target);
+    let value = ctx.run(req).await.ok().flatten()?;
+    let listing: Listing<Vpc> = Listing::from_value(value).ok()?;
+    listing.data.into_iter().find(|v| v.id.as_deref() == Some(id))
 }
 
 async fn delete(ctx: &Ctx, id: &str) -> Result<()> {
     let (org_id, target) = ctx.org_target()?;
 
     // A API responde 409 se ainda há VM ou EIP na rede; o aviso é sobre o que some se passar.
-    confirmar(ctx, &format!("Apagar a VPC {id}? Não tem volta."))?;
+    // Nível 2: não há rota de detalhe da VPC, mas a listagem da organização traz nome, sub-rede e
+    // quantas VMs/EIPs ainda estão nela: uma consulta só, e só se o bloco vai aparecer.
+    let mut spec = ConfirmSpec::new(Tier::T2, format!("Apagar a VPC {id}? Não tem volta."))
+        .destructive()
+        .head(format!("Apagar a VPC {id}?"))
+        .note("Não tem volta.");
+    if vai_mostrar_bloco(ctx) {
+        if let Some(v) = buscar(ctx, &org_id, id).await {
+            spec = spec
+                .head(format!("Apagar a VPC {}?", sanitize(v.name.as_deref().unwrap_or(id))))
+                .row("VPC", format!("{} ({id})", sanitize(v.name.as_deref().unwrap_or("-"))))
+                .row("sub-rede", sanitize(v.subnet_cidr.as_deref().unwrap_or("-")))
+                .row("org", sanitize(&org_id));
+        }
+    }
+    confirmar_spec(ctx, &spec)?;
 
     let req = Request::delete(format!("/virt-tenants/org/{org_id}/{id}")).target(target);
     let Some(value) = ctx.run(req).await? else {
@@ -178,7 +214,7 @@ async fn delete(ctx: &Ctx, id: &str) -> Result<()> {
         return Ok(());
     }
 
-    println!("VPC {id} apagada.");
+    println!("{}", estilo_out(ctx).done(&format!("VPC {id} apagada.")));
 
     Ok(())
 }
