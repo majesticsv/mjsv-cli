@@ -5,8 +5,10 @@ use mjsv_core::config::{Config, Credentials, TOKEN_ENV};
 use mjsv_core::error::{LoginRefused, LoginStage, OrgNotInAccount, TokenRefused};
 use mjsv_core::models::{ApiToken, Identity, Listing};
 use mjsv_core::output::{cell, cell_date, Table};
+use mjsv_core::style::{sanitize, ConfirmSpec, LoginView, Marker, OrgSummary, SecretBox, Style, Tier, Tool};
 use mjsv_core::target::Target;
 use mjsv_core::Ctx;
+use std::io::Write;
 
 use crate::cli::{LoginArgs, TokenCommand};
 use crate::prompt;
@@ -53,8 +55,9 @@ pub async fn login(ctx: &Ctx, args: &LoginArgs) -> Result<()> {
         .clone()
         .ok_or_else(|| anyhow!("login aceito mas sem accessToken na resposta"))?;
 
+    let first = primeiro_login()?;
     save_session(&identity, token)?;
-    report_login(ctx, &identity)
+    report_login(ctx, &identity, first)
 }
 
 /// `mjsv login --token`: valida a chave antes de gravar.
@@ -80,8 +83,15 @@ async fn login_with_token(ctx: &Ctx) -> Result<()> {
         Err(e) => return Err(anyhow::Error::new(e).context("a chave informada não foi aceita pela API")),
     };
 
+    let first = primeiro_login()?;
     save_session(&identity, token.trim().to_string())?;
-    report_login(ctx, &identity)
+    report_login(ctx, &identity, first)
+}
+
+/// Ainda não existe arquivo de credenciais: é o primeiro login desta máquina e merece o banner
+/// completo. Tem de ser lido ANTES de `save_session`, que cria o arquivo.
+fn primeiro_login() -> Result<bool> {
+    Ok(!mjsv_core::config::credentials_path()?.exists())
 }
 
 fn save_session(identity: &Identity, token: String) -> Result<()> {
@@ -105,7 +115,7 @@ fn save_session(identity: &Identity, token: String) -> Result<()> {
     Ok(())
 }
 
-fn report_login(ctx: &Ctx, identity: &Identity) -> Result<()> {
+fn report_login(ctx: &Ctx, identity: &Identity, first: bool) -> Result<()> {
     if ctx.format.is_machine_readable() {
         // O token nunca sai na saída de máquina: `mjsv login --output json` acabaria em log de CI.
         let value = serde_json::json!({
@@ -117,28 +127,42 @@ fn report_login(ctx: &Ctx, identity: &Identity) -> Result<()> {
         return Ok(());
     }
 
-    println!(
-        "Autenticado como {} ({})",
-        identity.username.as_deref().unwrap_or("?"),
-        identity.id.as_deref().unwrap_or("?")
-    );
-
-    match identity.orgs.len() {
-        0 => println!("Nenhuma organização vinculada a esta conta."),
-        1 => println!(
-            "Organização: {} ({})",
-            identity.orgs[0].name.as_deref().unwrap_or("?"),
-            identity.orgs[0].id
-        ),
-        n => println!("{n} organizações — escolha com `mjsv org use <id>` (veja `mjsv org list`)."),
-    }
+    let out = Style::stdout(ctx.format, Tool::Mjsv);
+    println!("{}", login_view_text(&out, identity, first, ctx.client.base_url()));
 
     Ok(())
 }
 
+/// O texto do resultado do login. Separado de `report_login` para os testes escolherem o terminal.
+fn login_view_text(out: &Style, identity: &Identity, first: bool, base_url: &str) -> String {
+    // Nome e id vêm da API e entram em arte: sem controle nem bidi. Fora de um terminal estilizado
+    // o texto é o de hoje, byte a byte.
+    let safe = |s: &str| if out.fancy() { sanitize(s) } else { s.to_string() };
+
+    let orgs = match identity.orgs.as_slice() {
+        [] => OrgSummary::None,
+        [only] => OrgSummary::One {
+            name: safe(only.name.as_deref().unwrap_or("?")),
+            id: safe(&only.id),
+        },
+        many => OrgSummary::Many(many.len()),
+    };
+
+    out.login_result(&LoginView {
+        username: safe(identity.username.as_deref().unwrap_or("?")),
+        user_id: safe(identity.id.as_deref().unwrap_or("?")),
+        orgs,
+        first,
+        host: mjsv_core::style::api_host(base_url),
+        version: env!("CARGO_PKG_VERSION").to_string(),
+    })
+}
+
 pub async fn logout(ctx: &Ctx) -> Result<()> {
+    let out = Style::stdout(ctx.format, Tool::Mjsv);
+
     if !ctx.client.has_token() {
-        println!("Nenhuma sessão local para encerrar.");
+        println!("{}", out.noop("Nenhuma sessão local para encerrar."));
         return Ok(());
     }
 
@@ -152,11 +176,18 @@ pub async fn logout(ctx: &Ctx) -> Result<()> {
     }
 
     if let Err(e) = ctx.client.send_value(&req).await {
-        eprintln!("aviso: o servidor não confirmou o sign-out ({e}); a credencial local foi apagada mesmo assim");
+        // O aviso vai para stderr, então o glifo depende de stderr ser um terminal, não de stdout.
+        let err = Style::stderr(ctx.format, Tool::Mjsv);
+        let aviso = format!("o servidor não confirmou o sign-out ({e}); a credencial local foi apagada mesmo assim");
+        if err.fancy() {
+            eprintln!("{}", err.attention(&aviso));
+        } else {
+            eprintln!("aviso: {aviso}");
+        }
     }
 
     Credentials::clear()?;
-    println!("Sessão encerrada.");
+    println!("{}", out.logout_result());
 
     Ok(())
 }
@@ -173,17 +204,70 @@ pub async fn whoami(ctx: &Ctx) -> Result<()> {
 
     let identity: Identity = serde_json::from_value(value)?;
 
-    println!("Usuário:      {}", identity.username.as_deref().unwrap_or("-"));
-    println!("Nome:         {}", identity.name.as_deref().unwrap_or("-"));
-    println!("E-mail:       {}", identity.email.as_deref().unwrap_or("-"));
-    println!("Id:           {}", identity.id.as_deref().unwrap_or("-"));
-    println!(
-        "Organização:  {}",
-        ctx.org.as_deref().unwrap_or("(nenhuma selecionada)")
-    );
-    println!("API:          {}", ctx.client.base_url());
+    let out = Style::stdout(ctx.format, Tool::Mjsv);
+    let safe = |s: &str| if out.fancy() { sanitize(s) } else { s.to_string() };
+    let dash = |v: &Option<String>| safe(v.as_deref().unwrap_or("-"));
+
+    for line in whoami_lines(&out, &identity, ctx.org.as_deref(), ctx.client.base_url(), &safe, &dash) {
+        println!("{line}");
+    }
 
     Ok(())
+}
+
+/// O cartão de `whoami` (DV-whoami / EM-whoami): régua de título e as seis linhas de hoje.
+fn whoami_lines(
+    out: &Style,
+    identity: &Identity,
+    org: Option<&str>,
+    api: &str,
+    safe: &dyn Fn(&str) -> String,
+    dash: &dyn Fn(&Option<String>) -> String,
+) -> Vec<String> {
+    // Sem organização, o marcador `▲` mora dentro da célula do valor; sem terminal estilizado o
+    // texto é o da especificação (a dica entra na própria linha, em vez de ficar só no erro
+    // seguinte).
+    let org_cell = match org {
+        Some(o) => safe(o),
+        None if out.fancy() => format!(
+            "{} nenhuma selecionada (mjsv org use <id>)",
+            out.marker(Marker::Attention)
+        ),
+        None => "(nenhuma selecionada — `mjsv org use <id>`)".to_string(),
+    };
+
+    let mut lines = Vec::new();
+    if let Some(t) = out.title_rule(&format!("Conta {}", safe(identity.username.as_deref().unwrap_or("?")))) {
+        lines.push(t);
+    }
+    lines.extend(card(
+        out,
+        14,
+        &[
+            ("Usuário", dash(&identity.username)),
+            ("Nome", dash(&identity.name)),
+            ("E-mail", dash(&identity.email)),
+            ("Id", dash(&identity.id)),
+            ("Organização", org_cell),
+            ("API", api.to_string()),
+        ],
+    ));
+    lines
+}
+
+/// Linhas `Rótulo:   valor` de um cartão de dados.
+///
+/// Num terminal estilizado o rótulo é esmaecido e o valor começa em `maior rótulo + 3`. Fora dele
+/// o recuo é o de hoje (`plain_width` colunas), porque cada comando alinhava por conta própria e a
+/// saída encanada não pode mudar um espaço.
+pub(super) fn card(out: &Style, plain_width: usize, pairs: &[(&str, String)]) -> Vec<String> {
+    if out.fancy() {
+        return out.card_rows(pairs);
+    }
+    pairs
+        .iter()
+        .map(|(k, v)| format!("{}{v}", mjsv_core::style::pad(&format!("{k}:"), plain_width)))
+        .collect()
 }
 
 pub async fn token(ctx: &Ctx, cmd: &TokenCommand) -> Result<()> {
@@ -202,7 +286,17 @@ pub async fn token(ctx: &Ctx, cmd: &TokenCommand) -> Result<()> {
             let listing: Listing<ApiToken> = serde_json::from_value(value)?;
 
             if listing.data.is_empty() {
-                println!("Nenhuma chave de API. Crie uma com `mjsv token create <nome>`.");
+                // A frase de hoje já embute a dica; num terminal ela vira a linha esmaecida de EM-hint.
+                let out = Style::stdout(ctx.format, Tool::Mjsv);
+                println!(
+                    "{}",
+                    out.empty_hint_plain(
+                        "Nenhuma chave de API. Crie uma com `mjsv token create <nome>`.",
+                        "Nenhuma chave de API.",
+                        "crie uma",
+                        "mjsv token create <nome>",
+                    )
+                );
                 return Ok(());
             }
 
@@ -235,7 +329,29 @@ pub async fn token(ctx: &Ctx, cmd: &TokenCommand) -> Result<()> {
 
             let created: ApiToken = serde_json::from_value(value)?;
 
-            println!("Chave criada: {} ({})", cell(created.name.as_deref()), created.id);
+            let out = Style::stdout(ctx.format, Tool::Mjsv);
+            let nome = cell(created.name.as_deref());
+            let quem = format!("{nome} ({})", created.id);
+
+            // O segredo só aparece aqui; a caixa sai num único `write_all` com stdout travado para
+            // nada se intercalar a ele. Sem arte (pipe, NO_BANNER) valem as linhas de hoje.
+            let caixa = created.token.as_deref().and_then(|secret| {
+                out.secret_box(
+                    &SecretBox::new("COPIE AGORA", "não será mostrado de novo")
+                        .secret(sanitize(secret))
+                        .row("chave", sanitize(&quem))
+                        .row("use com", format!("export {TOKEN_ENV}=<valor>")),
+                )
+            });
+
+            if let Some(caixa) = caixa {
+                let mut stdout = std::io::stdout().lock();
+                stdout.write_all(format!("{caixa}\n").as_bytes())?;
+                stdout.flush()?;
+                return Ok(());
+            }
+
+            println!("Chave criada: {quem}");
             println!();
             match created.token.as_deref() {
                 // O aviso é literal porque é verdade: `GET /auth/token` não devolve mais o
@@ -254,8 +370,12 @@ pub async fn token(ctx: &Ctx, cmd: &TokenCommand) -> Result<()> {
 
         TokenCommand::Revoke { id } => {
             if !ctx.assume_yes && !ctx.print_request {
-                prompt::confirm(
-                    &format!("Revogar a chave {id}? Quem a usa perde o acesso na hora."),
+                // Nível 1: recuperável (cria-se outra chave), mas quem usa esta perde o acesso agora.
+                prompt::confirm_spec(
+                    &ConfirmSpec::new(
+                        Tier::T1,
+                        format!("Revogar a chave {id}? Quem a usa perde o acesso na hora."),
+                    ),
                     ctx.format,
                 )?;
             }
@@ -263,7 +383,10 @@ pub async fn token(ctx: &Ctx, cmd: &TokenCommand) -> Result<()> {
             let req = Request::delete(format!("/auth/token/{id}")).target(Target::root());
             let Some(_) = ctx.run(req).await? else { return Ok(()) };
 
-            println!("Chave {id} revogada.");
+            println!(
+                "{}",
+                Style::stdout(ctx.format, Tool::Mjsv).done(&format!("Chave {id} revogada."))
+            );
 
             Ok(())
         }
@@ -289,7 +412,15 @@ pub async fn org_list(ctx: &Ctx) -> Result<()> {
     }
 
     if identity.orgs.is_empty() {
-        println!("Nenhuma organização vinculada a esta conta.");
+        let out = Style::stdout(ctx.format, Tool::Mjsv);
+        println!(
+            "{}",
+            out.empty_hint(
+                "Nenhuma organização vinculada a esta conta.",
+                "comece por",
+                "mjsv org create <nome>"
+            )
+        );
         return Ok(());
     }
 
@@ -325,7 +456,76 @@ pub async fn org_use(ctx: &Ctx, org: &str) -> Result<()> {
     config.org = Some(org.to_string());
     config.save()?;
 
-    println!("Organização corrente: {org}");
+    println!(
+        "{}",
+        Style::stdout(ctx.format, Tool::Mjsv).done(&format!("Organização corrente: {org}"))
+    );
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use mjsv_core::style::{Charset, Depth};
+
+    fn identity(orgs: &[(&str, &str)]) -> Identity {
+        let orgs: Vec<_> = orgs
+            .iter()
+            .map(|(id, name)| serde_json::json!({"id": id, "name": name}))
+            .collect();
+        serde_json::from_value(serde_json::json!({
+            "id": "Qw3Rt", "username": "ana", "name": "Ana Souza", "email": "ana@acme.com.br", "orgs": orgs,
+        }))
+        .unwrap()
+    }
+
+    #[test]
+    fn whoami_sem_org_usa_marcador_na_celula_e_texto_da_spec_no_pipe() {
+        let id = identity(&[]);
+        let safe = |s: &str| s.to_string();
+        let dash = |v: &Option<String>| v.clone().unwrap_or_else(|| "-".into());
+
+        let tty = Style::terminal(Tool::Mjsv, Charset::Ascii, Depth::None, 100);
+        let linhas = whoami_lines(&tty, &id, None, "https://api", &safe, &dash);
+        assert!(linhas[0].starts_with("-- Conta ana "));
+        assert!(linhas.contains(&"Organização:  ! nenhuma selecionada (mjsv org use <id>)".to_string()));
+
+        let pipe = Style::plain(Tool::Mjsv);
+        let linhas = whoami_lines(&pipe, &id, None, "https://api", &safe, &dash);
+        assert_eq!(linhas.len(), 6);
+        assert_eq!(linhas[0], "Usuário:      ana");
+        assert_eq!(linhas[4], "Organização:  (nenhuma selecionada — `mjsv org use <id>`)");
+        assert_eq!(linhas[5], "API:          https://api");
+    }
+
+    #[test]
+    fn login_no_pipe_e_o_texto_de_hoje() {
+        let pipe = Style::plain(Tool::Mjsv);
+        let um = identity(&[("nUME7", "acme")]);
+        assert_eq!(
+            login_view_text(&pipe, &um, true, "https://api.mjsv.io"),
+            "Autenticado como ana (Qw3Rt)\nOrganização: acme (nUME7)"
+        );
+        assert_eq!(
+            login_view_text(&pipe, &identity(&[]), false, "https://api.mjsv.io"),
+            "Autenticado como ana (Qw3Rt)\nNenhuma organização vinculada a esta conta."
+        );
+    }
+
+    #[test]
+    fn login_em_terminal_estreito_vira_coroa_compacta() {
+        let tty = Style::terminal(Tool::Mjsv, Charset::Ascii, Depth::None, 50);
+        let um = identity(&[("nUME7", "acme")]);
+        let texto = login_view_text(&tty, &um, true, "https://api.mjsv.io");
+        assert!(texto.contains("[+] Autenticado como ana (Qw3Rt)"));
+        assert!(texto.contains("org: acme (nUME7)"));
+    }
+
+    #[test]
+    fn cartao_no_pipe_mantem_o_recuo_de_hoje() {
+        let pipe = Style::plain(Tool::Mjsv);
+        let linhas = card(&pipe, 11, &[("Id", "x".to_string()), ("Criada em", "y".to_string())]);
+        assert_eq!(linhas, vec!["Id:        x", "Criada em: y"]);
+    }
 }

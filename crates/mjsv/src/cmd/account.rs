@@ -4,6 +4,7 @@ use anyhow::{anyhow, Result};
 use mjsv_core::client::Request;
 use mjsv_core::models::Listing;
 use mjsv_core::output::{cell, cell_date, Table};
+use mjsv_core::style::{sanitize, Marker, Style, Tool};
 use mjsv_core::target::Target;
 use mjsv_core::Ctx;
 use serde::Deserialize;
@@ -88,31 +89,10 @@ fn reais(cents: Option<i64>) -> String {
 }
 
 fn print_me(ctx: &Ctx, me: &Me) {
-    println!("Usuário:         {}", cell(me.username.as_deref()));
-    println!("Nome:            {}", cell(me.name.as_deref()));
-    println!(
-        "E-mail:          {} (verificado: {})",
-        cell(me.email.as_deref()),
-        sim_nao(me.email_verified)
-    );
-    println!("Id:              {}", cell(me.id.as_deref()));
-    println!("Saldo:           {}", reais(me.balance));
-    println!("2FA:             {}", sim_nao(me.otp_enabled));
-    println!(
-        "Documento:       {} ({})",
-        cell(me.tax_id_type.as_deref()),
-        if me.has_tax_id == Some(true) {
-            "cadastrado"
-        } else {
-            "não cadastrado"
-        }
-    );
-    println!("Razão social:    {}", cell(me.legal_name.as_deref()));
-    println!(
-        "Organização:     {}",
-        ctx.org.as_deref().unwrap_or("(nenhuma selecionada)")
-    );
-    println!("API:             {}", ctx.client.base_url());
+    let out = Style::stdout(ctx.format, Tool::Mjsv);
+    for line in me_lines(&out, me, ctx.org.as_deref(), ctx.client.base_url()) {
+        println!("{line}");
+    }
 
     if !me.orgs.is_empty() {
         println!();
@@ -122,6 +102,62 @@ fn print_me(ctx: &Ctx, me: &Me) {
         }
         print!("{}", table.render_out());
     }
+}
+
+/// O cartão do perfil (DV-whoami completo): régua de título e as linhas de hoje.
+fn me_lines(out: &Style, me: &Me, org: Option<&str>, api: &str) -> Vec<String> {
+    // Texto da API dentro de um cartão desenhado: sem controle nem bidi. Fora de um terminal
+    // estilizado fica o texto de hoje.
+    let safe = |s: String| if out.fancy() { sanitize(&s) } else { s };
+
+    let org_cell = match org {
+        Some(o) => safe(o.to_string()),
+        None if out.fancy() => format!(
+            "{} nenhuma selecionada (mjsv org use <id>)",
+            out.marker(Marker::Attention)
+        ),
+        None => "(nenhuma selecionada — `mjsv org use <id>`)".to_string(),
+    };
+
+    let mut lines = Vec::new();
+    if let Some(t) = out.title_rule(&format!("Conta {}", safe(cell(me.username.as_deref())))) {
+        lines.push(t);
+    }
+    lines.extend(super::auth::card(
+        out,
+        17,
+        &[
+            ("Usuário", safe(cell(me.username.as_deref()))),
+            ("Nome", safe(cell(me.name.as_deref()))),
+            (
+                "E-mail",
+                format!(
+                    "{} (verificado: {})",
+                    safe(cell(me.email.as_deref())),
+                    sim_nao(me.email_verified)
+                ),
+            ),
+            ("Id", safe(cell(me.id.as_deref()))),
+            ("Saldo", reais(me.balance)),
+            ("2FA", sim_nao(me.otp_enabled).to_string()),
+            (
+                "Documento",
+                format!(
+                    "{} ({})",
+                    safe(cell(me.tax_id_type.as_deref())),
+                    if me.has_tax_id == Some(true) {
+                        "cadastrado"
+                    } else {
+                        "não cadastrado"
+                    }
+                ),
+            ),
+            ("Razão social", safe(cell(me.legal_name.as_deref()))),
+            ("Organização", org_cell),
+            ("API", api.to_string()),
+        ],
+    ));
+    lines
 }
 
 pub async fn profile(ctx: &Ctx, cmd: &ProfileCommand) -> Result<()> {
@@ -199,7 +235,7 @@ pub async fn profile(ctx: &Ctx, cmd: &ProfileCommand) -> Result<()> {
                 return Ok(());
             }
 
-            println!("Perfil atualizado.");
+            println!("{}", Style::stdout(ctx.format, Tool::Mjsv).done("Perfil atualizado."));
 
             Ok(())
         }
@@ -364,7 +400,10 @@ pub async fn notification(ctx: &Ctx, cmd: &NotificationCommand) -> Result<()> {
                 return Ok(());
             }
 
-            println!("Notificação {id} marcada como lida.");
+            println!(
+                "{}",
+                Style::stdout(ctx.format, Tool::Mjsv).done(&format!("Notificação {id} marcada como lida."))
+            );
 
             Ok(())
         }
@@ -380,7 +419,10 @@ pub async fn notification(ctx: &Ctx, cmd: &NotificationCommand) -> Result<()> {
                 return Ok(());
             }
 
-            println!("Todas as notificações marcadas como lidas.");
+            println!(
+                "{}",
+                Style::stdout(ctx.format, Tool::Mjsv).done("Todas as notificações marcadas como lidas.")
+            );
 
             Ok(())
         }
@@ -399,7 +441,10 @@ pub async fn notification(ctx: &Ctx, cmd: &NotificationCommand) -> Result<()> {
                 return Ok(());
             }
 
-            println!("Notificação {id} apagada.");
+            println!(
+                "{}",
+                Style::stdout(ctx.format, Tool::Mjsv).done(&format!("Notificação {id} apagada."))
+            );
 
             Ok(())
         }
@@ -421,7 +466,10 @@ pub async fn notification(ctx: &Ctx, cmd: &NotificationCommand) -> Result<()> {
                 return Ok(());
             }
 
-            println!("Notificações lidas apagadas.");
+            println!(
+                "{}",
+                Style::stdout(ctx.format, Tool::Mjsv).done("Notificações lidas apagadas.")
+            );
 
             Ok(())
         }
@@ -431,6 +479,35 @@ pub async fn notification(ctx: &Ctx, cmd: &NotificationCommand) -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn me() -> Me {
+        serde_json::from_value(json!({
+            "id": "Qw3Rt", "name": "Ana Souza", "username": "ana", "email": "ana@acme.com.br",
+            "balance": 15240, "emailVerified": true, "otpEnabled": false, "taxIdType": "CPF", "hasTaxId": true,
+        }))
+        .unwrap()
+    }
+
+    #[test]
+    fn perfil_no_pipe_mantem_o_alinhamento_de_hoje() {
+        let linhas = me_lines(&Style::plain(Tool::Mjsv), &me(), Some("nUME7"), "https://api");
+        assert_eq!(linhas[0], "Usuário:         ana");
+        assert_eq!(linhas[2], "E-mail:          ana@acme.com.br (verificado: sim)");
+        assert_eq!(linhas[4], "Saldo:           R$ 152,40");
+        assert_eq!(linhas[8], "Organização:     nUME7");
+        assert_eq!(linhas.len(), 10);
+    }
+
+    #[test]
+    fn perfil_em_terminal_ganha_regua_e_marcador_sem_org() {
+        use mjsv_core::style::{Charset, Depth};
+        let tty = Style::terminal(Tool::Mjsv, Charset::Ascii, Depth::None, 100);
+        let linhas = me_lines(&tty, &me(), None, "https://api");
+        assert!(linhas[0].starts_with("-- Conta ana "));
+        assert!(linhas
+            .iter()
+            .any(|l| l.contains("! nenhuma selecionada (mjsv org use <id>)")));
+    }
 
     #[test]
     fn saldo_em_centavos_vira_reais() {
