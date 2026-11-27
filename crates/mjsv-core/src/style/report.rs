@@ -165,6 +165,17 @@ impl Style {
     pub fn render_error(&self, err: &anyhow::Error, rc: &ReportCtx) -> String {
         let plain = format!("erro: {err:#}");
         if !self.fancy() {
+            // Saída de máquina com o stderr num terminal: o texto continua o de hoje, mas a mensagem
+            // da API não pode levar ESC/OSC/bidi até a tela. Erro vindo da API perde também as
+            // quebras de linha (uma linha falsa seria indistinguível); os demais mantêm as suas.
+            // Sem terminal nada muda, byte a byte.
+            if self.caps.tty {
+                return if err.chain().any(|c| c.is::<ApiError>()) {
+                    sanitize(&plain)
+                } else {
+                    plain.split('\n').map(sanitize).collect::<Vec<_>>().join("\n")
+                };
+            }
             return plain;
         }
 
@@ -588,6 +599,21 @@ mod tests {
 
     fn render(s: &Style, e: impl Into<anyhow::Error>, rc: &ReportCtx) -> String {
         super::super::strip_ansi(&s.render_error(&e.into(), rc))
+    }
+
+    #[test]
+    fn saida_de_maquina_em_terminal_saneia_a_mensagem_da_api() {
+        use super::super::caps::{Caps, MapEnv};
+        let m = Style::new(
+            Caps::detect(&MapEnv::new(&[]), true, Some(100), true, false),
+            Tool::Mjsv,
+        );
+        let e = anyhow::Error::from(ApiError::Unauthorized).context("a\x1b]0;x\x07b\u{202e}c\r\nFAKE");
+        let out = m.render_error(&e, &rc());
+        assert!(!out.contains(['\x1b', '\x07', '\u{202e}', '\r', '\n']), "{out:?}");
+        // Sem terminal: o texto de hoje, intacto.
+        let p = Style::plain(Tool::Mjsv);
+        assert_eq!(p.render_error(&anyhow::anyhow!("a\nb"), &rc()), "erro: a\nb");
     }
 
     #[test]

@@ -280,7 +280,8 @@ impl Style {
     /// (para o JSON do stdout continuar encanável). Proposta da especificação, bloqueada por texto
     /// novo por comando; a forma degradada é `✓ {comando}: concluído`.
     pub fn staff_done_line(&self, text: &str) -> Option<String> {
-        self.fancy().then(|| format!("{} {text}", self.glyph(Glyph::Done)))
+        self.fancy()
+            .then(|| format!("{} {}", self.glyph(Glyph::Done), super::text::sanitize(text)))
     }
 
     /// `mjsvadm whoami` sem a flag de sistema (ER-flag): aviso depois dos campos, exit 0. Fora de um

@@ -117,6 +117,12 @@ fn need_terminal(what: &'static str, hint: NoTerminalHint) -> Result<Sink, Promp
     Sink::pick().ok_or(PromptError::NoTerminal { what, hint })
 }
 
+/// Há como perguntar agora? Quem alimenta o cartão com um GET só deve pagá-lo se a pergunta vai
+/// mesmo acontecer; sem terminal o erro é o de hoje (`exige um terminal`), sem requisição extra.
+pub fn can_ask() -> bool {
+    std::io::stdin().is_terminal() && Sink::pick().is_some()
+}
+
 fn default_hint(tool: Tool) -> NoTerminalHint {
     match tool {
         Tool::Mjsv => NoTerminalHint::Token,
