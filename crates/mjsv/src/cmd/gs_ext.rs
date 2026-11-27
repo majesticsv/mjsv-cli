@@ -193,7 +193,7 @@ async fn file_ls(ctx: &Ctx, id: &str, dir: &str) -> Result<()> {
             cell(e.modified_at.as_deref()),
         ]);
     }
-    print!("{}", table.render());
+    print!("{}", table.render_out());
 
     Ok(())
 }

@@ -166,7 +166,7 @@ pub async fn list(ctx: &Ctx, path: &str, target: Target, f: &IncidentFilter) -> 
             texto(&i.vector),
         ]);
     }
-    print!("{}", table.render());
+    print!("{}", table.render_out());
 
     if let Some(c) = page.next_cursor.as_deref().filter(|c| !c.is_empty()) {
         println!("Mais resultados: repita com --cursor {c}");

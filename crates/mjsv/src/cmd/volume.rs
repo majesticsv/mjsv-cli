@@ -62,7 +62,7 @@ fn tabela_volumes(volumes: &[Volume]) {
             cell(v.target_dev.as_deref()),
         ]);
     }
-    print!("{}", table.render());
+    print!("{}", table.render_out());
 }
 
 async fn list(ctx: &Ctx) -> Result<()> {
@@ -142,7 +142,7 @@ async fn products(ctx: &Ctx, vm_service: &str) -> Result<()> {
             reais(p.base_price),
         ]);
     }
-    print!("{}", table.render());
+    print!("{}", table.render_out());
 
     Ok(())
 }

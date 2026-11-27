@@ -120,7 +120,7 @@ fn print_me(ctx: &Ctx, me: &Me) {
         for o in &me.orgs {
             table.push(vec![cell(o.id.as_deref()), cell(o.name.as_deref())]);
         }
-        print!("{}", table.render());
+        print!("{}", table.render_out());
     }
 }
 
@@ -253,7 +253,7 @@ pub async fn session(ctx: &Ctx, cmd: &SessionCommand) -> Result<()> {
                     cell_date(s.updated_at.as_deref()),
                 ]);
             }
-            print!("{}", table.render());
+            print!("{}", table.render_out());
 
             Ok(())
         }
@@ -319,7 +319,7 @@ pub async fn notification(ctx: &Ctx, cmd: &NotificationCommand) -> Result<()> {
                     cell_date(x.created_at.as_deref()),
                 ]);
             }
-            print!("{}", table.render());
+            print!("{}", table.render_out());
 
             Ok(())
         }

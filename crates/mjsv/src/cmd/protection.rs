@@ -82,7 +82,7 @@ async fn show(ctx: &Ctx, service: &str) -> Result<()> {
             cell(a.region_id.as_deref()),
         ]);
     }
-    print!("{}", table.render());
+    print!("{}", table.render_out());
 
     Ok(())
 }

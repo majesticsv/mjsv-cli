@@ -1,56 +1,31 @@
-//! Entrada interativa.
+//! Entrada interativa do `mjsv`: um invólucro fino sobre `mjsv_core::prompt`.
 //!
-//! Todo prompt daqui falha em vez de travar quando não há terminal: um CLI que espera resposta
-//! dentro de um pipeline de CI fica pendurado até o timeout do job, e o motivo não aparece em
-//! lugar nenhum.
+//! A lógica (onde a pergunta é escrita, os níveis de confirmação, a leitura do nome do nível 3)
+//! mora no core e é a mesma do `mjsvadm`. Aqui só se fixa a ferramenta e se mantém a assinatura
+//! que os comandos já usam.
 
-use std::io::{BufRead, IsTerminal, Write};
-
-use anyhow::{anyhow, Result};
+use anyhow::Result;
 use mjsv_core::output::Format;
-
-fn exige_terminal(o_que: &str) -> Result<()> {
-    if std::io::stdin().is_terminal() {
-        return Ok(());
-    }
-
-    Err(anyhow!(
-        "{o_que} exige um terminal — em script, autentique com a variável MJSV_TOKEN"
-    ))
-}
+use mjsv_core::style::{ConfirmSpec, Tool};
 
 pub fn line(prompt: &str) -> Result<String> {
-    exige_terminal("esta pergunta")?;
-
-    print!("{prompt}");
-    std::io::stdout().flush()?;
-
-    let mut buf = String::new();
-    std::io::stdin().lock().read_line(&mut buf)?;
-
-    Ok(buf.trim().to_string())
+    mjsv_core::prompt::line(Tool::Mjsv, prompt)
 }
 
 pub fn password(prompt: &str) -> Result<String> {
-    exige_terminal("a leitura de senha")?;
-
-    Ok(rpassword::prompt_password(prompt)?)
+    mjsv_core::prompt::password(Tool::Mjsv, prompt)
 }
 
-/// Confirmação de operação destrutiva.
+/// Confirmação de nível 0: a pergunta de hoje, com `[s/N]`.
 ///
-/// Em saída de máquina não há como perguntar, então `--yes` passa a ser obrigatório: o contrário
-/// seria um script que apaga recurso sem ninguém ter confirmado nada.
+/// Em saída de máquina `--yes` é obrigatório; sem terminal, é erro em vez de travar.
 pub fn confirm(pergunta: &str, format: Format) -> Result<()> {
-    if format.is_machine_readable() {
-        return Err(anyhow!("{pergunta}\nem saída não interativa, confirme com --yes"));
-    }
+    confirm_spec(&ConfirmSpec::simple(pergunta), format)
+}
 
-    let resposta = line(&format!("{pergunta} [s/N] "))?;
-
-    if matches!(resposta.to_lowercase().as_str(), "s" | "sim" | "y" | "yes") {
-        return Ok(());
-    }
-
-    Err(anyhow!("cancelado"))
+/// Confirmação com nível (1 a 3) e linhas de contexto: o que os comandos usam para pedir o bloco
+/// de CF-1..CF-3, inclusive o nome digitado do nível 3.
+#[allow(dead_code)] // consumido pelos comandos que adotarem os níveis
+pub fn confirm_spec(spec: &ConfirmSpec, format: Format) -> Result<()> {
+    mjsv_core::prompt::confirm(Tool::Mjsv, spec, format)
 }

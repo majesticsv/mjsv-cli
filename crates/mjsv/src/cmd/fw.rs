@@ -49,7 +49,7 @@ async fn list(ctx: &Ctx, vm: &str) -> Result<()> {
                 cell(rule.description.as_deref()),
             ]);
         }
-        print!("{}", table.render());
+        print!("{}", table.render_out());
     }
 
     if !view.gameguard.is_empty() {
@@ -63,7 +63,7 @@ async fn list(ctx: &Ctx, vm: &str) -> Result<()> {
             ]);
         }
         println!("gameguard:");
-        print!("{}", table.render());
+        print!("{}", table.render_out());
     }
 
     Ok(())
@@ -199,7 +199,7 @@ pub async fn eip(ctx: &Ctx, cmd: &EipCommand) -> Result<()> {
                         cell(e.attached_private_ip.as_deref()),
                     ]);
                 }
-                print!("{}", table.render());
+                print!("{}", table.render_out());
             }
 
             if !view.v6.is_empty() {
@@ -208,7 +208,7 @@ pub async fn eip(ctx: &Ctx, cmd: &EipCommand) -> Result<()> {
                 for p in &view.v6 {
                     table.push(vec![cell(p.prefix.as_deref()), cell(p.state.as_deref())]);
                 }
-                print!("{}", table.render());
+                print!("{}", table.render_out());
 
                 // Prefixo delegado sem endereço aprendido = o convidado ainda não subiu o v6.
                 // Dizer isso é mais útil do que uma seção vazia.

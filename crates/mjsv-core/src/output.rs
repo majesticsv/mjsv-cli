@@ -10,6 +10,8 @@ use std::fmt::Write as _;
 
 use serde_json::Value;
 
+use crate::style::{sanitize, Semantics, Style, Tool};
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum Format {
     #[default]
@@ -28,6 +30,22 @@ impl Format {
         }
     }
 
+    /// O formato pedido na linha de comando, lido do `argv` cru. Serve aos caminhos em que o clap
+    /// ainda não devolveu um `Cli` (`--version`, ajuda, erro de uso): ali `--output json` precisa
+    /// valer do mesmo jeito, senão a saída de máquina ganharia arte.
+    pub fn from_args(args: &[String]) -> Option<Format> {
+        let mut it = args.iter();
+        while let Some(a) = it.next() {
+            if let Some(v) = a.strip_prefix("--output=") {
+                return Format::parse(v);
+            }
+            if a == "--output" {
+                return it.next().and_then(|v| Format::parse(v));
+            }
+        }
+        None
+    }
+
     /// Formato de máquina não pode fazer pergunta em prompt — não há quem responda.
     pub fn is_machine_readable(self) -> bool {
         matches!(self, Format::Json | Format::Yaml)
@@ -38,6 +56,8 @@ impl Format {
 pub struct Table {
     pub headers: Vec<String>,
     pub rows: Vec<Vec<String>>,
+    /// Como ler `running` numa coluna de estado: recurso saudável ou operação em andamento.
+    pub semantics: Semantics,
 }
 
 impl Table {
@@ -45,11 +65,50 @@ impl Table {
         Table {
             headers: headers.iter().map(|h| h.to_string()).collect(),
             rows: Vec::new(),
+            semantics: Semantics::Resource,
         }
+    }
+
+    /// Tabela de operações: `running` é "em andamento", não "ok".
+    pub fn operations(mut self) -> Self {
+        self.semantics = Semantics::Operation;
+        self
     }
 
     pub fn push(&mut self, row: Vec<String>) {
         self.rows.push(row);
+    }
+
+    /// A tabela para o stdout: `render()` byte a byte quando o stdout não é um terminal estilizado
+    /// (pipe, arquivo, `NO_COLOR` não muda estrutura, `TERM=dumb`); num terminal, cabeçalho em
+    /// negrito e marcador de estado nas colunas `ESTADO`/`STATUS`/`SAÚDE`.
+    ///
+    /// É o que todo comando chama no lugar de `render()`: o estilo é decidido aqui, uma vez, e não
+    /// em cada um dos comandos.
+    pub fn render_out(&self) -> String {
+        self.render_styled(&Style::stdout(Format::Table, Tool::Mjsv))
+    }
+
+    /// Como [`Table::render_out`] com o estilo dado (testável sem terminal).
+    pub fn render_styled(&self, style: &Style) -> String {
+        if self.rows.is_empty() || !style.fancy() {
+            return self.render();
+        }
+        let state_cols: Vec<usize> = self
+            .headers
+            .iter()
+            .enumerate()
+            .filter(|(_, h)| matches!(h.to_uppercase().as_str(), "ESTADO" | "STATUS" | "SAÚDE"))
+            .map(|(i, _)| i)
+            .collect();
+        // Texto da API dentro de uma tabela também é saneado: ESC num nome de VM repintaria o
+        // terminal de quem lista.
+        let rows: Vec<Vec<String>> = self
+            .rows
+            .iter()
+            .map(|r| r.iter().map(|c| sanitize(c)).collect())
+            .collect();
+        style.table(&self.headers, &rows, &state_cols, self.semantics)
     }
 
     pub fn render(&self) -> String {

@@ -17,3 +17,7 @@ tracing.workspace = true
 toml.workspace = true
 dirs.workspace = true
 chrono.workspace = true
+unicode-width.workspace = true
+unicode-normalization.workspace = true
+terminal_size.workspace = true
+rpassword.workspace = true

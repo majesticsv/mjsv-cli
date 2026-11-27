@@ -45,7 +45,7 @@ async fn list(ctx: &Ctx) -> Result<()> {
             cell(vm.os_name.as_deref()),
         ]);
     }
-    print!("{}", table.render());
+    print!("{}", table.render_out());
 
     Ok(())
 }

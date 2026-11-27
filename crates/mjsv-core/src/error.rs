@@ -25,6 +25,13 @@ pub enum ApiError {
     #[error("não encontrado: {0}")]
     NotFound(String),
 
+    /// Comando de escopo de organização sem organização selecionada.
+    ///
+    /// Era um `Api { status: 0, .. }`, e o `Display` desse variante vazava o `0:` na frente da
+    /// mensagem. Variante própria também deixa o renderizador desenhar o cartão certo.
+    #[error("nenhuma organização selecionada — rode `mjsv org list` e depois `mjsv org use <id>`")]
+    NoOrg,
+
     #[error("{status}: {message}")]
     Api { status: u16, message: String },
 
@@ -38,6 +45,74 @@ pub enum ApiError {
     #[error("resposta inesperada da API em {path}: {message}")]
     Decode { path: String, message: String },
 }
+
+/// Em que etapa do login a API recusou. Um 401 de quem nunca teve sessão não é "sessão expirada".
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LoginStage {
+    /// Não se sabe em que etapa foi recusado: o texto único da especificação.
+    Any,
+    Password,
+    OtpCode,
+    RecoveryCode,
+}
+
+/// O `sign-in` foi recusado (usuário, senha ou código 2FA).
+#[derive(Debug)]
+pub struct LoginRefused {
+    pub stage: LoginStage,
+}
+
+impl std::fmt::Display for LoginRefused {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(match self.stage {
+            LoginStage::Any => "login recusado: usuário, senha ou código 2FA não conferem",
+            LoginStage::Password => "login recusado: usuário ou senha não conferem",
+            LoginStage::OtpCode => "login recusado: código 2FA não confere",
+            LoginStage::RecoveryCode => "login recusado: código de recuperação não confere",
+        })
+    }
+}
+
+impl std::error::Error for LoginRefused {}
+
+impl LoginRefused {
+    /// Converte um 401 do sign-in em recusa de login; qualquer outro erro passa como veio.
+    pub fn from_unauthorized(e: ApiError, stage: LoginStage) -> anyhow::Error {
+        match e {
+            ApiError::Unauthorized => anyhow::Error::new(LoginRefused { stage }),
+            other => anyhow::Error::new(other),
+        }
+    }
+}
+
+/// `mjsv login --token` com uma chave que a API não aceitou.
+#[derive(Debug, thiserror::Error)]
+#[error("a chave informada não foi aceita pela API: sessão expirada ou token revogado — rode `mjsv login`")]
+pub struct TokenRefused;
+
+/// `mjsv org use` com uma organização que não é da conta.
+#[derive(Debug)]
+pub struct OrgNotInAccount {
+    pub org: String,
+    pub available: Vec<String>,
+}
+
+impl std::fmt::Display for OrgNotInAccount {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let lista = if self.available.is_empty() {
+            "nenhuma".to_string()
+        } else {
+            self.available.join(", ")
+        };
+        write!(
+            f,
+            "organização {} não pertence a esta conta (disponíveis: {lista})",
+            self.org
+        )
+    }
+}
+
+impl std::error::Error for OrgNotInAccount {}
 
 /// Extrai a mensagem de um corpo de erro do Nest.
 ///

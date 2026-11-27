@@ -273,7 +273,7 @@ pub async fn payment(ctx: &Ctx, cmd: &PaymentCommand) -> Result<()> {
             for m in &metodos {
                 table.push(vec![cell(m.name.as_deref()), m.types.join(", ")]);
             }
-            print!("{}", table.render());
+            print!("{}", table.render_out());
 
             Ok(())
         }
@@ -337,7 +337,7 @@ pub async fn product(ctx: &Ctx, cmd: &ProductCommand) -> Result<()> {
                     preco_formatado(p.base_price.as_ref()),
                 ]);
             }
-            print!("{}", table.render());
+            print!("{}", table.render_out());
 
             Ok(())
         }
@@ -393,7 +393,7 @@ pub async fn product(ctx: &Ctx, cmd: &ProductCommand) -> Result<()> {
                     if i.is_default.unwrap_or(false) { "sim" } else { "" }.to_string(),
                 ]);
             }
-            print!("{}", table.render());
+            print!("{}", table.render_out());
 
             Ok(())
         }

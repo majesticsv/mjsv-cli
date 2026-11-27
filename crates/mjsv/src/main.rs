@@ -2,13 +2,15 @@ mod cli;
 mod cmd;
 mod prompt;
 
+use clap::error::ErrorKind;
 use clap::Parser;
 use mjsv_core::client::Client;
 use mjsv_core::config::{Config, Credentials};
 use mjsv_core::output::{to_json, to_yaml, Format};
+use mjsv_core::style::{ReportCtx, Style, Tool};
 use mjsv_core::Ctx;
 
-use cli::{Cli, Command};
+use cli::{Cli, Command, GlobalArgs};
 
 pub fn render_value(format: Format, value: &serde_json::Value) {
     match format {
@@ -35,15 +37,83 @@ fn init_tracing(verbose: u8) {
         .init();
 }
 
+/// O formato pedido, para os caminhos que rodam antes de existir um `Cli` (ajuda, versão, erro de
+/// uso): `--output json` vale ali também, senão a saída de máquina ganharia arte.
+fn format_from_env() -> Format {
+    let args: Vec<String> = std::env::args().collect();
+    Format::from_args(&args)
+        .or_else(|| {
+            Config::load()
+                .ok()
+                .and_then(|c| c.output)
+                .as_deref()
+                .and_then(Format::parse)
+        })
+        .unwrap_or_default()
+}
+
+/// Erros do clap: `--version` com a coroa e a tela inicial no `mjsv` sem argumentos, ambos só num
+/// terminal. Todo o resto — e todo fluxo que não é terminal — sai pelo clap, byte a byte como antes.
+async fn parse_error(e: clap::Error) -> ! {
+    let format = format_from_env();
+    match e.kind() {
+        ErrorKind::DisplayVersion => {
+            if let Some(line) = Style::stdout(format, Tool::Mjsv).version_line(env!("CARGO_PKG_VERSION")) {
+                println!("{line}");
+                std::process::exit(0);
+            }
+        }
+        ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand => {
+            let style = Style::stderr(format, Tool::Mjsv);
+            if style.art() {
+                if let Some(banner) = home_banner(&style).await {
+                    eprintln!("{banner}");
+                }
+            }
+        }
+        _ => {}
+    }
+    e.exit()
+}
+
+/// A tela inicial: o banner HERO com as linhas reais. Sem sessão, nenhuma requisição.
+async fn home_banner(style: &Style) -> Option<String> {
+    let config = Config::load().ok()?;
+    let credentials = Credentials::load().ok()?;
+    let api_url = config.resolve_api_url(None);
+    let client = Client::new(&api_url, credentials.resolve_token()).ok()?;
+    let infos = mjsv_core::home::customer_infos(style, &client, config.org.as_deref()).await;
+    style.home(env!("CARGO_PKG_VERSION"), &infos)
+}
+
+/// O erro de um comando, desenhado para o stderr.
+fn render_failure(global: &GlobalArgs, e: &anyhow::Error) -> String {
+    let config = Config::load().unwrap_or_default();
+    let format = global
+        .output
+        .as_deref()
+        .or(config.output.as_deref())
+        .and_then(Format::parse)
+        .unwrap_or_default();
+    let api_url = config.resolve_api_url(global.api_url.as_deref());
+    let args: Vec<String> = std::env::args().collect();
+    let rc = ReportCtx::detect(&api_url, global.api_url.is_some(), global.verbose, &args);
+    Style::stderr(format, Tool::Mjsv).render_error(e, &rc)
+}
+
 #[tokio::main]
 async fn main() {
-    let cli = Cli::parse();
+    let cli = match Cli::try_parse() {
+        Ok(cli) => cli,
+        Err(e) => parse_error(e).await,
+    };
 
     init_tracing(cli.global.verbose);
 
+    let global = cli.global.clone();
     if let Err(e) = run(cli).await {
-        // `{e:#}` traz a cadeia do anyhow; sem isso o contexto do erro se perde.
-        eprintln!("erro: {e:#}");
+        // Fora de um terminal isto é `erro: {e:#}` como sempre; num terminal, o cartão ER-.
+        eprintln!("{}", render_failure(&global, &e));
         std::process::exit(1);
     }
 }

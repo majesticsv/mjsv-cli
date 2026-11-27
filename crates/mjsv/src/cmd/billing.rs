@@ -45,7 +45,7 @@ async fn order_list(ctx: &Ctx, path: &str, titulo_vazio: &str) -> Result<()> {
             cell_date(o.created_at.as_deref()),
         ]);
     }
-    print!("{}", table.render());
+    print!("{}", table.render_out());
 
     Ok(())
 }
@@ -200,7 +200,7 @@ pub async fn ticket(ctx: &Ctx, cmd: &TicketCommand) -> Result<()> {
                     cell(t.category.as_ref().and_then(|c| c.name.as_deref())),
                 ]);
             }
-            print!("{}", table.render());
+            print!("{}", table.render_out());
 
             Ok(())
         }
@@ -429,7 +429,7 @@ pub async fn ssh_key(ctx: &Ctx, cmd: &SshKeyCommand) -> Result<()> {
                     cell_date(k.created_at.as_deref()),
                 ]);
             }
-            print!("{}", table.render());
+            print!("{}", table.render_out());
 
             Ok(())
         }

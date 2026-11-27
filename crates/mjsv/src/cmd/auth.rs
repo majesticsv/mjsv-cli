@@ -1,7 +1,8 @@
-use anyhow::{anyhow, Context, Result};
+use anyhow::{anyhow, Result};
 use mjsv_core::auth::{self, LoginStep};
 use mjsv_core::client::{Client, Request};
 use mjsv_core::config::{Config, Credentials, TOKEN_ENV};
+use mjsv_core::error::{LoginRefused, LoginStage, OrgNotInAccount, TokenRefused};
 use mjsv_core::models::{ApiToken, Identity, Listing};
 use mjsv_core::output::{cell, cell_date, Table};
 use mjsv_core::target::Target;
@@ -22,7 +23,13 @@ pub async fn login(ctx: &Ctx, args: &LoginArgs) -> Result<()> {
 
     let password = prompt::password("Senha: ")?;
 
-    let identity = match auth::sign_in(&ctx.client, &identifier, &password).await? {
+    // Um 401 aqui não é "sessão expirada": quem faz login ainda não tem sessão. É usuário, senha ou
+    // código que não conferem, e o cartão precisa dizer qual dos dois.
+    let step = auth::sign_in(&ctx.client, &identifier, &password)
+        .await
+        .map_err(|e| LoginRefused::from_unauthorized(e, LoginStage::Password))?;
+
+    let identity = match step {
         LoginStep::Done(identity) => *identity,
         LoginStep::NeedsOtp { otp_login_token } => {
             // O 2FA vem como 200 com `requiresOtp`, então este ramo é o caminho normal de uma
@@ -30,9 +37,13 @@ pub async fn login(ctx: &Ctx, args: &LoginArgs) -> Result<()> {
             let code = prompt::line("Código 2FA (ou código de recuperação): ")?;
 
             if code.len() == 6 && code.chars().all(|c| c.is_ascii_digit()) {
-                auth::sign_in_otp(&ctx.client, &otp_login_token, &code).await?
+                auth::sign_in_otp(&ctx.client, &otp_login_token, &code)
+                    .await
+                    .map_err(|e| LoginRefused::from_unauthorized(e, LoginStage::OtpCode))?
             } else {
-                auth::sign_in_recovery(&ctx.client, &otp_login_token, &code).await?
+                auth::sign_in_recovery(&ctx.client, &otp_login_token, &code)
+                    .await
+                    .map_err(|e| LoginRefused::from_unauthorized(e, LoginStage::RecoveryCode))?
             }
         }
     };
@@ -61,9 +72,13 @@ async fn login_with_token(ctx: &Ctx) -> Result<()> {
     }
 
     let client = Client::new(ctx.client.base_url(), Some(token.trim().to_string()))?;
-    let identity = auth::verify(&client)
-        .await
-        .context("a chave informada não foi aceita pela API")?;
+    // 401 com a chave digitada é chave recusada, não sessão expirada; os demais erros (rede, 5xx)
+    // continuam com o contexto de antes.
+    let identity = match auth::verify(&client).await {
+        Ok(i) => i,
+        Err(mjsv_core::ApiError::Unauthorized) => return Err(TokenRefused.into()),
+        Err(e) => return Err(anyhow::Error::new(e).context("a chave informada não foi aceita pela API")),
+    };
 
     save_session(&identity, token.trim().to_string())?;
     report_login(ctx, &identity)
@@ -199,7 +214,7 @@ pub async fn token(ctx: &Ctx, cmd: &TokenCommand) -> Result<()> {
                     cell_date(t.created_at.as_deref()),
                 ]);
             }
-            print!("{}", table.render());
+            print!("{}", table.render_out());
 
             Ok(())
         }
@@ -283,7 +298,7 @@ pub async fn org_list(ctx: &Ctx) -> Result<()> {
         let atual = if Some(&o.id) == ctx.org.as_ref() { "*" } else { " " };
         table.push(vec![atual.to_string(), o.id.clone(), cell(o.name.as_deref())]);
     }
-    print!("{}", table.render());
+    print!("{}", table.render_out());
 
     Ok(())
 }
@@ -299,14 +314,11 @@ pub async fn org_use(ctx: &Ctx, org: &str) -> Result<()> {
 
     if !identity.orgs.iter().any(|o| o.id == org) {
         let conhecidas: Vec<String> = identity.orgs.iter().map(|o| o.id.clone()).collect();
-        return Err(anyhow!(
-            "organização {org} não pertence a esta conta (disponíveis: {})",
-            if conhecidas.is_empty() {
-                "nenhuma".to_string()
-            } else {
-                conhecidas.join(", ")
-            }
-        ));
+        return Err(OrgNotInAccount {
+            org: org.to_string(),
+            available: conhecidas,
+        }
+        .into());
     }
 
     let mut config = Config::load()?;

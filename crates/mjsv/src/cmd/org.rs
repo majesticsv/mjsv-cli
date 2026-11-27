@@ -251,7 +251,7 @@ async fn audit_log(ctx: &Ctx, page: &PageArgs) -> Result<()> {
             cell(l.id.as_deref()),
         ]);
     }
-    print!("{}", table.render());
+    print!("{}", table.render_out());
 
     Ok(())
 }
@@ -300,7 +300,7 @@ async fn member(ctx: &Ctx, cmd: &OrgMemberCommand) -> Result<()> {
                     cell(m.email.as_deref()),
                 ]);
             }
-            print!("{}", table.render());
+            print!("{}", table.render_out());
 
             Ok(())
         }
@@ -484,7 +484,7 @@ async fn role(ctx: &Ctx, cmd: &OrgRoleCommand) -> Result<()> {
         for (nome, num) in PERMISSOES {
             table.push(vec![(*nome).to_string(), num.to_string()]);
         }
-        print!("{}", table.render());
+        print!("{}", table.render_out());
         return Ok(());
     }
 
@@ -519,7 +519,7 @@ async fn role(ctx: &Ctx, cmd: &OrgRoleCommand) -> Result<()> {
                     value_text(r.permissions.as_ref()),
                 ]);
             }
-            print!("{}", table.render());
+            print!("{}", table.render_out());
 
             Ok(())
         }
@@ -673,7 +673,7 @@ async fn invite(ctx: &Ctx, cmd: &OrgInviteCommand) -> Result<()> {
                     cell(i.invited_by.as_ref().and_then(|u| u.name.as_deref())),
                 ]);
             }
-            print!("{}", table.render());
+            print!("{}", table.render_out());
 
             Ok(())
         }
@@ -750,7 +750,7 @@ async fn service(ctx: &Ctx, cmd: &OrgServiceCommand) -> Result<()> {
                     cell_date(s.cancel_scheduled_at.as_deref()),
                 ]);
             }
-            print!("{}", table.render());
+            print!("{}", table.render_out());
 
             Ok(())
         }

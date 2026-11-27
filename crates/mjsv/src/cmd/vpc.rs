@@ -74,7 +74,7 @@ async fn list(ctx: &Ctx) -> Result<()> {
             num(v.count.as_ref().and_then(|c| c.eips)),
         ]);
     }
-    print!("{}", table.render());
+    print!("{}", table.render_out());
 
     Ok(())
 }
@@ -107,7 +107,7 @@ async fn regions(ctx: &Ctx) -> Result<()> {
         let c = |k: &str| r.get(k).and_then(Value::as_str);
         table.push(vec![cell(c("id")), cell(c("name"))]);
     }
-    print!("{}", table.render());
+    print!("{}", table.render_out());
 
     Ok(())
 }

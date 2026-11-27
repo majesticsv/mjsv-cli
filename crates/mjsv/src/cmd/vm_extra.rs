@@ -118,7 +118,7 @@ fn tabela_imagens(listing: &Listing<Imagem>, com_slug: bool) {
         ]);
         table.push(row);
     }
-    print!("{}", table.render());
+    print!("{}", table.render_out());
 }
 
 pub async fn images(ctx: &Ctx, vm: &str) -> Result<()> {
@@ -192,7 +192,7 @@ pub async fn vpcs(ctx: &Ctx, vm: &str) -> Result<()> {
         let c = |k: &str| v.get(k).and_then(Value::as_str);
         table.push(vec![cell(c("id")), cell(c("name")), cell(c("subnetCidr"))]);
     }
-    print!("{}", table.render());
+    print!("{}", table.render_out());
 
     Ok(())
 }
@@ -492,7 +492,7 @@ pub fn imprimir_gameguard(value: &Value) -> Result<()> {
     for r in &view.gameguard {
         table.push(vec![cell(r.id.as_deref()), cell(r.profile.as_deref()), format_ports(r)]);
     }
-    print!("{}", table.render());
+    print!("{}", table.render_out());
 
     Ok(())
 }

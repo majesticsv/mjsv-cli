@@ -1,0 +1,3076 @@
+{
+ "EM-neutral": {
+  "plain": [
+   "Nenhuma sessão.",
+   "Nenhum hypervisor encontrado.",
+   "Nenhuma VM encontrada."
+  ],
+  "unicode": {
+   "none": [
+    "Nenhuma sessão.",
+    "Nenhum hypervisor encontrado.",
+    "Nenhuma VM encontrada."
+   ],
+   "true": [
+    "Nenhuma sessão.",
+    "Nenhum hypervisor encontrado.",
+    "Nenhuma VM encontrada."
+   ]
+  },
+  "ascii": {
+   "none": [
+    "Nenhuma sessão.",
+    "Nenhum hypervisor encontrado.",
+    "Nenhuma VM encontrada."
+   ],
+   "true": [
+    "Nenhuma sessão.",
+    "Nenhum hypervisor encontrado.",
+    "Nenhuma VM encontrada."
+   ]
+  }
+ },
+ "EM-hint": {
+  "plain": [
+   "Nenhuma VM nesta organização.",
+   "Nenhuma chave SSH nesta organização."
+  ],
+  "unicode": {
+   "none": [
+    "Nenhuma VM nesta organização.",
+    "  comece pelo catálogo: mjsv product list",
+    "Nenhuma chave SSH nesta organização.",
+    "  adicione uma: mjsv ssh-key add --name <nome> --file <chave.pub>"
+   ],
+   "true": [
+    "Nenhuma VM nesta organização.",
+    "  \u001b[2mcomece pelo catálogo:\u001b[0m mjsv product list",
+    "Nenhuma chave SSH nesta organização.",
+    "  \u001b[2madicione uma:\u001b[0m mjsv ssh-key add --name <nome> --file <chave.pub>"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "Nenhuma VM nesta organização.",
+    "  comece pelo catálogo: mjsv product list",
+    "Nenhuma chave SSH nesta organização.",
+    "  adicione uma: mjsv ssh-key add --name <nome> --file <chave.pub>"
+   ],
+   "true": [
+    "Nenhuma VM nesta organização.",
+    "  \u001b[2mcomece pelo catálogo:\u001b[0m mjsv product list",
+    "Nenhuma chave SSH nesta organização.",
+    "  \u001b[2madicione uma:\u001b[0m mjsv ssh-key add --name <nome> --file <chave.pub>"
+   ]
+  }
+ },
+ "EM-clear": {
+  "plain": [
+   "Nenhum incidente no período.",
+   "Nenhum pedido pendente.",
+   "Nenhum aviso encontrado.",
+   "Nenhum comando na fila."
+  ],
+  "unicode": {
+   "none": [
+    "✓ Nenhum incidente no período.",
+    "✓ Nenhum pedido pendente.",
+    "✓ Nenhum aviso encontrado.",
+    "✓ Nenhum comando na fila."
+   ],
+   "true": [
+    "\u001b[32m✓\u001b[0m Nenhum incidente no período.",
+    "\u001b[32m✓\u001b[0m Nenhum pedido pendente.",
+    "\u001b[32m✓\u001b[0m Nenhum aviso encontrado.",
+    "\u001b[32m✓\u001b[0m Nenhum comando na fila."
+   ]
+  },
+  "ascii": {
+   "none": [
+    "[+] Nenhum incidente no período.",
+    "[+] Nenhum pedido pendente.",
+    "[+] Nenhum aviso encontrado.",
+    "[+] Nenhum comando na fila."
+   ],
+   "true": [
+    "\u001b[32m[+]\u001b[0m Nenhum incidente no período.",
+    "\u001b[32m[+]\u001b[0m Nenhum pedido pendente.",
+    "\u001b[32m[+]\u001b[0m Nenhum aviso encontrado.",
+    "\u001b[32m[+]\u001b[0m Nenhum comando na fila."
+   ]
+  }
+ },
+ "EM-unknown": {
+  "plain": [
+   "Incidentes indisponíveis: telemetria desativada neste serviço"
+  ],
+  "unicode": {
+   "none": [
+    "▲ Incidentes indisponíveis: telemetria desativada neste serviço"
+   ],
+   "true": [
+    "\u001b[33m▲\u001b[0m Incidentes indisponíveis: telemetria desativada neste serviço"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "[!] Incidentes indisponíveis: telemetria desativada neste serviço"
+   ],
+   "true": [
+    "\u001b[33m[!]\u001b[0m Incidentes indisponíveis: telemetria desativada neste serviço"
+   ]
+  }
+ },
+ "EM-courtyard": {
+  "plain": null,
+  "unicode": {
+   "none": [
+    "▄ ▄ ▄          ▄ ▄ ▄",
+    "█▀▀▀█          █▀▀▀█",
+    "█ ▄ █  ·    ·  █ ▄ █",
+    "█▄█▄█▄▄▄▄▄▄▄▄▄▄█▄█▄█"
+   ],
+   "true": [
+    "\u001b[2m▄ ▄ ▄          ▄ ▄ ▄\u001b[0m",
+    "\u001b[2m█▀▀▀█          █▀▀▀█\u001b[0m",
+    "\u001b[2m█ ▄ █  ·    ·  █ ▄ █\u001b[0m",
+    "\u001b[2m█▄█▄█▄▄▄▄▄▄▄▄▄▄█▄█▄█\u001b[0m"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "|\\_/|          |\\_/|",
+    "|   |          |   |",
+    "| _ |  .    .  | _ |",
+    "||_||__________||_||"
+   ],
+   "true": [
+    "\u001b[2m|\\_/|          |\\_/|\u001b[0m",
+    "\u001b[2m|   |          |   |\u001b[0m",
+    "\u001b[2m| _ |  .    .  | _ |\u001b[0m",
+    "\u001b[2m||_||__________||_||\u001b[0m"
+   ]
+  }
+ },
+ "EM-courtyard-example": {
+  "plain": [
+   "Nenhum serviço."
+  ],
+  "unicode": {
+   "none": [
+    "▄ ▄ ▄          ▄ ▄ ▄    Nenhum serviço ainda",
+    "█▀▀▀█          █▀▀▀█    escolha:  mjsv product list",
+    "█ ▄ █  ·    ·  █ ▄ █    peça:     mjsv order create --product <id>",
+    "█▄█▄█▄▄▄▄▄▄▄▄▄▄█▄█▄█    pague:    mjsv order pay <id>"
+   ],
+   "true": [
+    "\u001b[2m▄ ▄ ▄          ▄ ▄ ▄\u001b[0m    \u001b[1mNenhum serviço ainda\u001b[0m",
+    "\u001b[2m█▀▀▀█          █▀▀▀█\u001b[0m    \u001b[2mescolha:\u001b[0m  mjsv product list",
+    "\u001b[2m█ ▄ █  ·    ·  █ ▄ █\u001b[0m    \u001b[2mpeça:\u001b[0m     mjsv order create --product <id>",
+    "\u001b[2m█▄█▄█▄▄▄▄▄▄▄▄▄▄█▄█▄█\u001b[0m    \u001b[2mpague:\u001b[0m    mjsv order pay <id>"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "|\\_/|          |\\_/|    Nenhum serviço ainda",
+    "|   |          |   |    escolha:  mjsv product list",
+    "| _ |  .    .  | _ |    peça:     mjsv order create --product <id>",
+    "||_||__________||_||    pague:    mjsv order pay <id>"
+   ],
+   "true": [
+    "\u001b[2m|\\_/|          |\\_/|\u001b[0m    \u001b[1mNenhum serviço ainda\u001b[0m",
+    "\u001b[2m|   |          |   |\u001b[0m    \u001b[2mescolha:\u001b[0m  mjsv product list",
+    "\u001b[2m| _ |  .    .  | _ |\u001b[0m    \u001b[2mpeça:\u001b[0m     mjsv order create --product <id>",
+    "\u001b[2m||_||__________||_||\u001b[0m    \u001b[2mpague:\u001b[0m    mjsv order pay <id>"
+   ]
+  }
+ },
+ "EM-whoami": {
+  "plain": [
+   "Usuário:      ana",
+   "Nome:         Ana Souza",
+   "E-mail:       ana@acme.com.br",
+   "Id:           Qw3Rt",
+   "Organização:  (nenhuma selecionada — `mjsv org use <id>`)",
+   "API:          https://courtyard-api.mjsv.io"
+  ],
+  "unicode": {
+   "none": [
+    "── Conta ana ───────────────────────────────────────────────",
+    "Usuário:      ana",
+    "Nome:         Ana Souza",
+    "E-mail:       ana@acme.com.br",
+    "Id:           Qw3Rt",
+    "Organização:  ▲ nenhuma selecionada (mjsv org use <id>)",
+    "API:          https://courtyard-api.mjsv.io"
+   ],
+   "true": [
+    "\u001b[2m──\u001b[0m \u001b[1mConta ana\u001b[0m \u001b[2m───────────────────────────────────────────────\u001b[0m",
+    "\u001b[2mUsuário:\u001b[0m      ana",
+    "\u001b[2mNome:\u001b[0m         Ana Souza",
+    "\u001b[2mE-mail:\u001b[0m       ana@acme.com.br",
+    "\u001b[2mId:\u001b[0m           Qw3Rt",
+    "\u001b[2mOrganização:\u001b[0m  \u001b[33m▲\u001b[0m nenhuma selecionada (mjsv org use <id>)",
+    "\u001b[2mAPI:\u001b[0m          https://courtyard-api.mjsv.io"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "-- Conta ana -----------------------------------------------",
+    "Usuário:      ana",
+    "Nome:         Ana Souza",
+    "E-mail:       ana@acme.com.br",
+    "Id:           Qw3Rt",
+    "Organização:  ! nenhuma selecionada (mjsv org use <id>)",
+    "API:          https://courtyard-api.mjsv.io"
+   ],
+   "true": [
+    "\u001b[2m--\u001b[0m \u001b[1mConta ana\u001b[0m \u001b[2m-----------------------------------------------\u001b[0m",
+    "\u001b[2mUsuário:\u001b[0m      ana",
+    "\u001b[2mNome:\u001b[0m         Ana Souza",
+    "\u001b[2mE-mail:\u001b[0m       ana@acme.com.br",
+    "\u001b[2mId:\u001b[0m           Qw3Rt",
+    "\u001b[2mOrganização:\u001b[0m  \u001b[33m!\u001b[0m nenhuma selecionada (mjsv org use <id>)",
+    "\u001b[2mAPI:\u001b[0m          https://courtyard-api.mjsv.io"
+   ]
+  }
+ },
+ "EM-bare-no-session": {
+  "plain": null,
+  "unicode": {
+   "none": [
+    "  ▄▄    ▄██▄    ▄▄",
+    "  ▀▀████████████▀▀      ██▄ ▄██     ██  ▄█▀▀▀▀  ██   ██",
+    "██▄              ▄██    ██▀█▀██  ▄  ██  ▀████▄   ██ ██",
+    "███▄▄██▄    ▄██▄▄███    ██   ██  ▀███▀  ▄▄▄▄█▀    ▀█▀",
+    "████████▄  ▄████████    H O S T I N G   mjsv 0.3.0",
+    "████████████████████    courtyard-api.mjsv.io",
+    "███████▀    ▀███████    sessão: nenhuma",
+    " ▀▀████      ████▀▀     próximo: mjsv login"
+   ],
+   "true": [
+    "\u001b[38;2;255;92;57m  ▄▄    ▄██▄    ▄▄\u001b[0m",
+    "\u001b[38;2;255;99;59m  ▀▀████████████▀▀\u001b[0m      \u001b[1m██▄ ▄██     ██  ▄█▀▀▀▀  ██   ██\u001b[0m",
+    "\u001b[38;2;254;107;62m██▄              ▄██\u001b[0m    \u001b[1m██▀█▀██  ▄  ██  ▀████▄   ██ ██\u001b[0m",
+    "\u001b[38;2;254;114;64m███▄▄██▄    ▄██▄▄███\u001b[0m    \u001b[1m██   ██  ▀███▀  ▄▄▄▄█▀    ▀█▀\u001b[0m",
+    "\u001b[38;2;253;122;66m████████▄  ▄████████\u001b[0m    H O S T I N G   \u001b[2mmjsv 0.3.0\u001b[0m",
+    "\u001b[38;2;253;129;68m████████████████████\u001b[0m    courtyard-api.mjsv.io",
+    "\u001b[38;2;252;137;71m███████▀    ▀███████\u001b[0m    \u001b[2msessão: \u001b[0mnenhuma",
+    "\u001b[38;2;252;144;73m ▀▀████      ████▀▀\u001b[0m     \u001b[2mpróximo: \u001b[0mmjsv login"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "         /\\",
+    "    |\\__/  \\__/|        ||\\  /||     ||  //====  \\\\    //",
+    "|\\_  \\________/  _/|    || \\/ ||     ||  \\\\==\\\\   \\\\  //",
+    "|  |  _      _  |  |    ||    ||  \\__//   ===//    \\\\//",
+    "|  |_| |_  _| |_|  |    H O S T I N G   mjsv 0.3.0",
+    "|        \\/        |    courtyard-api.mjsv.io",
+    "'-._    .--.    _.-'    sessão: nenhuma",
+    "    '--|    |--'        próximo: mjsv login"
+   ],
+   "true": [
+    "\u001b[1;38;2;255;92;57m         /\\\u001b[0m",
+    "\u001b[1;38;2;255;99;59m    |\\__/  \\__/|\u001b[0m        \u001b[1m||\\  /||     ||  //====  \\\\    //\u001b[0m",
+    "\u001b[1;38;2;254;107;62m|\\_  \\________/  _/|\u001b[0m    \u001b[1m|| \\/ ||     ||  \\\\==\\\\   \\\\  //\u001b[0m",
+    "\u001b[1;38;2;254;114;64m|  |  _      _  |  |\u001b[0m    \u001b[1m||    ||  \\__//   ===//    \\\\//\u001b[0m",
+    "\u001b[1;38;2;253;122;66m|  |_| |_  _| |_|  |\u001b[0m    H O S T I N G   \u001b[2mmjsv 0.3.0\u001b[0m",
+    "\u001b[1;38;2;253;129;68m|        \\/        |\u001b[0m    courtyard-api.mjsv.io",
+    "\u001b[1;38;2;252;137;71m'-._    .--.    _.-'\u001b[0m    \u001b[2msessão: \u001b[0mnenhuma",
+    "\u001b[1;38;2;252;144;73m    '--|    |--'\u001b[0m        \u001b[2mpróximo: \u001b[0mmjsv login"
+   ]
+  }
+ },
+ "EM-bare-no-org": {
+  "plain": null,
+  "unicode": {
+   "none": [
+    "  ▄▄    ▄██▄    ▄▄",
+    "  ▀▀████████████▀▀      ██▄ ▄██     ██  ▄█▀▀▀▀  ██   ██",
+    "██▄              ▄██    ██▀█▀██  ▄  ██  ▀████▄   ██ ██",
+    "███▄▄██▄    ▄██▄▄███    ██   ██  ▀███▀  ▄▄▄▄█▀    ▀█▀",
+    "████████▄  ▄████████    H O S T I N G   mjsv 0.3.0",
+    "████████████████████    courtyard-api.mjsv.io",
+    "███████▀    ▀███████    org: nenhuma selecionada",
+    " ▀▀████      ████▀▀     próximo: mjsv org use <id>"
+   ],
+   "true": [
+    "\u001b[38;2;255;92;57m  ▄▄    ▄██▄    ▄▄\u001b[0m",
+    "\u001b[38;2;255;99;59m  ▀▀████████████▀▀\u001b[0m      \u001b[1m██▄ ▄██     ██  ▄█▀▀▀▀  ██   ██\u001b[0m",
+    "\u001b[38;2;254;107;62m██▄              ▄██\u001b[0m    \u001b[1m██▀█▀██  ▄  ██  ▀████▄   ██ ██\u001b[0m",
+    "\u001b[38;2;254;114;64m███▄▄██▄    ▄██▄▄███\u001b[0m    \u001b[1m██   ██  ▀███▀  ▄▄▄▄█▀    ▀█▀\u001b[0m",
+    "\u001b[38;2;253;122;66m████████▄  ▄████████\u001b[0m    H O S T I N G   \u001b[2mmjsv 0.3.0\u001b[0m",
+    "\u001b[38;2;253;129;68m████████████████████\u001b[0m    courtyard-api.mjsv.io",
+    "\u001b[38;2;252;137;71m███████▀    ▀███████\u001b[0m    \u001b[2morg: \u001b[0mnenhuma selecionada",
+    "\u001b[38;2;252;144;73m ▀▀████      ████▀▀\u001b[0m     \u001b[2mpróximo: \u001b[0mmjsv org use <id>"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "         /\\",
+    "    |\\__/  \\__/|        ||\\  /||     ||  //====  \\\\    //",
+    "|\\_  \\________/  _/|    || \\/ ||     ||  \\\\==\\\\   \\\\  //",
+    "|  |  _      _  |  |    ||    ||  \\__//   ===//    \\\\//",
+    "|  |_| |_  _| |_|  |    H O S T I N G   mjsv 0.3.0",
+    "|        \\/        |    courtyard-api.mjsv.io",
+    "'-._    .--.    _.-'    org: nenhuma selecionada",
+    "    '--|    |--'        próximo: mjsv org use <id>"
+   ],
+   "true": [
+    "\u001b[1;38;2;255;92;57m         /\\\u001b[0m",
+    "\u001b[1;38;2;255;99;59m    |\\__/  \\__/|\u001b[0m        \u001b[1m||\\  /||     ||  //====  \\\\    //\u001b[0m",
+    "\u001b[1;38;2;254;107;62m|\\_  \\________/  _/|\u001b[0m    \u001b[1m|| \\/ ||     ||  \\\\==\\\\   \\\\  //\u001b[0m",
+    "\u001b[1;38;2;254;114;64m|  |  _      _  |  |\u001b[0m    \u001b[1m||    ||  \\__//   ===//    \\\\//\u001b[0m",
+    "\u001b[1;38;2;253;122;66m|  |_| |_  _| |_|  |\u001b[0m    H O S T I N G   \u001b[2mmjsv 0.3.0\u001b[0m",
+    "\u001b[1;38;2;253;129;68m|        \\/        |\u001b[0m    courtyard-api.mjsv.io",
+    "\u001b[1;38;2;252;137;71m'-._    .--.    _.-'\u001b[0m    \u001b[2morg: \u001b[0mnenhuma selecionada",
+    "\u001b[1;38;2;252;144;73m    '--|    |--'\u001b[0m        \u001b[2mpróximo: \u001b[0mmjsv org use <id>"
+   ]
+  }
+ },
+ "EM-bare-empty-org": {
+  "plain": null,
+  "unicode": {
+   "none": [
+    "  ▄▄    ▄██▄    ▄▄",
+    "  ▀▀████████████▀▀      ██▄ ▄██     ██  ▄█▀▀▀▀  ██   ██",
+    "██▄              ▄██    ██▀█▀██  ▄  ██  ▀████▄   ██ ██",
+    "███▄▄██▄    ▄██▄▄███    ██   ██  ▀███▀  ▄▄▄▄█▀    ▀█▀",
+    "████████▄  ▄████████    H O S T I N G   mjsv 0.3.0",
+    "████████████████████    org: acme (nUME7)",
+    "███████▀    ▀███████    serviços: nenhum",
+    " ▀▀████      ████▀▀     próximo: mjsv product list"
+   ],
+   "true": [
+    "\u001b[38;2;255;92;57m  ▄▄    ▄██▄    ▄▄\u001b[0m",
+    "\u001b[38;2;255;99;59m  ▀▀████████████▀▀\u001b[0m      \u001b[1m██▄ ▄██     ██  ▄█▀▀▀▀  ██   ██\u001b[0m",
+    "\u001b[38;2;254;107;62m██▄              ▄██\u001b[0m    \u001b[1m██▀█▀██  ▄  ██  ▀████▄   ██ ██\u001b[0m",
+    "\u001b[38;2;254;114;64m███▄▄██▄    ▄██▄▄███\u001b[0m    \u001b[1m██   ██  ▀███▀  ▄▄▄▄█▀    ▀█▀\u001b[0m",
+    "\u001b[38;2;253;122;66m████████▄  ▄████████\u001b[0m    H O S T I N G   \u001b[2mmjsv 0.3.0\u001b[0m",
+    "\u001b[38;2;253;129;68m████████████████████\u001b[0m    \u001b[2morg: \u001b[0macme (nUME7)",
+    "\u001b[38;2;252;137;71m███████▀    ▀███████\u001b[0m    \u001b[2mserviços: \u001b[0mnenhum",
+    "\u001b[38;2;252;144;73m ▀▀████      ████▀▀\u001b[0m     \u001b[2mpróximo: \u001b[0mmjsv product list"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "         /\\",
+    "    |\\__/  \\__/|        ||\\  /||     ||  //====  \\\\    //",
+    "|\\_  \\________/  _/|    || \\/ ||     ||  \\\\==\\\\   \\\\  //",
+    "|  |  _      _  |  |    ||    ||  \\__//   ===//    \\\\//",
+    "|  |_| |_  _| |_|  |    H O S T I N G   mjsv 0.3.0",
+    "|        \\/        |    org: acme (nUME7)",
+    "'-._    .--.    _.-'    serviços: nenhum",
+    "    '--|    |--'        próximo: mjsv product list"
+   ],
+   "true": [
+    "\u001b[1;38;2;255;92;57m         /\\\u001b[0m",
+    "\u001b[1;38;2;255;99;59m    |\\__/  \\__/|\u001b[0m        \u001b[1m||\\  /||     ||  //====  \\\\    //\u001b[0m",
+    "\u001b[1;38;2;254;107;62m|\\_  \\________/  _/|\u001b[0m    \u001b[1m|| \\/ ||     ||  \\\\==\\\\   \\\\  //\u001b[0m",
+    "\u001b[1;38;2;254;114;64m|  |  _      _  |  |\u001b[0m    \u001b[1m||    ||  \\__//   ===//    \\\\//\u001b[0m",
+    "\u001b[1;38;2;253;122;66m|  |_| |_  _| |_|  |\u001b[0m    H O S T I N G   \u001b[2mmjsv 0.3.0\u001b[0m",
+    "\u001b[1;38;2;253;129;68m|        \\/        |\u001b[0m    \u001b[2morg: \u001b[0macme (nUME7)",
+    "\u001b[1;38;2;252;137;71m'-._    .--.    _.-'\u001b[0m    \u001b[2mserviços: \u001b[0mnenhum",
+    "\u001b[1;38;2;252;144;73m    '--|    |--'\u001b[0m        \u001b[2mpróximo: \u001b[0mmjsv product list"
+   ]
+  }
+ },
+ "EM-bare-staff-no-session": {
+  "plain": null,
+  "unicode": {
+   "none": [
+    "  ▄▄    ▄██▄    ▄▄      ══ STAFF · ROOT ═══════════════",
+    "  ▀▀████████████▀▀      ██▄ ▄██     ██  ▄█▀▀▀▀  ██   ██",
+    "██▄              ▄██    ██▀█▀██  ▄  ██  ▀████▄   ██ ██",
+    "███▄▄██▄    ▄██▄▄███    ██   ██  ▀███▀  ▄▄▄▄█▀    ▀█▀",
+    "████████▄  ▄████████    A D M   mjsvadm 0.3.0",
+    "████████████████████    [#] comandos afetam toda a plataforma",
+    "███████▀▌▐▌▐▀███████    sessão: nenhuma",
+    " ▀▀████▐▌▐▌▐▌████▀▀     próximo: mjsv login"
+   ],
+   "true": [
+    "\u001b[38;2;255;59;48m  ▄▄    ▄██▄    ▄▄\u001b[0m      \u001b[38;2;214;31;38m══\u001b[0m\u001b[1;38;2;255;255;255;48;2;214;31;38m STAFF · ROOT \u001b[0m\u001b[38;2;214;31;38m═══════════════\u001b[0m",
+    "\u001b[38;2;249;55;47m  ▀▀████████████▀▀\u001b[0m      \u001b[1m██▄ ▄██     ██  ▄█▀▀▀▀  ██   ██\u001b[0m",
+    "\u001b[38;2;243;51;45m██▄              ▄██\u001b[0m    \u001b[1m██▀█▀██  ▄  ██  ▀████▄   ██ ██\u001b[0m",
+    "\u001b[38;2;237;47;44m███▄▄██▄    ▄██▄▄███\u001b[0m    \u001b[1m██   ██  ▀███▀  ▄▄▄▄█▀    ▀█▀\u001b[0m",
+    "\u001b[38;2;232;43;42m████████▄  ▄████████\u001b[0m    \u001b[1;38;2;214;31;38mA D M\u001b[0m   \u001b[2mmjsvadm 0.3.0\u001b[0m",
+    "\u001b[38;2;226;39;41m████████████████████\u001b[0m    \u001b[1;38;2;255;255;255;48;2;214;31;38m[#]\u001b[0m comandos afetam toda a plataforma",
+    "\u001b[38;2;220;35;39m███████▀▌▐▌▐▀███████\u001b[0m    \u001b[2msessão: \u001b[0mnenhuma",
+    "\u001b[38;2;214;31;38m ▀▀████▐▌▐▌▐▌████▀▀\u001b[0m     \u001b[2mpróximo: \u001b[0mmjsv login"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "         /\\             == STAFF / ROOT =================",
+    "    |\\__/  \\__/|        ||\\  /||     ||  //====  \\\\    //",
+    "|\\_  \\________/  _/|    || \\/ ||     ||  \\\\==\\\\   \\\\  //",
+    "|  |  _      _  |  |    ||    ||  \\__//   ===//    \\\\//",
+    "|  |_| |_  _| |_|  |    A D M   mjsvadm 0.3.0",
+    "|        \\/        |    [#] comandos afetam toda a plataforma",
+    "'-._    .--.    _.-'    sessão: nenhuma",
+    "    '--|####|--'        próximo: mjsv login"
+   ],
+   "true": [
+    "\u001b[1;38;2;255;59;48m         /\\\u001b[0m             \u001b[38;2;214;31;38m==\u001b[0m\u001b[1;38;2;255;255;255;48;2;214;31;38m STAFF / ROOT \u001b[0m\u001b[38;2;214;31;38m=================\u001b[0m",
+    "\u001b[1;38;2;249;55;47m    |\\__/  \\__/|\u001b[0m        \u001b[1m||\\  /||     ||  //====  \\\\    //\u001b[0m",
+    "\u001b[1;38;2;243;51;45m|\\_  \\________/  _/|\u001b[0m    \u001b[1m|| \\/ ||     ||  \\\\==\\\\   \\\\  //\u001b[0m",
+    "\u001b[1;38;2;237;47;44m|  |  _      _  |  |\u001b[0m    \u001b[1m||    ||  \\__//   ===//    \\\\//\u001b[0m",
+    "\u001b[1;38;2;232;43;42m|  |_| |_  _| |_|  |\u001b[0m    \u001b[1;38;2;214;31;38mA D M\u001b[0m   \u001b[2mmjsvadm 0.3.0\u001b[0m",
+    "\u001b[1;38;2;226;39;41m|        \\/        |\u001b[0m    \u001b[1;38;2;255;255;255;48;2;214;31;38m[#]\u001b[0m comandos afetam toda a plataforma",
+    "\u001b[1;38;2;220;35;39m'-._    .--.    _.-'\u001b[0m    \u001b[2msessão: \u001b[0mnenhuma",
+    "\u001b[1;38;2;214;31;38m    '--|####|--'\u001b[0m        \u001b[2mpróximo: \u001b[0mmjsv login"
+   ]
+  }
+ },
+ "ER-line": {
+  "plain": [
+   "erro: porta fora da faixa 1-65535: 70000",
+   "erro: nada a alterar: informe --vnc-password",
+   "erro: falha ao ler ./world.zip",
+   "erro: 409: erro sem mensagem"
+  ],
+  "unicode": {
+   "none": [
+    "✗ porta fora da faixa 1-65535: 70000",
+    "✗ nada a alterar: informe --vnc-password",
+    "✗ falha ao ler ./world.zip",
+    "✗ 409: erro sem mensagem"
+   ],
+   "true": [
+    "\u001b[31m✗\u001b[0m porta fora da faixa 1-65535: 70000",
+    "\u001b[31m✗\u001b[0m nada a alterar: informe --vnc-password",
+    "\u001b[31m✗\u001b[0m falha ao ler ./world.zip",
+    "\u001b[31m✗\u001b[0m 409: erro sem mensagem"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "[x] porta fora da faixa 1-65535: 70000",
+    "[x] nada a alterar: informe --vnc-password",
+    "[x] falha ao ler ./world.zip",
+    "[x] 409: erro sem mensagem"
+   ],
+   "true": [
+    "\u001b[31m[x]\u001b[0m porta fora da faixa 1-65535: 70000",
+    "\u001b[31m[x]\u001b[0m nada a alterar: informe --vnc-password",
+    "\u001b[31m[x]\u001b[0m falha ao ler ./world.zip",
+    "\u001b[31m[x]\u001b[0m 409: erro sem mensagem"
+   ]
+  }
+ },
+ "ER-401": {
+  "plain": [
+   "erro: sessão expirada ou token revogado — rode `mjsv login`"
+  ],
+  "unicode": {
+   "none": [
+    "✗ Sessão expirada ou token revogado",
+    "  tente: mjsv login"
+   ],
+   "true": [
+    "\u001b[31m✗\u001b[0m \u001b[1mSessão expirada ou token revogado\u001b[0m",
+    "  \u001b[2mtente:\u001b[0m mjsv login"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "[x] Sessão expirada ou token revogado",
+    "    tente: mjsv login"
+   ],
+   "true": [
+    "\u001b[31m[x]\u001b[0m \u001b[1mSessão expirada ou token revogado\u001b[0m",
+    "    \u001b[2mtente:\u001b[0m mjsv login"
+   ]
+  }
+ },
+ "ER-401-env": {
+  "plain": [
+   "erro: sessão expirada ou token revogado — rode `mjsv login`"
+  ],
+  "unicode": {
+   "none": [
+    "✗ Token de MJSV_TOKEN recusado",
+    "  A API recusou a chave da variável de ambiente (401).",
+    "  tente: unset MJSV_TOKEN && mjsv login"
+   ],
+   "true": [
+    "\u001b[31m✗\u001b[0m \u001b[1mToken de MJSV_TOKEN recusado\u001b[0m",
+    "  A API recusou a chave da variável de ambiente (401).",
+    "  \u001b[2mtente:\u001b[0m unset MJSV_TOKEN && mjsv login"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "[x] Token de MJSV_TOKEN recusado",
+    "    A API recusou a chave da variável de ambiente (401).",
+    "    tente: unset MJSV_TOKEN && mjsv login"
+   ],
+   "true": [
+    "\u001b[31m[x]\u001b[0m \u001b[1mToken de MJSV_TOKEN recusado\u001b[0m",
+    "    A API recusou a chave da variável de ambiente (401).",
+    "    \u001b[2mtente:\u001b[0m unset MJSV_TOKEN && mjsv login"
+   ]
+  }
+ },
+ "ER-login": {
+  "plain": [
+   "erro: login recusado: usuário, senha ou código 2FA não conferem"
+  ],
+  "unicode": {
+   "none": [
+    "✗ Login recusado: usuário, senha ou código 2FA não conferem"
+   ],
+   "true": [
+    "\u001b[31m✗\u001b[0m Login recusado: usuário, senha ou código 2FA não conferem"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "[x] Login recusado: usuário, senha ou código 2FA não conferem"
+   ],
+   "true": [
+    "\u001b[31m[x]\u001b[0m Login recusado: usuário, senha ou código 2FA não conferem"
+   ]
+  }
+ },
+ "ER-token": {
+  "plain": [
+   "erro: a chave informada não foi aceita pela API: sessão expirada ou token revogado — rode `mjsv login`"
+  ],
+  "unicode": {
+   "none": [
+    "✗ Chave de API recusada (401)",
+    "  tente: mjsv login --token < chave.txt"
+   ],
+   "true": [
+    "\u001b[31m✗\u001b[0m \u001b[1mChave de API recusada (401)\u001b[0m",
+    "  \u001b[2mtente:\u001b[0m mjsv login --token < chave.txt"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "[x] Chave de API recusada (401)",
+    "    tente: mjsv login --token < chave.txt"
+   ],
+   "true": [
+    "\u001b[31m[x]\u001b[0m \u001b[1mChave de API recusada (401)\u001b[0m",
+    "    \u001b[2mtente:\u001b[0m mjsv login --token < chave.txt"
+   ]
+  }
+ },
+ "ER-never": {
+  "plain": [
+   "erro: sessão expirada ou token revogado — rode `mjsv login`"
+  ],
+  "unicode": {
+   "none": [
+    "█▄█▄█ Você ainda não entrou",
+    "      com senha:  mjsv login",
+    "      com chave:  mjsv login --token"
+   ],
+   "true": [
+    "\u001b[38;2;255;92;57m█▄█▄█\u001b[0m \u001b[1mVocê ainda não entrou\u001b[0m",
+    "      \u001b[2mcom senha:\u001b[0m  mjsv login",
+    "      \u001b[2mcom chave:\u001b[0m  mjsv login --token"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "\\_/^\\_/ Você ainda não entrou",
+    "        com senha:  mjsv login",
+    "        com chave:  mjsv login --token"
+   ],
+   "true": [
+    "\u001b[1;38;2;255;92;57m\\_/^\\_/\u001b[0m \u001b[1mVocê ainda não entrou\u001b[0m",
+    "        \u001b[2mcom senha:\u001b[0m  mjsv login",
+    "        \u001b[2mcom chave:\u001b[0m  mjsv login --token"
+   ]
+  }
+ },
+ "ER-no-org": {
+  "plain": [
+   "erro: nenhuma organização selecionada — rode `mjsv org list` e depois `mjsv org use <id>`"
+  ],
+  "unicode": {
+   "none": [
+    "✗ Nenhuma organização selecionada",
+    "  tente: mjsv org list",
+    "         mjsv org use <id>"
+   ],
+   "true": [
+    "\u001b[31m✗\u001b[0m \u001b[1mNenhuma organização selecionada\u001b[0m",
+    "  \u001b[2mtente:\u001b[0m mjsv org list",
+    "         mjsv org use <id>"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "[x] Nenhuma organização selecionada",
+    "    tente: mjsv org list",
+    "           mjsv org use <id>"
+   ],
+   "true": [
+    "\u001b[31m[x]\u001b[0m \u001b[1mNenhuma organização selecionada\u001b[0m",
+    "    \u001b[2mtente:\u001b[0m mjsv org list",
+    "           mjsv org use <id>"
+   ]
+  }
+ },
+ "ER-org-use": {
+  "plain": [
+   "erro: organização xYz12 não pertence a esta conta (disponíveis: nUME7, k3PqD)"
+  ],
+  "unicode": {
+   "none": [
+    "✗ Organização xYz12 não pertence a esta conta",
+    "  disponíveis: nUME7, k3PqD",
+    "  tente: mjsv org use <id>"
+   ],
+   "true": [
+    "\u001b[31m✗\u001b[0m \u001b[1mOrganização xYz12 não pertence a esta conta\u001b[0m",
+    "  \u001b[2mdisponíveis:\u001b[0m nUME7, k3PqD",
+    "  \u001b[2mtente:\u001b[0m mjsv org use <id>"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "[x] Organização xYz12 não pertence a esta conta",
+    "    disponíveis: nUME7, k3PqD",
+    "    tente: mjsv org use <id>"
+   ],
+   "true": [
+    "\u001b[31m[x]\u001b[0m \u001b[1mOrganização xYz12 não pertence a esta conta\u001b[0m",
+    "    \u001b[2mdisponíveis:\u001b[0m nUME7, k3PqD",
+    "    \u001b[2mtente:\u001b[0m mjsv org use <id>"
+   ]
+  }
+ },
+ "ER-403": {
+  "plain": [
+   "erro: acesso negado a /vm/k3TqZ/power (enviado MJSV-TargetType: ORG, MJSV-TargetId: nUME7)",
+   "confira se o comando é de escopo de organização e se --org aponta para a org certa"
+  ],
+  "unicode": {
+   "none": [
+    "✗ Acesso negado a /vm/k3TqZ/power",
+    "  alvo enviado   MJSV-TargetType: ORG   MJSV-TargetId: nUME7",
+    "  Quase sempre é alvo errado: confira o escopo do comando e o --org.",
+    "  tente: mjsv org list"
+   ],
+   "true": [
+    "\u001b[31m✗\u001b[0m \u001b[1mAcesso negado a /vm/k3TqZ/power\u001b[0m",
+    "  \u001b[2malvo enviado   MJSV-TargetType:\u001b[0m \u001b[1mORG\u001b[0m   \u001b[2mMJSV-TargetId:\u001b[0m \u001b[1mnUME7\u001b[0m",
+    "  Quase sempre é alvo errado: confira o escopo do comando e o --org.",
+    "  \u001b[2mtente:\u001b[0m mjsv org list"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "[x] Acesso negado a /vm/k3TqZ/power",
+    "    alvo enviado   MJSV-TargetType: ORG   MJSV-TargetId: nUME7",
+    "    Quase sempre é alvo errado: confira o escopo do comando e o --org.",
+    "    tente: mjsv org list"
+   ],
+   "true": [
+    "\u001b[31m[x]\u001b[0m \u001b[1mAcesso negado a /vm/k3TqZ/power\u001b[0m",
+    "    \u001b[2malvo enviado   MJSV-TargetType:\u001b[0m \u001b[1mORG\u001b[0m   \u001b[2mMJSV-TargetId:\u001b[0m \u001b[1mnUME7\u001b[0m",
+    "    Quase sempre é alvo errado: confira o escopo do comando e o --org.",
+    "    \u001b[2mtente:\u001b[0m mjsv org list"
+   ]
+  }
+ },
+ "ER-403-staff": {
+  "plain": [
+   "erro: acesso negado a /vm/k3TqZ/power (enviado MJSV-TargetType: ROOT, MJSV-TargetId: 0000)",
+   "confira se o comando é de escopo de organização e se --org aponta para a org certa"
+  ],
+  "unicode": {
+   "none": [
+    "✗ Acesso negado a /vm/k3TqZ/power",
+    "  alvo enviado   MJSV-TargetType: ROOT   MJSV-TargetId: 0000",
+    "  Sem flag de sistema na conta, toda rota administrativa responde 403.",
+    "  tente: mjsvadm whoami"
+   ],
+   "true": [
+    "\u001b[31m✗\u001b[0m \u001b[1mAcesso negado a /vm/k3TqZ/power\u001b[0m",
+    "  \u001b[2malvo enviado   MJSV-TargetType:\u001b[0m \u001b[1mROOT\u001b[0m   \u001b[2mMJSV-TargetId:\u001b[0m \u001b[1m0000\u001b[0m",
+    "  Sem flag de sistema na conta, toda rota administrativa responde 403.",
+    "  \u001b[2mtente:\u001b[0m mjsvadm whoami"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "[x] Acesso negado a /vm/k3TqZ/power",
+    "    alvo enviado   MJSV-TargetType: ROOT   MJSV-TargetId: 0000",
+    "    Sem flag de sistema na conta, toda rota administrativa responde 403.",
+    "    tente: mjsvadm whoami"
+   ],
+   "true": [
+    "\u001b[31m[x]\u001b[0m \u001b[1mAcesso negado a /vm/k3TqZ/power\u001b[0m",
+    "    \u001b[2malvo enviado   MJSV-TargetType:\u001b[0m \u001b[1mROOT\u001b[0m   \u001b[2mMJSV-TargetId:\u001b[0m \u001b[1m0000\u001b[0m",
+    "    Sem flag de sistema na conta, toda rota administrativa responde 403.",
+    "    \u001b[2mtente:\u001b[0m mjsvadm whoami"
+   ]
+  }
+ },
+ "ER-flag": {
+  "plain": [
+   "Esta conta não tem flag de sistema — as rotas administrativas vão responder 403."
+  ],
+  "unicode": {
+   "none": [
+    "▲ Esta conta não tem flag de sistema",
+    "  As rotas administrativas vão responder 403."
+   ],
+   "true": [
+    "\u001b[33m▲\u001b[0m \u001b[1mEsta conta não tem flag de sistema\u001b[0m",
+    "  As rotas administrativas vão responder 403."
+   ]
+  },
+  "ascii": {
+   "none": [
+    "[!] Esta conta não tem flag de sistema",
+    "    As rotas administrativas vão responder 403."
+   ],
+   "true": [
+    "\u001b[33m[!]\u001b[0m \u001b[1mEsta conta não tem flag de sistema\u001b[0m",
+    "    As rotas administrativas vão responder 403."
+   ]
+  }
+ },
+ "ER-404": {
+  "plain": [
+   "erro: não encontrado: /vm/k3TqX",
+   "erro: organização k3PqD não encontrada"
+  ],
+  "unicode": {
+   "none": [
+    "✗ Não encontrado: /vm/k3TqX",
+    "  tente: mjsv vm list",
+    "✗ Organização k3PqD não encontrada",
+    "  tente: mjsvadm org list"
+   ],
+   "true": [
+    "\u001b[31m✗\u001b[0m \u001b[1mNão encontrado: /vm/k3TqX\u001b[0m",
+    "  \u001b[2mtente:\u001b[0m mjsv vm list",
+    "\u001b[31m✗\u001b[0m \u001b[1mOrganização k3PqD não encontrada\u001b[0m",
+    "  \u001b[2mtente:\u001b[0m mjsvadm org list"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "[x] Não encontrado: /vm/k3TqX",
+    "    tente: mjsv vm list",
+    "[x] Organização k3PqD não encontrada",
+    "    tente: mjsvadm org list"
+   ],
+   "true": [
+    "\u001b[31m[x]\u001b[0m \u001b[1mNão encontrado: /vm/k3TqX\u001b[0m",
+    "    \u001b[2mtente:\u001b[0m mjsv vm list",
+    "\u001b[31m[x]\u001b[0m \u001b[1mOrganização k3PqD não encontrada\u001b[0m",
+    "    \u001b[2mtente:\u001b[0m mjsvadm org list"
+   ]
+  }
+ },
+ "ER-2fa": {
+  "plain": [
+   "erro: esta conta precisa de 2FA para esta operação — ative em https://mjsv.io/dashboard/me antes de continuar"
+  ],
+  "unicode": {
+   "none": [
+    "▲ Esta operação exige 2FA",
+    "  A conta ainda não tem autenticação em dois fatores.",
+    "  abra: https://mjsv.io/dashboard/me"
+   ],
+   "true": [
+    "\u001b[33m▲\u001b[0m \u001b[1mEsta operação exige 2FA\u001b[0m",
+    "  A conta ainda não tem autenticação em dois fatores.",
+    "  \u001b[2mabra:\u001b[0m https://mjsv.io/dashboard/me"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "[!] Esta operação exige 2FA",
+    "    A conta ainda não tem autenticação em dois fatores.",
+    "    abra: https://mjsv.io/dashboard/me"
+   ],
+   "true": [
+    "\u001b[33m[!]\u001b[0m \u001b[1mEsta operação exige 2FA\u001b[0m",
+    "    A conta ainda não tem autenticação em dois fatores.",
+    "    \u001b[2mabra:\u001b[0m https://mjsv.io/dashboard/me"
+   ]
+  }
+ },
+ "ER-400-list": {
+  "plain": [
+   "erro: 400: E-mail inválido; Senha não pode estar vazia"
+  ],
+  "unicode": {
+   "none": [
+    "✗ A API recusou os dados (400)",
+    "  · E-mail inválido",
+    "  · Senha não pode estar vazia"
+   ],
+   "true": [
+    "\u001b[31m✗\u001b[0m \u001b[1mA API recusou os dados (400)\u001b[0m",
+    "  \u001b[2m·\u001b[0m E-mail inválido",
+    "  \u001b[2m·\u001b[0m Senha não pode estar vazia"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "[x] A API recusou os dados (400)",
+    "    - E-mail inválido",
+    "    - Senha não pode estar vazia"
+   ],
+   "true": [
+    "\u001b[31m[x]\u001b[0m \u001b[1mA API recusou os dados (400)\u001b[0m",
+    "    \u001b[2m-\u001b[0m E-mail inválido",
+    "    \u001b[2m-\u001b[0m Senha não pode estar vazia"
+   ]
+  }
+ },
+ "ER-net": {
+  "plain": [
+   "erro: falha de rede ao falar com https://courtyard-api.mjsv.io/vm: error sending request for url (https://courtyard-api.mjsv.io/vm): dns error: failed to lookup address information"
+  ],
+  "unicode": {
+   "none": [
+    "✗ Sem conexão com a API",
+    "  mjsv ──── · ✗ · ──── courtyard-api.mjsv.io",
+    "  /vm: dns error: failed to lookup address information"
+   ],
+   "true": [
+    "\u001b[31m✗\u001b[0m \u001b[1mSem conexão com a API\u001b[0m",
+    "  mjsv \u001b[2m──── ·\u001b[0m \u001b[31m✗\u001b[0m \u001b[2m· ────\u001b[0m courtyard-api.mjsv.io",
+    "  /vm: dns error: failed to lookup address information"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "[x] Sem conexão com a API",
+    "    mjsv ---- . [x] . ---- courtyard-api.mjsv.io",
+    "    /vm: dns error: failed to lookup address information"
+   ],
+   "true": [
+    "\u001b[31m[x]\u001b[0m \u001b[1mSem conexão com a API\u001b[0m",
+    "    mjsv \u001b[2m---- .\u001b[0m \u001b[31m[x]\u001b[0m \u001b[2m. ----\u001b[0m courtyard-api.mjsv.io",
+    "    /vm: dns error: failed to lookup address information"
+   ]
+  }
+ },
+ "ER-timeout": {
+  "plain": [
+   "erro: falha de rede ao falar com https://courtyard-api.mjsv.io/vm: operation timed out"
+  ],
+  "unicode": {
+   "none": [
+    "✗ A API não respondeu em 60 s",
+    "  mjsv ─────── · · · · courtyard-api.mjsv.io",
+    "  /vm: operation timed out"
+   ],
+   "true": [
+    "\u001b[31m✗\u001b[0m \u001b[1mA API não respondeu em 60 s\u001b[0m",
+    "  mjsv \u001b[2m─────── · · · ·\u001b[0m courtyard-api.mjsv.io",
+    "  /vm: operation timed out"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "[x] A API não respondeu em 60 s",
+    "    mjsv --------- . . . . courtyard-api.mjsv.io",
+    "    /vm: operation timed out"
+   ],
+   "true": [
+    "\u001b[31m[x]\u001b[0m \u001b[1mA API não respondeu em 60 s\u001b[0m",
+    "    mjsv \u001b[2m--------- . . . .\u001b[0m courtyard-api.mjsv.io",
+    "    /vm: operation timed out"
+   ]
+  }
+ },
+ "ER-5xx": {
+  "plain": [
+   "erro: 502: erro sem mensagem"
+  ],
+  "unicode": {
+   "none": [
+    "✗ A API falhou (502)",
+    "  mjsv ───────────── ✗ courtyard-api.mjsv.io",
+    "  A falha é do nosso lado. Repita o comando em instantes."
+   ],
+   "true": [
+    "\u001b[31m✗\u001b[0m \u001b[1mA API falhou (502)\u001b[0m",
+    "  mjsv \u001b[2m─────────────\u001b[0m \u001b[31m✗\u001b[0m courtyard-api.mjsv.io",
+    "  A falha é do nosso lado. Repita o comando em instantes."
+   ]
+  },
+  "ascii": {
+   "none": [
+    "[x] A API falhou (502)",
+    "    mjsv ------------- [x] courtyard-api.mjsv.io",
+    "    A falha é do nosso lado. Repita o comando em instantes."
+   ],
+   "true": [
+    "\u001b[31m[x]\u001b[0m \u001b[1mA API falhou (502)\u001b[0m",
+    "    mjsv \u001b[2m-------------\u001b[0m \u001b[31m[x]\u001b[0m courtyard-api.mjsv.io",
+    "    A falha é do nosso lado. Repita o comando em instantes."
+   ]
+  }
+ },
+ "ER-decode": {
+  "plain": [
+   "erro: resposta inesperada da API em /vm/k3TqZ/metrics: missing field `cpu` at line 1 column 212"
+  ],
+  "unicode": {
+   "none": [
+    "✗ Resposta inesperada da API",
+    "  /vm/k3TqZ/metrics: missing field `cpu` at line 1 column 212",
+    "  tente: mjsv --version"
+   ],
+   "true": [
+    "\u001b[31m✗\u001b[0m \u001b[1mResposta inesperada da API\u001b[0m",
+    "  /vm/k3TqZ/metrics: missing field `cpu` at line 1 column 212",
+    "  \u001b[2mtente:\u001b[0m mjsv --version"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "[x] Resposta inesperada da API",
+    "    /vm/k3TqZ/metrics: missing field `cpu` at line 1 column 212",
+    "    tente: mjsv --version"
+   ],
+   "true": [
+    "\u001b[31m[x]\u001b[0m \u001b[1mResposta inesperada da API\u001b[0m",
+    "    /vm/k3TqZ/metrics: missing field `cpu` at line 1 column 212",
+    "    \u001b[2mtente:\u001b[0m mjsv --version"
+   ]
+  }
+ },
+ "ER-no-terminal": {
+  "plain": [
+   "erro: esta pergunta exige um terminal — em script, autentique com a variável MJSV_TOKEN",
+   "erro: esta pergunta exige um terminal — em script, passe --yes"
+  ],
+  "unicode": {
+   "none": [
+    "✗ Esta pergunta exige um terminal",
+    "  tente: mjsv login --token < chave.txt",
+    "✗ Esta pergunta exige um terminal",
+    "  Em script, repita com --yes."
+   ],
+   "true": [
+    "\u001b[31m✗\u001b[0m \u001b[1mEsta pergunta exige um terminal\u001b[0m",
+    "  \u001b[2mtente:\u001b[0m mjsv login --token < chave.txt",
+    "\u001b[31m✗\u001b[0m \u001b[1mEsta pergunta exige um terminal\u001b[0m",
+    "  Em script, repita com --yes."
+   ]
+  },
+  "ascii": {
+   "none": [
+    "[x] Esta pergunta exige um terminal",
+    "    tente: mjsv login --token < chave.txt",
+    "[x] Esta pergunta exige um terminal",
+    "    Em script, repita com --yes."
+   ],
+   "true": [
+    "\u001b[31m[x]\u001b[0m \u001b[1mEsta pergunta exige um terminal\u001b[0m",
+    "    \u001b[2mtente:\u001b[0m mjsv login --token < chave.txt",
+    "\u001b[31m[x]\u001b[0m \u001b[1mEsta pergunta exige um terminal\u001b[0m",
+    "    Em script, repita com --yes."
+   ]
+  }
+ },
+ "ER-org-flag": {
+  "plain": [
+   "erro: --org não se aplica a este comando (o alvo é sempre ROOT/0000); para filtrar por organização use o flag próprio do comando, como --org-id",
+   "erro: `gs create` precisa de --org <id>: o game server nasce na organização informada"
+  ],
+  "unicode": {
+   "none": [
+    "✗ --org não se aplica a este comando",
+    "  No mjsvadm, o alvo é sempre ROOT/0000; use o filtro do comando.",
+    "  tente: mjsvadm vm list --help",
+    "✗ gs create precisa de --org <id>",
+    "  O game server nasce na organização informada.",
+    "  tente: mjsvadm org list"
+   ],
+   "true": [
+    "\u001b[31m✗\u001b[0m \u001b[1m--org não se aplica a este comando\u001b[0m",
+    "  No mjsvadm, o alvo é sempre ROOT/0000; use o filtro do comando.",
+    "  \u001b[2mtente:\u001b[0m mjsvadm vm list --help",
+    "\u001b[31m✗\u001b[0m \u001b[1mgs create precisa de --org <id>\u001b[0m",
+    "  O game server nasce na organização informada.",
+    "  \u001b[2mtente:\u001b[0m mjsvadm org list"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "[x] --org não se aplica a este comando",
+    "    No mjsvadm, o alvo é sempre ROOT/0000; use o filtro do comando.",
+    "    tente: mjsvadm vm list --help",
+    "[x] gs create precisa de --org <id>",
+    "    O game server nasce na organização informada.",
+    "    tente: mjsvadm org list"
+   ],
+   "true": [
+    "\u001b[31m[x]\u001b[0m \u001b[1m--org não se aplica a este comando\u001b[0m",
+    "    No mjsvadm, o alvo é sempre ROOT/0000; use o filtro do comando.",
+    "    \u001b[2mtente:\u001b[0m mjsvadm vm list --help",
+    "\u001b[31m[x]\u001b[0m \u001b[1mgs create precisa de --org <id>\u001b[0m",
+    "    O game server nasce na organização informada.",
+    "    \u001b[2mtente:\u001b[0m mjsvadm org list"
+   ]
+  }
+ },
+ "ER-ssh-key": {
+  "plain": [
+   "erro: id_ed25519 é uma chave PRIVADA; envie o arquivo .pub correspondente"
+  ],
+  "unicode": {
+   "none": [
+    "✗ id_ed25519 é uma chave PRIVADA",
+    "  Envie o arquivo .pub correspondente.",
+    "  tente: mjsv ssh-key add --name <nome> --file id_ed25519.pub"
+   ],
+   "true": [
+    "\u001b[31m✗\u001b[0m \u001b[1mid_ed25519 é uma chave PRIVADA\u001b[0m",
+    "  Envie o arquivo .pub correspondente.",
+    "  \u001b[2mtente:\u001b[0m mjsv ssh-key add --name <nome> --file id_ed25519.pub"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "[x] id_ed25519 é uma chave PRIVADA",
+    "    Envie o arquivo .pub correspondente.",
+    "    tente: mjsv ssh-key add --name <nome> --file id_ed25519.pub"
+   ],
+   "true": [
+    "\u001b[31m[x]\u001b[0m \u001b[1mid_ed25519 é uma chave PRIVADA\u001b[0m",
+    "    Envie o arquivo .pub correspondente.",
+    "    \u001b[2mtente:\u001b[0m mjsv ssh-key add --name <nome> --file id_ed25519.pub"
+   ]
+  }
+ },
+ "ER-verbose": {
+  "plain": [
+   "erro: não encontrado: /vm/k3TqX"
+  ],
+  "unicode": {
+   "none": [
+    "✗ Não encontrado: /vm/k3TqX",
+    "  tente: mjsv vm list",
+    "  erro: não encontrado: /vm/k3TqX"
+   ],
+   "true": [
+    "\u001b[31m✗\u001b[0m \u001b[1mNão encontrado: /vm/k3TqX\u001b[0m",
+    "  \u001b[2mtente:\u001b[0m mjsv vm list",
+    "  \u001b[2merro: não encontrado: /vm/k3TqX\u001b[0m"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "[x] Não encontrado: /vm/k3TqX",
+    "    tente: mjsv vm list",
+    "    erro: não encontrado: /vm/k3TqX"
+   ],
+   "true": [
+    "\u001b[31m[x]\u001b[0m \u001b[1mNão encontrado: /vm/k3TqX\u001b[0m",
+    "    \u001b[2mtente:\u001b[0m mjsv vm list",
+    "    \u001b[2merro: não encontrado: /vm/k3TqX\u001b[0m"
+   ]
+  }
+ },
+ "OK-done": {
+  "plain": [
+   "Organização corrente: nUME7",
+   "Regra criada. Confira com `mjsv vm firewall list k3TqZ`.",
+   "Volume Mjjp5 anexado a k3TqZ como vdb. Monte-o no sistema convidado.",
+   "Fatura salva em fatura-njLME.pdf (48213 bytes).",
+   "Nada sincronizado: a VM não tem interface de rede.",
+   "Nenhuma sessão local para encerrar.",
+   "dynmap.jar removido — reinicie o servidor para aplicar."
+  ],
+  "unicode": {
+   "none": [
+    "✓ Organização corrente: nUME7",
+    "✓ Regra criada. Confira com `mjsv vm firewall list k3TqZ`.",
+    "✓ Volume Mjjp5 anexado a k3TqZ como vdb. Monte-o no sistema convidado.",
+    "✓ Fatura salva em fatura-njLME.pdf (48213 bytes).",
+    "● Nada sincronizado: a VM não tem interface de rede.",
+    "● Nenhuma sessão local para encerrar.",
+    "▲ dynmap.jar removido — reinicie o servidor para aplicar."
+   ],
+   "true": [
+    "\u001b[32m✓\u001b[0m Organização corrente: nUME7",
+    "\u001b[32m✓\u001b[0m Regra criada. Confira com `mjsv vm firewall list k3TqZ`.",
+    "\u001b[32m✓\u001b[0m Volume Mjjp5 anexado a k3TqZ como vdb. Monte-o no sistema convidado.",
+    "\u001b[32m✓\u001b[0m Fatura salva em fatura-njLME.pdf (48213 bytes).",
+    "\u001b[36m●\u001b[0m Nada sincronizado: a VM não tem interface de rede.",
+    "\u001b[36m●\u001b[0m Nenhuma sessão local para encerrar.",
+    "\u001b[33m▲\u001b[0m dynmap.jar removido — reinicie o servidor para aplicar."
+   ]
+  },
+  "ascii": {
+   "none": [
+    "[+] Organização corrente: nUME7",
+    "[+] Regra criada. Confira com `mjsv vm firewall list k3TqZ`.",
+    "[+] Volume Mjjp5 anexado a k3TqZ como vdb. Monte-o no sistema convidado.",
+    "[+] Fatura salva em fatura-njLME.pdf (48213 bytes).",
+    "[i] Nada sincronizado: a VM não tem interface de rede.",
+    "[i] Nenhuma sessão local para encerrar.",
+    "[!] dynmap.jar removido — reinicie o servidor para aplicar."
+   ],
+   "true": [
+    "\u001b[32m[+]\u001b[0m Organização corrente: nUME7",
+    "\u001b[32m[+]\u001b[0m Regra criada. Confira com `mjsv vm firewall list k3TqZ`.",
+    "\u001b[32m[+]\u001b[0m Volume Mjjp5 anexado a k3TqZ como vdb. Monte-o no sistema convidado.",
+    "\u001b[32m[+]\u001b[0m Fatura salva em fatura-njLME.pdf (48213 bytes).",
+    "\u001b[36m[i]\u001b[0m Nada sincronizado: a VM não tem interface de rede.",
+    "\u001b[36m[i]\u001b[0m Nenhuma sessão local para encerrar.",
+    "\u001b[33m[!]\u001b[0m dynmap.jar removido — reinicie o servidor para aplicar."
+   ]
+  }
+ },
+ "OK-accepted": {
+  "plain": [
+   "Pedido `start` enviado para k3TqZ. Acompanhe com `mjsv vm power k3TqZ`.",
+   "Reinstalação iniciada. Acompanhe com `mjsv vm show k3TqZ`.",
+   "A senha de root foi gerada: recupere com `mjsv vm root-password k3TqZ`.",
+   "Ação `reboot` aceita para a VM k3TqZ."
+  ],
+  "unicode": {
+   "none": [
+    "○ Pedido `start` enviado para k3TqZ. Acompanhe com `mjsv vm power k3TqZ`.",
+    "○ Reinstalação iniciada. Acompanhe com `mjsv vm show k3TqZ`.",
+    "● A senha de root foi gerada: recupere com `mjsv vm root-password k3TqZ`.",
+    "○ Ação `reboot` aceita para a VM k3TqZ."
+   ],
+   "true": [
+    "\u001b[36m○\u001b[0m Pedido `start` enviado para k3TqZ. Acompanhe com `mjsv vm power k3TqZ`.",
+    "\u001b[36m○\u001b[0m Reinstalação iniciada. Acompanhe com `mjsv vm show k3TqZ`.",
+    "\u001b[36m●\u001b[0m A senha de root foi gerada: recupere com `mjsv vm root-password k3TqZ`.",
+    "\u001b[36m○\u001b[0m Ação `reboot` aceita para a VM k3TqZ."
+   ]
+  },
+  "ascii": {
+   "none": [
+    "[~] Pedido `start` enviado para k3TqZ. Acompanhe com `mjsv vm power k3TqZ`.",
+    "[~] Reinstalação iniciada. Acompanhe com `mjsv vm show k3TqZ`.",
+    "[i] A senha de root foi gerada: recupere com `mjsv vm root-password k3TqZ`.",
+    "[~] Ação `reboot` aceita para a VM k3TqZ."
+   ],
+   "true": [
+    "\u001b[36m[~]\u001b[0m Pedido `start` enviado para k3TqZ. Acompanhe com `mjsv vm power k3TqZ`.",
+    "\u001b[36m[~]\u001b[0m Reinstalação iniciada. Acompanhe com `mjsv vm show k3TqZ`.",
+    "\u001b[36m[i]\u001b[0m A senha de root foi gerada: recupere com `mjsv vm root-password k3TqZ`.",
+    "\u001b[36m[~]\u001b[0m Ação `reboot` aceita para a VM k3TqZ."
+   ]
+  }
+ },
+ "OK-order-created": {
+  "plain": [
+   "Pedido njLME criado (PENDING).",
+   "Total:   R$ 94,32",
+   "Pague com: mjsv order pay njLME"
+  ],
+  "unicode": {
+   "none": [
+    "✓ Pedido njLME criado",
+    "  status:   ○ PENDING",
+    "  total:    R$ 94,32",
+    "  próximo:  mjsv order pay njLME"
+   ],
+   "true": [
+    "\u001b[32m✓\u001b[0m \u001b[1mPedido njLME criado\u001b[0m",
+    "  \u001b[2mstatus:\u001b[0m   \u001b[36m○\u001b[0m PENDING",
+    "  \u001b[2mtotal:\u001b[0m    R$ 94,32",
+    "  \u001b[2mpróximo:\u001b[0m  mjsv order pay njLME"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "[+] Pedido njLME criado",
+    "    status:   ~ PENDING",
+    "    total:    R$ 94,32",
+    "    próximo:  mjsv order pay njLME"
+   ],
+   "true": [
+    "\u001b[32m[+]\u001b[0m \u001b[1mPedido njLME criado\u001b[0m",
+    "    \u001b[2mstatus:\u001b[0m   \u001b[36m~\u001b[0m PENDING",
+    "    \u001b[2mtotal:\u001b[0m    R$ 94,32",
+    "    \u001b[2mpróximo:\u001b[0m  mjsv order pay njLME"
+   ]
+  }
+ },
+ "OK-checkout": {
+  "plain": [
+   "Pague em: https://checkout.mjsv.io/c/8Jk2Lq0PzX4vN7cR1tY6"
+  ],
+  "unicode": {
+   "none": [
+    "○ Pedido njLME aguardando pagamento",
+    "  pague em:",
+    "https://checkout.mjsv.io/c/8Jk2Lq0PzX4vN7cR1tY6",
+    "  depois: mjsv order show njLME"
+   ],
+   "true": [
+    "\u001b[36m○\u001b[0m \u001b[1mPedido njLME aguardando pagamento\u001b[0m",
+    "  \u001b[2mpague em:\u001b[0m",
+    "\u001b[1mhttps://checkout.mjsv.io/c/8Jk2Lq0PzX4vN7cR1tY6\u001b[0m",
+    "  \u001b[2mdepois:\u001b[0m mjsv order show njLME"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "[~] Pedido njLME aguardando pagamento",
+    "    pague em:",
+    "https://checkout.mjsv.io/c/8Jk2Lq0PzX4vN7cR1tY6",
+    "    depois: mjsv order show njLME"
+   ],
+   "true": [
+    "\u001b[36m[~]\u001b[0m \u001b[1mPedido njLME aguardando pagamento\u001b[0m",
+    "    \u001b[2mpague em:\u001b[0m",
+    "\u001b[1mhttps://checkout.mjsv.io/c/8Jk2Lq0PzX4vN7cR1tY6\u001b[0m",
+    "    \u001b[2mdepois:\u001b[0m mjsv order show njLME"
+   ]
+  }
+ },
+ "OK-login": {
+  "plain": [
+   "Autenticado como ana (Qw3Rt)",
+   "Organização: acme (nUME7)"
+  ],
+  "unicode": {
+   "none": [
+    "█▄█▄█ ✓ Autenticado como ana (Qw3Rt)",
+    "      org: acme (nUME7)"
+   ],
+   "true": [
+    "\u001b[38;2;255;92;57m█▄█▄█\u001b[0m \u001b[32m✓\u001b[0m \u001b[1mAutenticado como ana (Qw3Rt)\u001b[0m",
+    "      \u001b[2morg: \u001b[0macme (nUME7)"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "\\_/^\\_/ [+] Autenticado como ana (Qw3Rt)",
+    "        org: acme (nUME7)"
+   ],
+   "true": [
+    "\u001b[1;38;2;255;92;57m\\_/^\\_/\u001b[0m \u001b[32m[+]\u001b[0m \u001b[1mAutenticado como ana (Qw3Rt)\u001b[0m",
+    "        \u001b[2morg: \u001b[0macme (nUME7)"
+   ]
+  }
+ },
+ "OK-login-first": {
+  "plain": [
+   "Autenticado como ana (Qw3Rt)",
+   "Organização: acme (nUME7)"
+  ],
+  "unicode": {
+   "none": [
+    "  ▄▄    ▄██▄    ▄▄",
+    "  ▀▀████████████▀▀      ██▄ ▄██     ██  ▄█▀▀▀▀  ██   ██",
+    "██▄              ▄██    ██▀█▀██  ▄  ██  ▀████▄   ██ ██",
+    "███▄▄██▄    ▄██▄▄███    ██   ██  ▀███▀  ▄▄▄▄█▀    ▀█▀",
+    "████████▄  ▄████████    H O S T I N G   mjsv 0.3.0",
+    "████████████████████    ✓ Autenticado como ana (Qw3Rt)",
+    "███████▀    ▀███████    courtyard-api.mjsv.io",
+    " ▀▀████      ████▀▀     org: acme (nUME7)"
+   ],
+   "true": [
+    "\u001b[38;2;255;92;57m  ▄▄    ▄██▄    ▄▄\u001b[0m",
+    "\u001b[38;2;255;99;59m  ▀▀████████████▀▀\u001b[0m      \u001b[1m██▄ ▄██     ██  ▄█▀▀▀▀  ██   ██\u001b[0m",
+    "\u001b[38;2;254;107;62m██▄              ▄██\u001b[0m    \u001b[1m██▀█▀██  ▄  ██  ▀████▄   ██ ██\u001b[0m",
+    "\u001b[38;2;254;114;64m███▄▄██▄    ▄██▄▄███\u001b[0m    \u001b[1m██   ██  ▀███▀  ▄▄▄▄█▀    ▀█▀\u001b[0m",
+    "\u001b[38;2;253;122;66m████████▄  ▄████████\u001b[0m    H O S T I N G   \u001b[2mmjsv 0.3.0\u001b[0m",
+    "\u001b[38;2;253;129;68m████████████████████\u001b[0m    \u001b[32m✓\u001b[0m \u001b[1mAutenticado como ana (Qw3Rt)\u001b[0m",
+    "\u001b[38;2;252;137;71m███████▀    ▀███████\u001b[0m    courtyard-api.mjsv.io",
+    "\u001b[38;2;252;144;73m ▀▀████      ████▀▀\u001b[0m     \u001b[2morg: \u001b[0macme (nUME7)"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "         /\\",
+    "    |\\__/  \\__/|        ||\\  /||     ||  //====  \\\\    //",
+    "|\\_  \\________/  _/|    || \\/ ||     ||  \\\\==\\\\   \\\\  //",
+    "|  |  _      _  |  |    ||    ||  \\__//   ===//    \\\\//",
+    "|  |_| |_  _| |_|  |    H O S T I N G   mjsv 0.3.0",
+    "|        \\/        |    [+] Autenticado como ana (Qw3Rt)",
+    "'-._    .--.    _.-'    courtyard-api.mjsv.io",
+    "    '--|    |--'        org: acme (nUME7)"
+   ],
+   "true": [
+    "\u001b[1;38;2;255;92;57m         /\\\u001b[0m",
+    "\u001b[1;38;2;255;99;59m    |\\__/  \\__/|\u001b[0m        \u001b[1m||\\  /||     ||  //====  \\\\    //\u001b[0m",
+    "\u001b[1;38;2;254;107;62m|\\_  \\________/  _/|\u001b[0m    \u001b[1m|| \\/ ||     ||  \\\\==\\\\   \\\\  //\u001b[0m",
+    "\u001b[1;38;2;254;114;64m|  |  _      _  |  |\u001b[0m    \u001b[1m||    ||  \\__//   ===//    \\\\//\u001b[0m",
+    "\u001b[1;38;2;253;122;66m|  |_| |_  _| |_|  |\u001b[0m    H O S T I N G   \u001b[2mmjsv 0.3.0\u001b[0m",
+    "\u001b[1;38;2;253;129;68m|        \\/        |\u001b[0m    \u001b[32m[+]\u001b[0m \u001b[1mAutenticado como ana (Qw3Rt)\u001b[0m",
+    "\u001b[1;38;2;252;137;71m'-._    .--.    _.-'\u001b[0m    courtyard-api.mjsv.io",
+    "\u001b[1;38;2;252;144;73m    '--|    |--'\u001b[0m        \u001b[2morg: \u001b[0macme (nUME7)"
+   ]
+  }
+ },
+ "OK-login-first-no-org": {
+  "plain": [
+   "Autenticado como ana (Qw3Rt)",
+   "Nenhuma organização vinculada a esta conta."
+  ],
+  "unicode": {
+   "none": [
+    "  ▄▄    ▄██▄    ▄▄",
+    "  ▀▀████████████▀▀      ██▄ ▄██     ██  ▄█▀▀▀▀  ██   ██",
+    "██▄              ▄██    ██▀█▀██  ▄  ██  ▀████▄   ██ ██",
+    "███▄▄██▄    ▄██▄▄███    ██   ██  ▀███▀  ▄▄▄▄█▀    ▀█▀",
+    "████████▄  ▄████████    H O S T I N G   mjsv 0.3.0",
+    "████████████████████    ✓ Autenticado como ana (Qw3Rt)",
+    "███████▀    ▀███████    org: nenhuma",
+    " ▀▀████      ████▀▀     próximo: mjsv org create <nome>"
+   ],
+   "true": [
+    "\u001b[38;2;255;92;57m  ▄▄    ▄██▄    ▄▄\u001b[0m",
+    "\u001b[38;2;255;99;59m  ▀▀████████████▀▀\u001b[0m      \u001b[1m██▄ ▄██     ██  ▄█▀▀▀▀  ██   ██\u001b[0m",
+    "\u001b[38;2;254;107;62m██▄              ▄██\u001b[0m    \u001b[1m██▀█▀██  ▄  ██  ▀████▄   ██ ██\u001b[0m",
+    "\u001b[38;2;254;114;64m███▄▄██▄    ▄██▄▄███\u001b[0m    \u001b[1m██   ██  ▀███▀  ▄▄▄▄█▀    ▀█▀\u001b[0m",
+    "\u001b[38;2;253;122;66m████████▄  ▄████████\u001b[0m    H O S T I N G   \u001b[2mmjsv 0.3.0\u001b[0m",
+    "\u001b[38;2;253;129;68m████████████████████\u001b[0m    \u001b[32m✓\u001b[0m \u001b[1mAutenticado como ana (Qw3Rt)\u001b[0m",
+    "\u001b[38;2;252;137;71m███████▀    ▀███████\u001b[0m    \u001b[2morg: \u001b[0mnenhuma",
+    "\u001b[38;2;252;144;73m ▀▀████      ████▀▀\u001b[0m     \u001b[2mpróximo: \u001b[0mmjsv org create <nome>"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "         /\\",
+    "    |\\__/  \\__/|        ||\\  /||     ||  //====  \\\\    //",
+    "|\\_  \\________/  _/|    || \\/ ||     ||  \\\\==\\\\   \\\\  //",
+    "|  |  _      _  |  |    ||    ||  \\__//   ===//    \\\\//",
+    "|  |_| |_  _| |_|  |    H O S T I N G   mjsv 0.3.0",
+    "|        \\/        |    [+] Autenticado como ana (Qw3Rt)",
+    "'-._    .--.    _.-'    org: nenhuma",
+    "    '--|    |--'        próximo: mjsv org create <nome>"
+   ],
+   "true": [
+    "\u001b[1;38;2;255;92;57m         /\\\u001b[0m",
+    "\u001b[1;38;2;255;99;59m    |\\__/  \\__/|\u001b[0m        \u001b[1m||\\  /||     ||  //====  \\\\    //\u001b[0m",
+    "\u001b[1;38;2;254;107;62m|\\_  \\________/  _/|\u001b[0m    \u001b[1m|| \\/ ||     ||  \\\\==\\\\   \\\\  //\u001b[0m",
+    "\u001b[1;38;2;254;114;64m|  |  _      _  |  |\u001b[0m    \u001b[1m||    ||  \\__//   ===//    \\\\//\u001b[0m",
+    "\u001b[1;38;2;253;122;66m|  |_| |_  _| |_|  |\u001b[0m    H O S T I N G   \u001b[2mmjsv 0.3.0\u001b[0m",
+    "\u001b[1;38;2;253;129;68m|        \\/        |\u001b[0m    \u001b[32m[+]\u001b[0m \u001b[1mAutenticado como ana (Qw3Rt)\u001b[0m",
+    "\u001b[1;38;2;252;137;71m'-._    .--.    _.-'\u001b[0m    \u001b[2morg: \u001b[0mnenhuma",
+    "\u001b[1;38;2;252;144;73m    '--|    |--'\u001b[0m        \u001b[2mpróximo: \u001b[0mmjsv org create <nome>"
+   ]
+  }
+ },
+ "OK-logout": {
+  "plain": [
+   "Sessão encerrada."
+  ],
+  "unicode": {
+   "none": [
+    "█▄█▄█ ✓ Sessão encerrada"
+   ],
+   "true": [
+    "\u001b[38;2;255;92;57m█▄█▄█\u001b[0m \u001b[32m✓\u001b[0m \u001b[1mSessão encerrada\u001b[0m"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "\\_/^\\_/ [+] Sessão encerrada"
+   ],
+   "true": [
+    "\u001b[1;38;2;255;92;57m\\_/^\\_/\u001b[0m \u001b[32m[+]\u001b[0m \u001b[1mSessão encerrada\u001b[0m"
+   ]
+  }
+ },
+ "OK-secret": {
+  "plain": [
+   "Chave criada: ci (njLME)",
+   "",
+   "mjsv_pat_8Jk2Lq0PzX4vN7cR1tY6uE3wB9sD5fGh",
+   "",
+   "Guarde agora — este valor não é exibido novamente.",
+   "Use com: export MJSV_TOKEN=<valor>"
+  ],
+  "unicode": {
+   "none": [
+    "▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄",
+    "▌ ▲ COPIE AGORA · não será mostrado de novo",
+    "▌",
+    "mjsv_pat_8Jk2Lq0PzX4vN7cR1tY6uE3wB9sD5fGh",
+    "▌",
+    "▌ chave:    ci (njLME)",
+    "▌ use com:  export MJSV_TOKEN=<valor>",
+    "▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀"
+   ],
+   "true": [
+    "\u001b[33m▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄\u001b[0m",
+    "\u001b[33m▌\u001b[0m \u001b[33m▲\u001b[0m \u001b[1mCOPIE AGORA\u001b[0m · não será mostrado de novo",
+    "\u001b[33m▌\u001b[0m",
+    "\u001b[1mmjsv_pat_8Jk2Lq0PzX4vN7cR1tY6uE3wB9sD5fGh\u001b[0m",
+    "\u001b[33m▌\u001b[0m",
+    "\u001b[33m▌\u001b[0m \u001b[2mchave:\u001b[0m    ci (njLME)",
+    "\u001b[33m▌\u001b[0m \u001b[2muse com:\u001b[0m  export MJSV_TOKEN=<valor>",
+    "\u001b[33m▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀\u001b[0m"
+   ]
+  },
+  "ascii": {
+   "none": [
+    ".-----------------------------------------------------------",
+    "| [!] COPIE AGORA, não será mostrado de novo",
+    "|",
+    "mjsv_pat_8Jk2Lq0PzX4vN7cR1tY6uE3wB9sD5fGh",
+    "|",
+    "| chave:    ci (njLME)",
+    "| use com:  export MJSV_TOKEN=<valor>",
+    "'-----------------------------------------------------------"
+   ],
+   "true": [
+    "\u001b[33m.-----------------------------------------------------------\u001b[0m",
+    "\u001b[33m|\u001b[0m \u001b[33m[!]\u001b[0m \u001b[1mCOPIE AGORA\u001b[0m, não será mostrado de novo",
+    "\u001b[33m|\u001b[0m",
+    "\u001b[1mmjsv_pat_8Jk2Lq0PzX4vN7cR1tY6uE3wB9sD5fGh\u001b[0m",
+    "\u001b[33m|\u001b[0m",
+    "\u001b[33m|\u001b[0m \u001b[2mchave:\u001b[0m    ci (njLME)",
+    "\u001b[33m|\u001b[0m \u001b[2muse com:\u001b[0m  export MJSV_TOKEN=<valor>",
+    "\u001b[33m'-----------------------------------------------------------\u001b[0m"
+   ]
+  }
+ },
+ "OK-secret-console": {
+  "plain": [
+   "Token:  eyJhbGciOiJIUzI1NiJ9.eyJ2bSI6ImszVHFaIiwiZXhwIjoxNzk1Nzk1NzI2fQ.q7Vd",
+   "Senha:  hT4kW9pZ"
+  ],
+  "unicode": {
+   "none": [
+    "▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄",
+    "▌ ▲ USE AGORA · o token expira em 60 segundos",
+    "▌ token:",
+    "eyJhbGciOiJIUzI1NiJ9.eyJ2bSI6ImszVHFaIiwiZXhwIjoxNzk1Nzk1NzI2fQ.q7Vd",
+    "▌ senha:",
+    "hT4kW9pZ",
+    "▌",
+    "▌ console VNC:  VM k3TqZ",
+    "▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀"
+   ],
+   "true": [
+    "\u001b[33m▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄\u001b[0m",
+    "\u001b[33m▌\u001b[0m \u001b[33m▲\u001b[0m \u001b[1mUSE AGORA\u001b[0m · o token expira em 60 segundos",
+    "\u001b[33m▌\u001b[0m \u001b[2mtoken:\u001b[0m",
+    "\u001b[1meyJhbGciOiJIUzI1NiJ9.eyJ2bSI6ImszVHFaIiwiZXhwIjoxNzk1Nzk1NzI2fQ.q7Vd\u001b[0m",
+    "\u001b[33m▌\u001b[0m \u001b[2msenha:\u001b[0m",
+    "\u001b[1mhT4kW9pZ\u001b[0m",
+    "\u001b[33m▌\u001b[0m",
+    "\u001b[33m▌\u001b[0m \u001b[2mconsole VNC:\u001b[0m  VM k3TqZ",
+    "\u001b[33m▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀\u001b[0m"
+   ]
+  },
+  "ascii": {
+   "none": [
+    ".-----------------------------------------------------------",
+    "| [!] USE AGORA, o token expira em 60 segundos",
+    "| token:",
+    "eyJhbGciOiJIUzI1NiJ9.eyJ2bSI6ImszVHFaIiwiZXhwIjoxNzk1Nzk1NzI2fQ.q7Vd",
+    "| senha:",
+    "hT4kW9pZ",
+    "|",
+    "| console VNC:  VM k3TqZ",
+    "'-----------------------------------------------------------"
+   ],
+   "true": [
+    "\u001b[33m.-----------------------------------------------------------\u001b[0m",
+    "\u001b[33m|\u001b[0m \u001b[33m[!]\u001b[0m \u001b[1mUSE AGORA\u001b[0m, o token expira em 60 segundos",
+    "\u001b[33m|\u001b[0m \u001b[2mtoken:\u001b[0m",
+    "\u001b[1meyJhbGciOiJIUzI1NiJ9.eyJ2bSI6ImszVHFaIiwiZXhwIjoxNzk1Nzk1NzI2fQ.q7Vd\u001b[0m",
+    "\u001b[33m|\u001b[0m \u001b[2msenha:\u001b[0m",
+    "\u001b[1mhT4kW9pZ\u001b[0m",
+    "\u001b[33m|\u001b[0m",
+    "\u001b[33m|\u001b[0m \u001b[2mconsole VNC:\u001b[0m  VM k3TqZ",
+    "\u001b[33m'-----------------------------------------------------------\u001b[0m"
+   ]
+  }
+ },
+ "OK-staff-vm-create": {
+  "plain": [
+   "VM:        k3TqZ",
+   "Nome:      web-01",
+   "IP:        10.20.0.14",
+   "EIP:       203.0.113.27",
+   "Senha root: q7Vd-M2xp-Lr9K-tB4s",
+   "Guarde a senha agora: ela não é mostrada de novo."
+  ],
+  "unicode": {
+   "none": [
+    "══ STAFF · ROOT ══ ORG nUME7 ═══════════════════════════════",
+    "✓ VM criada: web-01 (k3TqZ)",
+    "  IP:       10.20.0.14",
+    "  EIP:      203.0.113.27",
+    "  próximo:  mjsvadm machine show k3TqZ",
+    "▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄",
+    "▌ ▲ COPIE AGORA · não será mostrado de novo",
+    "▌ senha de root:",
+    "q7Vd-M2xp-Lr9K-tB4s",
+    "▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀"
+   ],
+   "true": [
+    "\u001b[38;2;214;31;38m══\u001b[0m\u001b[1;38;2;255;255;255;48;2;214;31;38m STAFF · ROOT \u001b[0m\u001b[38;2;214;31;38m══\u001b[0m \u001b[1;38;2;214;31;38mORG nUME7\u001b[0m \u001b[38;2;214;31;38m═══════════════════════════════\u001b[0m",
+    "\u001b[32m✓\u001b[0m \u001b[1mVM criada: web-01 (k3TqZ)\u001b[0m",
+    "  \u001b[2mIP:\u001b[0m       10.20.0.14",
+    "  \u001b[2mEIP:\u001b[0m      203.0.113.27",
+    "  \u001b[2mpróximo:\u001b[0m  mjsvadm machine show k3TqZ",
+    "\u001b[33m▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄\u001b[0m",
+    "\u001b[33m▌\u001b[0m \u001b[33m▲\u001b[0m \u001b[1mCOPIE AGORA\u001b[0m · não será mostrado de novo",
+    "\u001b[33m▌\u001b[0m \u001b[2msenha de root:\u001b[0m",
+    "\u001b[1mq7Vd-M2xp-Lr9K-tB4s\u001b[0m",
+    "\u001b[33m▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀\u001b[0m"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "== STAFF / ROOT == ORG nUME7 ===============================",
+    "[+] VM criada: web-01 (k3TqZ)",
+    "    IP:       10.20.0.14",
+    "    EIP:      203.0.113.27",
+    "    próximo:  mjsvadm machine show k3TqZ",
+    ".-----------------------------------------------------------",
+    "| [!] COPIE AGORA, não será mostrado de novo",
+    "| senha de root:",
+    "q7Vd-M2xp-Lr9K-tB4s",
+    "'-----------------------------------------------------------"
+   ],
+   "true": [
+    "\u001b[38;2;214;31;38m==\u001b[0m\u001b[1;38;2;255;255;255;48;2;214;31;38m STAFF / ROOT \u001b[0m\u001b[38;2;214;31;38m==\u001b[0m \u001b[1;38;2;214;31;38mORG nUME7\u001b[0m \u001b[38;2;214;31;38m===============================\u001b[0m",
+    "\u001b[32m[+]\u001b[0m \u001b[1mVM criada: web-01 (k3TqZ)\u001b[0m",
+    "    \u001b[2mIP:\u001b[0m       10.20.0.14",
+    "    \u001b[2mEIP:\u001b[0m      203.0.113.27",
+    "    \u001b[2mpróximo:\u001b[0m  mjsvadm machine show k3TqZ",
+    "\u001b[33m.-----------------------------------------------------------\u001b[0m",
+    "\u001b[33m|\u001b[0m \u001b[33m[!]\u001b[0m \u001b[1mCOPIE AGORA\u001b[0m, não será mostrado de novo",
+    "\u001b[33m|\u001b[0m \u001b[2msenha de root:\u001b[0m",
+    "\u001b[1mq7Vd-M2xp-Lr9K-tB4s\u001b[0m",
+    "\u001b[33m'-----------------------------------------------------------\u001b[0m"
+   ]
+  }
+ },
+ "OK-staff-otp-setup": {
+  "plain": [
+   "QR gravado em otp-qr.png (permissão 0600). Leia no aplicativo autenticador e apague o arquivo.",
+   "Token de cadastro: st_9LwQ2mVb7KpZc1RyH8sJ",
+   "Conclua com: mjsvadm otp verify <código-de-6-dígitos> --setup-token <token>"
+  ],
+  "unicode": {
+   "none": [
+    "══ STAFF · ROOT ════════════════════════════════════════════",
+    "○ OTP: cadastro iniciado",
+    "  QR: otp-qr.png (0600) · leia no autenticador e apague",
+    "  token de cadastro:",
+    "st_9LwQ2mVb7KpZc1RyH8sJ",
+    "  conclua: mjsvadm otp verify <código> --setup-token <token>"
+   ],
+   "true": [
+    "\u001b[38;2;214;31;38m══\u001b[0m\u001b[1;38;2;255;255;255;48;2;214;31;38m STAFF · ROOT \u001b[0m\u001b[38;2;214;31;38m══\u001b[0m\u001b[38;2;214;31;38m══════════════════════════════════════════\u001b[0m",
+    "\u001b[36m○\u001b[0m \u001b[1mOTP: cadastro iniciado\u001b[0m",
+    "  \u001b[2mQR:\u001b[0m otp-qr.png (0600) · leia no autenticador e apague",
+    "  \u001b[2mtoken de cadastro:\u001b[0m",
+    "\u001b[1mst_9LwQ2mVb7KpZc1RyH8sJ\u001b[0m",
+    "  \u001b[2mconclua:\u001b[0m mjsvadm otp verify <código> --setup-token <token>"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "== STAFF / ROOT ============================================",
+    "[~] OTP: cadastro iniciado",
+    "    QR: otp-qr.png (0600), leia no autenticador e apague",
+    "    token de cadastro:",
+    "st_9LwQ2mVb7KpZc1RyH8sJ",
+    "    conclua: mjsvadm otp verify <código> --setup-token <token>"
+   ],
+   "true": [
+    "\u001b[38;2;214;31;38m==\u001b[0m\u001b[1;38;2;255;255;255;48;2;214;31;38m STAFF / ROOT \u001b[0m\u001b[38;2;214;31;38m==\u001b[0m\u001b[38;2;214;31;38m==========================================\u001b[0m",
+    "\u001b[36m[~]\u001b[0m \u001b[1mOTP: cadastro iniciado\u001b[0m",
+    "    \u001b[2mQR:\u001b[0m otp-qr.png (0600), leia no autenticador e apague",
+    "    \u001b[2mtoken de cadastro:\u001b[0m",
+    "\u001b[1mst_9LwQ2mVb7KpZc1RyH8sJ\u001b[0m",
+    "    \u001b[2mconclua:\u001b[0m mjsvadm otp verify <código> --setup-token <token>"
+   ]
+  }
+ },
+ "OK-staff-json": {
+  "plain": null,
+  "unicode": {
+   "none": [
+    "✓ E-mail de redefinição de senha enviado para ana@acme.com.br",
+    "✓ Carteira de Qw3Rt ajustada: +R$ 50,00",
+    "✓ Pedido njLME: status alterado para COMPLETED"
+   ],
+   "true": [
+    "\u001b[32m✓\u001b[0m E-mail de redefinição de senha enviado para ana@acme.com.br",
+    "\u001b[32m✓\u001b[0m Carteira de Qw3Rt ajustada: +R$ 50,00",
+    "\u001b[32m✓\u001b[0m Pedido njLME: status alterado para COMPLETED"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "[+] E-mail de redefinição de senha enviado para ana@acme.com.br",
+    "[+] Carteira de Qw3Rt ajustada: +R$ 50,00",
+    "[+] Pedido njLME: status alterado para COMPLETED"
+   ],
+   "true": [
+    "\u001b[32m[+]\u001b[0m E-mail de redefinição de senha enviado para ana@acme.com.br",
+    "\u001b[32m[+]\u001b[0m Carteira de Qw3Rt ajustada: +R$ 50,00",
+    "\u001b[32m[+]\u001b[0m Pedido njLME: status alterado para COMPLETED"
+   ]
+  }
+ },
+ "CF-0": {
+  "plain": [
+   "Fechar o ticket 4821? [s/N] ",
+   "Enviar map.zip para /map.zip sobrescreve o arquivo se ele já existir. Continuar? [s/N] "
+  ],
+  "unicode": {
+   "none": [
+    "Fechar o ticket 4821? [s/N]",
+    "Enviar map.zip para /map.zip sobrescreve o arquivo se ele já existir.",
+    "Continuar? [s/N]"
+   ],
+   "true": [
+    "Fechar o ticket 4821? \u001b[1m[s/N]\u001b[0m",
+    "Enviar map.zip para /map.zip sobrescreve o arquivo se ele já existir.",
+    "Continuar? \u001b[1m[s/N]\u001b[0m"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "Fechar o ticket 4821? [s/N]",
+    "Enviar map.zip para /map.zip sobrescreve o arquivo se ele já existir.",
+    "Continuar? [s/N]"
+   ],
+   "true": [
+    "Fechar o ticket 4821? \u001b[1m[s/N]\u001b[0m",
+    "Enviar map.zip para /map.zip sobrescreve o arquivo se ele já existir.",
+    "Continuar? \u001b[1m[s/N]\u001b[0m"
+   ]
+  }
+ },
+ "CF-A0": {
+  "plain": [
+   "Remover a imagem debian-11? [s/N] "
+  ],
+  "unicode": {
+   "none": [
+    "[#] Remover a imagem debian-11? [s/N]"
+   ],
+   "true": [
+    "\u001b[1;38;2;255;255;255;48;2;214;31;38m[#]\u001b[0m Remover a imagem debian-11? \u001b[1m[s/N]\u001b[0m"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "[#] Remover a imagem debian-11? [s/N]"
+   ],
+   "true": [
+    "\u001b[1;38;2;255;255;255;48;2;214;31;38m[#]\u001b[0m Remover a imagem debian-11? \u001b[1m[s/N]\u001b[0m"
+   ]
+  }
+ },
+ "CF-1": {
+  "plain": [
+   "`kill` corta a energia da VM k3TqZ sem avisar o sistema convidado. Continuar? [s/N] "
+  ],
+  "unicode": {
+   "none": [
+    "▲ `kill` corta a energia da VM k3TqZ sem avisar o sistema convidado.",
+    "  Continuar? [s/N]"
+   ],
+   "true": [
+    "\u001b[33m▲\u001b[0m `kill` corta a energia da VM k3TqZ sem avisar o sistema convidado.",
+    "  Continuar? \u001b[1m[s/N]\u001b[0m"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "[!] `kill` corta a energia da VM k3TqZ sem avisar o sistema convidado.",
+    "    Continuar? [s/N]"
+   ],
+   "true": [
+    "\u001b[33m[!]\u001b[0m `kill` corta a energia da VM k3TqZ sem avisar o sistema convidado.",
+    "    Continuar? \u001b[1m[s/N]\u001b[0m"
+   ]
+  }
+ },
+ "CF-1-pay": {
+  "plain": [
+   "Pagar o pedido njLME com o saldo da carteira? [s/N] "
+  ],
+  "unicode": {
+   "none": [
+    "▲ Pagar o pedido njLME com o saldo da carteira?",
+    "  total:  R$ 94,32",
+    "  saldo:  R$ 152,40 · resta R$ 58,08",
+    "  Pagar? [s/N]"
+   ],
+   "true": [
+    "\u001b[33m▲\u001b[0m \u001b[1mPagar o pedido njLME com o saldo da carteira?\u001b[0m",
+    "  \u001b[2mtotal:\u001b[0m  R$ 94,32",
+    "  \u001b[2msaldo:\u001b[0m  R$ 152,40 · resta R$ 58,08",
+    "  Pagar? \u001b[1m[s/N]\u001b[0m"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "[!] Pagar o pedido njLME com o saldo da carteira?",
+    "    total:  R$ 94,32",
+    "    saldo:  R$ 152,40, resta R$ 58,08",
+    "    Pagar? [s/N]"
+   ],
+   "true": [
+    "\u001b[33m[!]\u001b[0m \u001b[1mPagar o pedido njLME com o saldo da carteira?\u001b[0m",
+    "    \u001b[2mtotal:\u001b[0m  R$ 94,32",
+    "    \u001b[2msaldo:\u001b[0m  R$ 152,40, resta R$ 58,08",
+    "    Pagar? \u001b[1m[s/N]\u001b[0m"
+   ]
+  }
+ },
+ "CF-A1": {
+  "plain": [
+   "Executar `reboot` na VM k3TqZ? [s/N] "
+  ],
+  "unicode": {
+   "none": [
+    "[#] Executar `reboot` na VM k3TqZ?",
+    "    org:  acme (nUME7)",
+    "    Continuar? [s/N]"
+   ],
+   "true": [
+    "\u001b[1;38;2;255;255;255;48;2;214;31;38m[#]\u001b[0m \u001b[1mExecutar `reboot` na VM k3TqZ?\u001b[0m",
+    "    \u001b[2morg:\u001b[0m  acme (nUME7)",
+    "    Continuar? \u001b[1m[s/N]\u001b[0m"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "[#] Executar `reboot` na VM k3TqZ?",
+    "    org:  acme (nUME7)",
+    "    Continuar? [s/N]"
+   ],
+   "true": [
+    "\u001b[1;38;2;255;255;255;48;2;214;31;38m[#]\u001b[0m \u001b[1mExecutar `reboot` na VM k3TqZ?\u001b[0m",
+    "    \u001b[2morg:\u001b[0m  acme (nUME7)",
+    "    Continuar? \u001b[1m[s/N]\u001b[0m"
+   ]
+  }
+ },
+ "CF-2": {
+  "plain": [
+   "Reinstalar a VM k3TqZ com a imagem ubuntu-24.04 APAGA o disco e não tem volta. Continuar? [s/N] "
+  ],
+  "unicode": {
+   "none": [
+    "── DESTRUTIVO ──────────────────────────────────────────────",
+    "▲ Reinstalar a VM web-01?",
+    "  VM:      web-01 (k3TqZ)",
+    "  imagem:  ubuntu-24.04",
+    "  org:     acme (nUME7)",
+    "  APAGA o disco e não tem volta.",
+    "  Continuar? [s/N]"
+   ],
+   "true": [
+    "\u001b[31m──\u001b[0m \u001b[1;31mDESTRUTIVO\u001b[0m \u001b[31m──────────────────────────────────────────────\u001b[0m",
+    "\u001b[33m▲\u001b[0m \u001b[1mReinstalar a VM web-01?\u001b[0m",
+    "  \u001b[2mVM:\u001b[0m      \u001b[1mweb-01 (k3TqZ)\u001b[0m",
+    "  \u001b[2mimagem:\u001b[0m  ubuntu-24.04",
+    "  \u001b[2morg:\u001b[0m     acme (nUME7)",
+    "  APAGA o disco e não tem volta.",
+    "  Continuar? \u001b[1m[s/N]\u001b[0m"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "-- DESTRUTIVO ----------------------------------------------",
+    "[!] Reinstalar a VM web-01?",
+    "    VM:      web-01 (k3TqZ)",
+    "    imagem:  ubuntu-24.04",
+    "    org:     acme (nUME7)",
+    "    APAGA o disco e não tem volta.",
+    "    Continuar? [s/N]"
+   ],
+   "true": [
+    "\u001b[31m--\u001b[0m \u001b[1;31mDESTRUTIVO\u001b[0m \u001b[31m----------------------------------------------\u001b[0m",
+    "\u001b[33m[!]\u001b[0m \u001b[1mReinstalar a VM web-01?\u001b[0m",
+    "    \u001b[2mVM:\u001b[0m      \u001b[1mweb-01 (k3TqZ)\u001b[0m",
+    "    \u001b[2mimagem:\u001b[0m  ubuntu-24.04",
+    "    \u001b[2morg:\u001b[0m     acme (nUME7)",
+    "    APAGA o disco e não tem volta.",
+    "    Continuar? \u001b[1m[s/N]\u001b[0m"
+   ]
+  }
+ },
+ "CF-2-files": {
+  "plain": [
+   "Apagar 2 arquivo(s) de /plugins? Não há lixeira. [s/N] "
+  ],
+  "unicode": {
+   "none": [
+    "── DESTRUTIVO ──────────────────────────────────────────────",
+    "▲ Apagar 2 arquivos de /plugins?",
+    "  arquivos:    old.jar · backup.zip",
+    "  gameserver:  mc-02 (p9WxA)",
+    "  org:         acme (nUME7)",
+    "  Não há lixeira.",
+    "  Continuar? [s/N]"
+   ],
+   "true": [
+    "\u001b[31m──\u001b[0m \u001b[1;31mDESTRUTIVO\u001b[0m \u001b[31m──────────────────────────────────────────────\u001b[0m",
+    "\u001b[33m▲\u001b[0m \u001b[1mApagar 2 arquivos de /plugins?\u001b[0m",
+    "  \u001b[2marquivos:\u001b[0m    \u001b[1mold.jar · backup.zip\u001b[0m",
+    "  \u001b[2mgameserver:\u001b[0m  mc-02 (p9WxA)",
+    "  \u001b[2morg:\u001b[0m         acme (nUME7)",
+    "  Não há lixeira.",
+    "  Continuar? \u001b[1m[s/N]\u001b[0m"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "-- DESTRUTIVO ----------------------------------------------",
+    "[!] Apagar 2 arquivos de /plugins?",
+    "    arquivos:    old.jar, backup.zip",
+    "    gameserver:  mc-02 (p9WxA)",
+    "    org:         acme (nUME7)",
+    "    Não há lixeira.",
+    "    Continuar? [s/N]"
+   ],
+   "true": [
+    "\u001b[31m--\u001b[0m \u001b[1;31mDESTRUTIVO\u001b[0m \u001b[31m----------------------------------------------\u001b[0m",
+    "\u001b[33m[!]\u001b[0m \u001b[1mApagar 2 arquivos de /plugins?\u001b[0m",
+    "    \u001b[2marquivos:\u001b[0m    \u001b[1mold.jar, backup.zip\u001b[0m",
+    "    \u001b[2mgameserver:\u001b[0m  mc-02 (p9WxA)",
+    "    \u001b[2morg:\u001b[0m         acme (nUME7)",
+    "    Não há lixeira.",
+    "    Continuar? \u001b[1m[s/N]\u001b[0m"
+   ]
+  }
+ },
+ "CF-A2": {
+  "plain": [
+   "Reinstalar a VM k3TqZ com a imagem ubuntu-24.04? O disco será APAGADO. [s/N] "
+  ],
+  "unicode": {
+   "none": [
+    "══ STAFF · ROOT ══ DESTRUTIVO ══════════════════════════════",
+    "[#] Reinstalar a VM web-01?",
+    "    VM:      web-01 (k3TqZ)",
+    "    imagem:  ubuntu-24.04",
+    "    org:     acme (nUME7)",
+    "    nó:      gru-03",
+    "    O disco será APAGADO.",
+    "    Continuar? [s/N]"
+   ],
+   "true": [
+    "\u001b[38;2;214;31;38m══\u001b[0m\u001b[1;38;2;255;255;255;48;2;214;31;38m STAFF · ROOT \u001b[0m\u001b[38;2;214;31;38m══\u001b[0m \u001b[1;38;2;214;31;38mDESTRUTIVO\u001b[0m \u001b[38;2;214;31;38m══════════════════════════════\u001b[0m",
+    "\u001b[1;38;2;255;255;255;48;2;214;31;38m[#]\u001b[0m \u001b[1mReinstalar a VM web-01?\u001b[0m",
+    "    \u001b[2mVM:\u001b[0m      \u001b[1mweb-01 (k3TqZ)\u001b[0m",
+    "    \u001b[2mimagem:\u001b[0m  ubuntu-24.04",
+    "    \u001b[2morg:\u001b[0m     acme (nUME7)",
+    "    \u001b[2mnó:\u001b[0m      gru-03",
+    "    O disco será APAGADO.",
+    "    Continuar? \u001b[1m[s/N]\u001b[0m"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "== STAFF / ROOT == DESTRUTIVO ==============================",
+    "[#] Reinstalar a VM web-01?",
+    "    VM:      web-01 (k3TqZ)",
+    "    imagem:  ubuntu-24.04",
+    "    org:     acme (nUME7)",
+    "    nó:      gru-03",
+    "    O disco será APAGADO.",
+    "    Continuar? [s/N]"
+   ],
+   "true": [
+    "\u001b[38;2;214;31;38m==\u001b[0m\u001b[1;38;2;255;255;255;48;2;214;31;38m STAFF / ROOT \u001b[0m\u001b[38;2;214;31;38m==\u001b[0m \u001b[1;38;2;214;31;38mDESTRUTIVO\u001b[0m \u001b[38;2;214;31;38m==============================\u001b[0m",
+    "\u001b[1;38;2;255;255;255;48;2;214;31;38m[#]\u001b[0m \u001b[1mReinstalar a VM web-01?\u001b[0m",
+    "    \u001b[2mVM:\u001b[0m      \u001b[1mweb-01 (k3TqZ)\u001b[0m",
+    "    \u001b[2mimagem:\u001b[0m  ubuntu-24.04",
+    "    \u001b[2morg:\u001b[0m     acme (nUME7)",
+    "    \u001b[2mnó:\u001b[0m      gru-03",
+    "    O disco será APAGADO.",
+    "    Continuar? \u001b[1m[s/N]\u001b[0m"
+   ]
+  }
+ },
+ "CF-A2-money": {
+  "plain": [
+   "Ajustar a carteira do usuário Qw3Rt em -5000 centavos? [s/N] "
+  ],
+  "unicode": {
+   "none": [
+    "══ STAFF · ROOT ════════════════════════════════════════════",
+    "[#] Ajustar a carteira do usuário Qw3Rt?",
+    "    usuário:  ana@acme.com.br (Qw3Rt)",
+    "    ajuste:   -R$ 50,00",
+    "    saldo:    R$ 152,40 · resta R$ 102,40",
+    "    motivo:   estorno do pedido njLME",
+    "    Ajustar? [s/N]"
+   ],
+   "true": [
+    "\u001b[38;2;214;31;38m══\u001b[0m\u001b[1;38;2;255;255;255;48;2;214;31;38m STAFF · ROOT \u001b[0m\u001b[38;2;214;31;38m══\u001b[0m\u001b[38;2;214;31;38m══════════════════════════════════════════\u001b[0m",
+    "\u001b[1;38;2;255;255;255;48;2;214;31;38m[#]\u001b[0m \u001b[1mAjustar a carteira do usuário Qw3Rt?\u001b[0m",
+    "    \u001b[2musuário:\u001b[0m  \u001b[1mana@acme.com.br (Qw3Rt)\u001b[0m",
+    "    \u001b[2majuste:\u001b[0m   -R$ 50,00",
+    "    \u001b[2msaldo:\u001b[0m    R$ 152,40 · resta R$ 102,40",
+    "    \u001b[2mmotivo:\u001b[0m   estorno do pedido njLME",
+    "    Ajustar? \u001b[1m[s/N]\u001b[0m"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "== STAFF / ROOT ============================================",
+    "[#] Ajustar a carteira do usuário Qw3Rt?",
+    "    usuário:  ana@acme.com.br (Qw3Rt)",
+    "    ajuste:   -R$ 50,00",
+    "    saldo:    R$ 152,40, resta R$ 102,40",
+    "    motivo:   estorno do pedido njLME",
+    "    Ajustar? [s/N]"
+   ],
+   "true": [
+    "\u001b[38;2;214;31;38m==\u001b[0m\u001b[1;38;2;255;255;255;48;2;214;31;38m STAFF / ROOT \u001b[0m\u001b[38;2;214;31;38m==\u001b[0m\u001b[38;2;214;31;38m==========================================\u001b[0m",
+    "\u001b[1;38;2;255;255;255;48;2;214;31;38m[#]\u001b[0m \u001b[1mAjustar a carteira do usuário Qw3Rt?\u001b[0m",
+    "    \u001b[2musuário:\u001b[0m  \u001b[1mana@acme.com.br (Qw3Rt)\u001b[0m",
+    "    \u001b[2majuste:\u001b[0m   -R$ 50,00",
+    "    \u001b[2msaldo:\u001b[0m    R$ 152,40, resta R$ 102,40",
+    "    \u001b[2mmotivo:\u001b[0m   estorno do pedido njLME",
+    "    Ajustar? \u001b[1m[s/N]\u001b[0m"
+   ]
+  }
+ },
+ "CF-3": {
+  "plain": [
+   "Apagar a organização acme? Só o dono consegue e os serviços ativos ficam sem dono. Digite acme para confirmar: "
+  ],
+  "unicode": {
+   "none": [
+    "── SEM VOLTA ───────────────────────────────────────────────",
+    "▲ Apagar a organização acme?",
+    "  org:       acme (nUME7)",
+    "  dono:      ana@acme.com.br",
+    "  serviços:  3 VMs · 2 gameservers · 1 volume",
+    "  Só o dono consegue e os serviços ativos ficam sem dono.",
+    "────────────────────────────────────────────────────────────",
+    "  Digite acme para confirmar:"
+   ],
+   "true": [
+    "\u001b[31m──\u001b[0m \u001b[1;31mSEM VOLTA\u001b[0m \u001b[31m───────────────────────────────────────────────\u001b[0m",
+    "\u001b[33m▲\u001b[0m \u001b[1mApagar a organização acme?\u001b[0m",
+    "  \u001b[2morg:\u001b[0m       \u001b[1macme (nUME7)\u001b[0m",
+    "  \u001b[2mdono:\u001b[0m      ana@acme.com.br",
+    "  \u001b[2mserviços:\u001b[0m  3 VMs · 2 gameservers · 1 volume",
+    "  Só o dono consegue e os serviços ativos ficam sem dono.",
+    "\u001b[31m────────────────────────────────────────────────────────────\u001b[0m",
+    "  Digite \u001b[1macme\u001b[0m para confirmar:"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "-- SEM VOLTA -----------------------------------------------",
+    "[!] Apagar a organização acme?",
+    "    org:       acme (nUME7)",
+    "    dono:      ana@acme.com.br",
+    "    serviços:  3 VMs, 2 gameservers, 1 volume",
+    "    Só o dono consegue e os serviços ativos ficam sem dono.",
+    "------------------------------------------------------------",
+    "    Digite acme para confirmar:"
+   ],
+   "true": [
+    "\u001b[31m--\u001b[0m \u001b[1;31mSEM VOLTA\u001b[0m \u001b[31m-----------------------------------------------\u001b[0m",
+    "\u001b[33m[!]\u001b[0m \u001b[1mApagar a organização acme?\u001b[0m",
+    "    \u001b[2morg:\u001b[0m       \u001b[1macme (nUME7)\u001b[0m",
+    "    \u001b[2mdono:\u001b[0m      ana@acme.com.br",
+    "    \u001b[2mserviços:\u001b[0m  3 VMs, 2 gameservers, 1 volume",
+    "    Só o dono consegue e os serviços ativos ficam sem dono.",
+    "\u001b[31m------------------------------------------------------------\u001b[0m",
+    "    Digite \u001b[1macme\u001b[0m para confirmar:"
+   ]
+  }
+ },
+ "CF-A3": {
+  "plain": [
+   "Apagar DEFINITIVAMENTE o usuário Qw3Rt? É hard delete e não há como desfazer. Digite ana@acme.com.br para confirmar: "
+  ],
+  "unicode": {
+   "none": [
+    "══ STAFF · ROOT ══ SEM VOLTA ═════════════════════════ █▄█▄█",
+    "[#] Apagar DEFINITIVAMENTE o usuário Qw3Rt?",
+    "    usuário:  ana@acme.com.br (Qw3Rt)",
+    "    orgs:     acme (nUME7) · dono",
+    "    afeta:    3 VMs · 2 gameservers · 1 volume",
+    "    É hard delete e não há como desfazer.",
+    "════════════════════════════════════════════════════════════",
+    "    Digite ana@acme.com.br para confirmar:"
+   ],
+   "true": [
+    "\u001b[38;2;214;31;38m══\u001b[0m\u001b[1;38;2;255;255;255;48;2;214;31;38m STAFF · ROOT \u001b[0m\u001b[38;2;214;31;38m══\u001b[0m \u001b[1;38;2;214;31;38mSEM VOLTA\u001b[0m \u001b[38;2;214;31;38m═════════════════════════\u001b[0m \u001b[38;2;255;59;48m█▄█▄█\u001b[0m",
+    "\u001b[1;38;2;255;255;255;48;2;214;31;38m[#]\u001b[0m \u001b[1mApagar DEFINITIVAMENTE o usuário Qw3Rt?\u001b[0m",
+    "    \u001b[2musuário:\u001b[0m  \u001b[1mana@acme.com.br (Qw3Rt)\u001b[0m",
+    "    \u001b[2morgs:\u001b[0m     acme (nUME7) · dono",
+    "    \u001b[2mafeta:\u001b[0m    3 VMs · 2 gameservers · 1 volume",
+    "    É hard delete e não há como desfazer.",
+    "\u001b[38;2;214;31;38m════════════════════════════════════════════════════════════\u001b[0m",
+    "    Digite \u001b[1mana@acme.com.br\u001b[0m para confirmar:"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "== STAFF / ROOT == SEM VOLTA ======================= \\_/^\\_/",
+    "[#] Apagar DEFINITIVAMENTE o usuário Qw3Rt?",
+    "    usuário:  ana@acme.com.br (Qw3Rt)",
+    "    orgs:     acme (nUME7), dono",
+    "    afeta:    3 VMs, 2 gameservers, 1 volume",
+    "    É hard delete e não há como desfazer.",
+    "============================================================",
+    "    Digite ana@acme.com.br para confirmar:"
+   ],
+   "true": [
+    "\u001b[38;2;214;31;38m==\u001b[0m\u001b[1;38;2;255;255;255;48;2;214;31;38m STAFF / ROOT \u001b[0m\u001b[38;2;214;31;38m==\u001b[0m \u001b[1;38;2;214;31;38mSEM VOLTA\u001b[0m \u001b[38;2;214;31;38m=======================\u001b[0m \u001b[1;38;2;255;59;48m\\_/^\\_/\u001b[0m",
+    "\u001b[1;38;2;255;255;255;48;2;214;31;38m[#]\u001b[0m \u001b[1mApagar DEFINITIVAMENTE o usuário Qw3Rt?\u001b[0m",
+    "    \u001b[2musuário:\u001b[0m  \u001b[1mana@acme.com.br (Qw3Rt)\u001b[0m",
+    "    \u001b[2morgs:\u001b[0m     acme (nUME7), dono",
+    "    \u001b[2mafeta:\u001b[0m    3 VMs, 2 gameservers, 1 volume",
+    "    É hard delete e não há como desfazer.",
+    "\u001b[38;2;214;31;38m============================================================\u001b[0m",
+    "    Digite \u001b[1mana@acme.com.br\u001b[0m para confirmar:"
+   ]
+  }
+ },
+ "CF-A3-region": {
+  "plain": [
+   "Remover a região gru? Digite gru para confirmar: "
+  ],
+  "unicode": {
+   "none": [
+    "══ STAFF · ROOT ══ SEM VOLTA ═════════════════════════ █▄█▄█",
+    "[#] Remover a região gru?",
+    "    região:  gru (São Paulo)",
+    "    afeta:   6 nós · 412 VMs · 58 orgs",
+    "════════════════════════════════════════════════════════════",
+    "    Digite gru para confirmar:"
+   ],
+   "true": [
+    "\u001b[38;2;214;31;38m══\u001b[0m\u001b[1;38;2;255;255;255;48;2;214;31;38m STAFF · ROOT \u001b[0m\u001b[38;2;214;31;38m══\u001b[0m \u001b[1;38;2;214;31;38mSEM VOLTA\u001b[0m \u001b[38;2;214;31;38m═════════════════════════\u001b[0m \u001b[38;2;255;59;48m█▄█▄█\u001b[0m",
+    "\u001b[1;38;2;255;255;255;48;2;214;31;38m[#]\u001b[0m \u001b[1mRemover a região gru?\u001b[0m",
+    "    \u001b[2mregião:\u001b[0m  \u001b[1mgru (São Paulo)\u001b[0m",
+    "    \u001b[2mafeta:\u001b[0m   6 nós · 412 VMs · 58 orgs",
+    "\u001b[38;2;214;31;38m════════════════════════════════════════════════════════════\u001b[0m",
+    "    Digite \u001b[1mgru\u001b[0m para confirmar:"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "== STAFF / ROOT == SEM VOLTA ======================= \\_/^\\_/",
+    "[#] Remover a região gru?",
+    "    região:  gru (São Paulo)",
+    "    afeta:   6 nós, 412 VMs, 58 orgs",
+    "============================================================",
+    "    Digite gru para confirmar:"
+   ],
+   "true": [
+    "\u001b[38;2;214;31;38m==\u001b[0m\u001b[1;38;2;255;255;255;48;2;214;31;38m STAFF / ROOT \u001b[0m\u001b[38;2;214;31;38m==\u001b[0m \u001b[1;38;2;214;31;38mSEM VOLTA\u001b[0m \u001b[38;2;214;31;38m=======================\u001b[0m \u001b[1;38;2;255;59;48m\\_/^\\_/\u001b[0m",
+    "\u001b[1;38;2;255;255;255;48;2;214;31;38m[#]\u001b[0m \u001b[1mRemover a região gru?\u001b[0m",
+    "    \u001b[2mregião:\u001b[0m  \u001b[1mgru (São Paulo)\u001b[0m",
+    "    \u001b[2mafeta:\u001b[0m   6 nós, 412 VMs, 58 orgs",
+    "\u001b[38;2;214;31;38m============================================================\u001b[0m",
+    "    Digite \u001b[1mgru\u001b[0m para confirmar:"
+   ]
+  }
+ },
+ "CF-step": {
+  "plain": null,
+  "unicode": {
+   "none": [
+    "[#] Apagando o usuário ana@acme.com.br (Qw3Rt) …"
+   ],
+   "true": [
+    "\u001b[1;38;2;255;255;255;48;2;214;31;38m[#]\u001b[0m Apagando o usuário ana@acme.com.br (Qw3Rt) …"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "[#] Apagando o usuário ana@acme.com.br (Qw3Rt) ..."
+   ],
+   "true": [
+    "\u001b[1;38;2;255;255;255;48;2;214;31;38m[#]\u001b[0m Apagando o usuário ana@acme.com.br (Qw3Rt) ..."
+   ]
+  }
+ },
+ "CF-cancel": {
+  "plain": [
+   "erro: cancelado",
+   "erro: cancelado: o nome digitado não confere"
+  ],
+  "unicode": {
+   "none": [
+    "● Cancelado. Nada foi alterado.",
+    "✗ Não confere. Nada foi alterado."
+   ],
+   "true": [
+    "\u001b[36m●\u001b[0m Cancelado. Nada foi alterado.",
+    "\u001b[31m✗\u001b[0m Não confere. Nada foi alterado."
+   ]
+  },
+  "ascii": {
+   "none": [
+    "[i] Cancelado. Nada foi alterado.",
+    "[x] Não confere. Nada foi alterado."
+   ],
+   "true": [
+    "\u001b[36m[i]\u001b[0m Cancelado. Nada foi alterado.",
+    "\u001b[31m[x]\u001b[0m Não confere. Nada foi alterado."
+   ]
+  }
+ },
+ "DV-markers": {
+  "plain": null,
+  "unicode": {
+   "none": [
+    "  ● running     ● online      ● ACTIVE      ● COMPLETED",
+    "  · stopped     · offline     · CANCELLED   · expired",
+    "  ▲ degraded    ▲ suspended   ▲ overdue",
+    "  ✗ error       ✗ failed      ✗ crashed",
+    "  ○ installing  ○ starting    ○ PENDING     ○ queued"
+   ],
+   "true": [
+    "  \u001b[32m●\u001b[0m running     \u001b[32m●\u001b[0m online      \u001b[32m●\u001b[0m ACTIVE      \u001b[32m●\u001b[0m COMPLETED",
+    "  \u001b[2m·\u001b[0m stopped     \u001b[2m·\u001b[0m offline     \u001b[2m·\u001b[0m CANCELLED   \u001b[2m·\u001b[0m expired",
+    "  \u001b[33m▲\u001b[0m degraded    \u001b[33m▲\u001b[0m suspended   \u001b[33m▲\u001b[0m overdue",
+    "  \u001b[31m✗\u001b[0m error       \u001b[31m✗\u001b[0m failed      \u001b[31m✗\u001b[0m crashed",
+    "  \u001b[36m○\u001b[0m installing  \u001b[36m○\u001b[0m starting    \u001b[36m○\u001b[0m PENDING     \u001b[36m○\u001b[0m queued"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "  + running     + online      + ACTIVE      + COMPLETED",
+    "  - stopped     - offline     - CANCELLED   - expired",
+    "  ! degraded    ! suspended   ! overdue",
+    "  x error       x failed      x crashed",
+    "  ~ installing  ~ starting    ~ PENDING     ~ queued"
+   ],
+   "true": [
+    "  \u001b[32m+\u001b[0m running     \u001b[32m+\u001b[0m online      \u001b[32m+\u001b[0m ACTIVE      \u001b[32m+\u001b[0m COMPLETED",
+    "  \u001b[2m-\u001b[0m stopped     \u001b[2m-\u001b[0m offline     \u001b[2m-\u001b[0m CANCELLED   \u001b[2m-\u001b[0m expired",
+    "  \u001b[33m!\u001b[0m degraded    \u001b[33m!\u001b[0m suspended   \u001b[33m!\u001b[0m overdue",
+    "  \u001b[31mx\u001b[0m error       \u001b[31mx\u001b[0m failed      \u001b[31mx\u001b[0m crashed",
+    "  \u001b[36m~\u001b[0m installing  \u001b[36m~\u001b[0m starting    \u001b[36m~\u001b[0m PENDING     \u001b[36m~\u001b[0m queued"
+   ]
+  }
+ },
+ "DV-vm-show": {
+  "plain": [
+   "Nome:      web-01",
+   "Serviço:   s4Lm8",
+   "Estado:    running",
+   "SO:        Ubuntu 24.04 LTS",
+   "Recursos:  2 vCPU, 4 GiB",
+   "Criada:    2026-10-03 14:22:10"
+  ],
+  "unicode": {
+   "none": [
+    "── VM web-01 ───────────────────────────────────────────────",
+    "Nome:      web-01",
+    "Serviço:   s4Lm8",
+    "Estado:    ● running",
+    "SO:        Ubuntu 24.04 LTS",
+    "Recursos:  2 vCPU, 4 GiB",
+    "Criada:    2026-10-03 14:22:10"
+   ],
+   "true": [
+    "\u001b[2m──\u001b[0m \u001b[1mVM web-01\u001b[0m \u001b[2m───────────────────────────────────────────────\u001b[0m",
+    "\u001b[2mNome:\u001b[0m      web-01",
+    "\u001b[2mServiço:\u001b[0m   s4Lm8",
+    "\u001b[2mEstado:\u001b[0m    \u001b[32m●\u001b[0m running",
+    "\u001b[2mSO:\u001b[0m        Ubuntu 24.04 LTS",
+    "\u001b[2mRecursos:\u001b[0m  2 vCPU, 4 GiB",
+    "\u001b[2mCriada:\u001b[0m    2026-10-03 14:22:10"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "-- VM web-01 -----------------------------------------------",
+    "Nome:      web-01",
+    "Serviço:   s4Lm8",
+    "Estado:    + running",
+    "SO:        Ubuntu 24.04 LTS",
+    "Recursos:  2 vCPU, 4 GiB",
+    "Criada:    2026-10-03 14:22:10"
+   ],
+   "true": [
+    "\u001b[2m--\u001b[0m \u001b[1mVM web-01\u001b[0m \u001b[2m-----------------------------------------------\u001b[0m",
+    "\u001b[2mNome:\u001b[0m      web-01",
+    "\u001b[2mServiço:\u001b[0m   s4Lm8",
+    "\u001b[2mEstado:\u001b[0m    \u001b[32m+\u001b[0m running",
+    "\u001b[2mSO:\u001b[0m        Ubuntu 24.04 LTS",
+    "\u001b[2mRecursos:\u001b[0m  2 vCPU, 4 GiB",
+    "\u001b[2mCriada:\u001b[0m    2026-10-03 14:22:10"
+   ]
+  }
+ },
+ "DV-vm-show-degraded": {
+  "plain": [
+   "Nome:     db-01",
+   "Serviço:  t7Vn3",
+   "Estado:   degraded",
+   "          disco virtual com erros de E/S no nó gru-03",
+   "SO:       Debian 12"
+  ],
+  "unicode": {
+   "none": [
+    "── VM db-01 ────────────────────────────────────────────────",
+    "Nome:     db-01",
+    "Serviço:  t7Vn3",
+    "Estado:   ▲ degraded",
+    "          disco virtual com erros de E/S no nó gru-03",
+    "SO:       Debian 12"
+   ],
+   "true": [
+    "\u001b[2m──\u001b[0m \u001b[1mVM db-01\u001b[0m \u001b[2m────────────────────────────────────────────────\u001b[0m",
+    "\u001b[2mNome:\u001b[0m     db-01",
+    "\u001b[2mServiço:\u001b[0m  t7Vn3",
+    "\u001b[2mEstado:\u001b[0m   \u001b[33m▲\u001b[0m degraded",
+    "          disco virtual com erros de E/S no nó gru-03",
+    "\u001b[2mSO:\u001b[0m       Debian 12"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "-- VM db-01 ------------------------------------------------",
+    "Nome:     db-01",
+    "Serviço:  t7Vn3",
+    "Estado:   ! degraded",
+    "          disco virtual com erros de E/S no nó gru-03",
+    "SO:       Debian 12"
+   ],
+   "true": [
+    "\u001b[2m--\u001b[0m \u001b[1mVM db-01\u001b[0m \u001b[2m------------------------------------------------\u001b[0m",
+    "\u001b[2mNome:\u001b[0m     db-01",
+    "\u001b[2mServiço:\u001b[0m  t7Vn3",
+    "\u001b[2mEstado:\u001b[0m   \u001b[33m!\u001b[0m degraded",
+    "          disco virtual com erros de E/S no nó gru-03",
+    "\u001b[2mSO:\u001b[0m       Debian 12"
+   ]
+  }
+ },
+ "DV-adm-vm-show": {
+  "plain": [
+   "VM:         k3TqZ",
+   "Nome:       web-01",
+   "Estado:     reinstalling",
+   "Mensagem:   baixando imagem",
+   "Desejado:   running",
+   "Observado:  installing",
+   "Nó:         gru-03",
+   "(use --output json para IPs, discos e operações)"
+  ],
+  "unicode": {
+   "none": [
+    "══ VM web-01 ═══════════════════════════════════════════════",
+    "VM:         k3TqZ",
+    "Nome:       web-01",
+    "Estado:     ○ reinstalling",
+    "Mensagem:   baixando imagem",
+    "Desejado:   ● running",
+    "Observado:  ○ installing",
+    "Nó:         gru-03",
+    "(use --output json para IPs, discos e operações)"
+   ],
+   "true": [
+    "\u001b[38;2;214;31;38m══\u001b[0m \u001b[1mVM web-01\u001b[0m \u001b[38;2;214;31;38m═══════════════════════════════════════════════\u001b[0m",
+    "\u001b[2mVM:\u001b[0m         k3TqZ",
+    "\u001b[2mNome:\u001b[0m       web-01",
+    "\u001b[2mEstado:\u001b[0m     \u001b[36m○\u001b[0m reinstalling",
+    "\u001b[2mMensagem:\u001b[0m   baixando imagem",
+    "\u001b[2mDesejado:\u001b[0m   \u001b[32m●\u001b[0m running",
+    "\u001b[2mObservado:\u001b[0m  \u001b[36m○\u001b[0m installing",
+    "\u001b[2mNó:\u001b[0m         gru-03",
+    "\u001b[2m(use --output json para IPs, discos e operações)\u001b[0m"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "== VM web-01 ===============================================",
+    "VM:         k3TqZ",
+    "Nome:       web-01",
+    "Estado:     ~ reinstalling",
+    "Mensagem:   baixando imagem",
+    "Desejado:   + running",
+    "Observado:  ~ installing",
+    "Nó:         gru-03",
+    "(use --output json para IPs, discos e operações)"
+   ],
+   "true": [
+    "\u001b[38;2;214;31;38m==\u001b[0m \u001b[1mVM web-01\u001b[0m \u001b[38;2;214;31;38m===============================================\u001b[0m",
+    "\u001b[2mVM:\u001b[0m         k3TqZ",
+    "\u001b[2mNome:\u001b[0m       web-01",
+    "\u001b[2mEstado:\u001b[0m     \u001b[36m~\u001b[0m reinstalling",
+    "\u001b[2mMensagem:\u001b[0m   baixando imagem",
+    "\u001b[2mDesejado:\u001b[0m   \u001b[32m+\u001b[0m running",
+    "\u001b[2mObservado:\u001b[0m  \u001b[36m~\u001b[0m installing",
+    "\u001b[2mNó:\u001b[0m         gru-03",
+    "\u001b[2m(use --output json para IPs, discos e operações)\u001b[0m"
+   ]
+  }
+ },
+ "DV-adm-whoami": {
+  "plain": [
+   "Usuário:     joao.silva",
+   "E-mail:      joao.silva@mjsv.io",
+   "Id:          Aa1Bc",
+   "Permissões:  0x7FFFFFFF",
+   "Contexto:    ROOT / 0000"
+  ],
+  "unicode": {
+   "none": [
+    "══ Staff joao.silva ════════════════════════════════════════",
+    "Usuário:     joao.silva",
+    "E-mail:      joao.silva@mjsv.io",
+    "Id:          Aa1Bc",
+    "Permissões:  0x7FFFFFFF",
+    "Contexto:    ROOT / 0000"
+   ],
+   "true": [
+    "\u001b[38;2;214;31;38m══\u001b[0m \u001b[1mStaff joao.silva\u001b[0m \u001b[38;2;214;31;38m════════════════════════════════════════\u001b[0m",
+    "\u001b[2mUsuário:\u001b[0m     joao.silva",
+    "\u001b[2mE-mail:\u001b[0m      joao.silva@mjsv.io",
+    "\u001b[2mId:\u001b[0m          Aa1Bc",
+    "\u001b[2mPermissões:\u001b[0m  0x7FFFFFFF",
+    "\u001b[2mContexto:\u001b[0m    \u001b[1;38;2;255;255;255;48;2;214;31;38mROOT / 0000\u001b[0m"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "== Staff joao.silva ========================================",
+    "Usuário:     joao.silva",
+    "E-mail:      joao.silva@mjsv.io",
+    "Id:          Aa1Bc",
+    "Permissões:  0x7FFFFFFF",
+    "Contexto:    ROOT / 0000"
+   ],
+   "true": [
+    "\u001b[38;2;214;31;38m==\u001b[0m \u001b[1mStaff joao.silva\u001b[0m \u001b[38;2;214;31;38m========================================\u001b[0m",
+    "\u001b[2mUsuário:\u001b[0m     joao.silva",
+    "\u001b[2mE-mail:\u001b[0m      joao.silva@mjsv.io",
+    "\u001b[2mId:\u001b[0m          Aa1Bc",
+    "\u001b[2mPermissões:\u001b[0m  0x7FFFFFFF",
+    "\u001b[2mContexto:\u001b[0m    \u001b[1;38;2;255;255;255;48;2;214;31;38mROOT / 0000\u001b[0m"
+   ]
+  }
+ },
+ "DV-probe": {
+  "plain": [
+   "Alcançável:  NÃO",
+   "Mensagem:    timeout após 5000 ms",
+   "Latência:    -"
+  ],
+  "unicode": {
+   "none": [
+    "Alcançável:  ✗ NÃO",
+    "Mensagem:    timeout após 5000 ms",
+    "Latência:    -"
+   ],
+   "true": [
+    "\u001b[2mAlcançável:\u001b[0m  \u001b[31m✗\u001b[0m NÃO",
+    "\u001b[2mMensagem:\u001b[0m    timeout após 5000 ms",
+    "\u001b[2mLatência:\u001b[0m    \u001b[2m-\u001b[0m"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "Alcançável:  x NÃO",
+    "Mensagem:    timeout após 5000 ms",
+    "Latência:    -"
+   ],
+   "true": [
+    "\u001b[2mAlcançável:\u001b[0m  \u001b[31mx\u001b[0m NÃO",
+    "\u001b[2mMensagem:\u001b[0m    timeout após 5000 ms",
+    "\u001b[2mLatência:\u001b[0m    \u001b[2m-\u001b[0m"
+   ]
+  }
+ },
+ "DV-vm-power": {
+  "plain": null,
+  "unicode": {
+   "none": [
+    "web-01  ○ starting",
+    "web-01  ● running"
+   ],
+   "true": [
+    "web-01  \u001b[36m○\u001b[0m starting",
+    "web-01  \u001b[32m●\u001b[0m running"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "web-01  ~ starting",
+    "web-01  + running"
+   ],
+   "true": [
+    "web-01  \u001b[36m~\u001b[0m starting",
+    "web-01  \u001b[32m+\u001b[0m running"
+   ]
+  }
+ },
+ "DV-vm-list": {
+  "plain": [
+   "SERVICE  NOME       ESTADO      VCPU  MEMÓRIA  SO",
+   "s4Lm8    web-01     running     2     4 GiB    Ubuntu 24.04 LTS",
+   "t7Vn3    db-01      degraded    4     8 GiB    Debian 12",
+   "h2Bc6    staging    stopped     1     2 GiB    Ubuntu 22.04 LTS",
+   "r9Yd1    ci-runner  installing  2     4 GiB    AlmaLinux 9"
+  ],
+  "unicode": {
+   "none": [
+    "SERVICE  NOME       ESTADO        VCPU  MEMÓRIA  SO",
+    "s4Lm8    web-01     ● running     2     4 GiB    Ubuntu 24.04 LTS",
+    "t7Vn3    db-01      ▲ degraded    4     8 GiB    Debian 12",
+    "h2Bc6    staging    · stopped     1     2 GiB    Ubuntu 22.04 LTS",
+    "r9Yd1    ci-runner  ○ installing  2     4 GiB    AlmaLinux 9"
+   ],
+   "true": [
+    "\u001b[1mSERVICE\u001b[0m  \u001b[1mNOME\u001b[0m       \u001b[1mESTADO\u001b[0m        \u001b[1mVCPU\u001b[0m  \u001b[1mMEMÓRIA\u001b[0m  \u001b[1mSO\u001b[0m",
+    "s4Lm8    web-01     \u001b[32m●\u001b[0m running     2     4 GiB    Ubuntu 24.04 LTS",
+    "t7Vn3    db-01      \u001b[33m▲\u001b[0m degraded    4     8 GiB    Debian 12",
+    "h2Bc6    staging    \u001b[2m·\u001b[0m stopped     1     2 GiB    Ubuntu 22.04 LTS",
+    "r9Yd1    ci-runner  \u001b[36m○\u001b[0m installing  2     4 GiB    AlmaLinux 9"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "SERVICE  NOME       ESTADO        VCPU  MEMÓRIA  SO",
+    "s4Lm8    web-01     + running     2     4 GiB    Ubuntu 24.04 LTS",
+    "t7Vn3    db-01      ! degraded    4     8 GiB    Debian 12",
+    "h2Bc6    staging    - stopped     1     2 GiB    Ubuntu 22.04 LTS",
+    "r9Yd1    ci-runner  ~ installing  2     4 GiB    AlmaLinux 9"
+   ],
+   "true": [
+    "\u001b[1mSERVICE\u001b[0m  \u001b[1mNOME\u001b[0m       \u001b[1mESTADO\u001b[0m        \u001b[1mVCPU\u001b[0m  \u001b[1mMEMÓRIA\u001b[0m  \u001b[1mSO\u001b[0m",
+    "s4Lm8    web-01     \u001b[32m+\u001b[0m running     2     4 GiB    Ubuntu 24.04 LTS",
+    "t7Vn3    db-01      \u001b[33m!\u001b[0m degraded    4     8 GiB    Debian 12",
+    "h2Bc6    staging    \u001b[2m-\u001b[0m stopped     1     2 GiB    Ubuntu 22.04 LTS",
+    "r9Yd1    ci-runner  \u001b[36m~\u001b[0m installing  2     4 GiB    AlmaLinux 9"
+   ]
+  }
+ },
+ "DV-order-list": {
+  "plain": [
+   "ID     STATUS     TOTAL      VENCIMENTO           CRIADO",
+   "njLME  PENDING    R$ 94,32   2026-11-30 23:59:59  2026-11-27 10:02:11",
+   "gT5wQ  COMPLETED  R$ 59,90   2026-10-30 23:59:59  2026-10-27 08:40:02",
+   "bN8cJ  CANCELLED  R$ 119,80  2026-09-30 23:59:59  2026-09-27 16:21:45"
+  ],
+  "unicode": {
+   "none": [
+    "ID     STATUS       TOTAL      VENCIMENTO           CRIADO",
+    "njLME  ○ PENDING    R$ 94,32   2026-11-30 23:59:59  2026-11-27 10:02:11",
+    "gT5wQ  ● COMPLETED  R$ 59,90   2026-10-30 23:59:59  2026-10-27 08:40:02",
+    "bN8cJ  · CANCELLED  R$ 119,80  2026-09-30 23:59:59  2026-09-27 16:21:45"
+   ],
+   "true": [
+    "\u001b[1mID\u001b[0m     \u001b[1mSTATUS\u001b[0m       \u001b[1mTOTAL\u001b[0m      \u001b[1mVENCIMENTO\u001b[0m           \u001b[1mCRIADO\u001b[0m",
+    "njLME  \u001b[36m○\u001b[0m PENDING    R$ 94,32   2026-11-30 23:59:59  2026-11-27 10:02:11",
+    "gT5wQ  \u001b[32m●\u001b[0m COMPLETED  R$ 59,90   2026-10-30 23:59:59  2026-10-27 08:40:02",
+    "bN8cJ  \u001b[2m·\u001b[0m CANCELLED  R$ 119,80  2026-09-30 23:59:59  2026-09-27 16:21:45"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "ID     STATUS       TOTAL      VENCIMENTO           CRIADO",
+    "njLME  ~ PENDING    R$ 94,32   2026-11-30 23:59:59  2026-11-27 10:02:11",
+    "gT5wQ  + COMPLETED  R$ 59,90   2026-10-30 23:59:59  2026-10-27 08:40:02",
+    "bN8cJ  - CANCELLED  R$ 119,80  2026-09-30 23:59:59  2026-09-27 16:21:45"
+   ],
+   "true": [
+    "\u001b[1mID\u001b[0m     \u001b[1mSTATUS\u001b[0m       \u001b[1mTOTAL\u001b[0m      \u001b[1mVENCIMENTO\u001b[0m           \u001b[1mCRIADO\u001b[0m",
+    "njLME  \u001b[36m~\u001b[0m PENDING    R$ 94,32   2026-11-30 23:59:59  2026-11-27 10:02:11",
+    "gT5wQ  \u001b[32m+\u001b[0m COMPLETED  R$ 59,90   2026-10-30 23:59:59  2026-10-27 08:40:02",
+    "bN8cJ  \u001b[2m-\u001b[0m CANCELLED  R$ 119,80  2026-09-30 23:59:59  2026-09-27 16:21:45"
+   ]
+  }
+ },
+ "DV-incidents": {
+  "plain": [
+   "Endereços: 200.9.155.14, 200.9.155.15",
+   "Ativos: 1",
+   "",
+   "ID     ESTADO     INÍCIO (UTC)         DURAÇÃO   VETOR",
+   "c4Kd2  mitigated  2026-11-26 03:14:07  00:12:40  UDP flood",
+   "c4Kf7  ongoing    2026-11-27 13:55:21  00:03:02  SYN flood",
+   "",
+   "Mais resultados: repita com --cursor eyJvIjoyMH0"
+  ],
+  "unicode": {
+   "none": [
+    "Endereços: 200.9.155.14, 200.9.155.15",
+    "Ativos: 1 ▲",
+    "",
+    "ID     ESTADO       INÍCIO (UTC)         DURAÇÃO   VETOR",
+    "c4Kd2  ● mitigated  2026-11-26 03:14:07  00:12:40  UDP flood",
+    "c4Kf7  ○ ongoing    2026-11-27 13:55:21  00:03:02  SYN flood",
+    "",
+    "Mais resultados: repita com --cursor eyJvIjoyMH0"
+   ],
+   "true": [
+    "Endereços: 200.9.155.14, 200.9.155.15",
+    "Ativos: 1 \u001b[33m▲\u001b[0m",
+    "",
+    "\u001b[1mID\u001b[0m     \u001b[1mESTADO\u001b[0m       \u001b[1mINÍCIO (UTC)\u001b[0m         \u001b[1mDURAÇÃO\u001b[0m   \u001b[1mVETOR\u001b[0m",
+    "c4Kd2  \u001b[32m●\u001b[0m mitigated  2026-11-26 03:14:07  00:12:40  UDP flood",
+    "c4Kf7  \u001b[36m○\u001b[0m ongoing    2026-11-27 13:55:21  00:03:02  SYN flood",
+    "",
+    "\u001b[2mMais resultados: repita com --cursor eyJvIjoyMH0\u001b[0m"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "Endereços: 200.9.155.14, 200.9.155.15",
+    "Ativos: 1 !",
+    "",
+    "ID     ESTADO       INÍCIO (UTC)         DURAÇÃO   VETOR",
+    "c4Kd2  + mitigated  2026-11-26 03:14:07  00:12:40  UDP flood",
+    "c4Kf7  ~ ongoing    2026-11-27 13:55:21  00:03:02  SYN flood",
+    "",
+    "Mais resultados: repita com --cursor eyJvIjoyMH0"
+   ],
+   "true": [
+    "Endereços: 200.9.155.14, 200.9.155.15",
+    "Ativos: 1 \u001b[33m!\u001b[0m",
+    "",
+    "\u001b[1mID\u001b[0m     \u001b[1mESTADO\u001b[0m       \u001b[1mINÍCIO (UTC)\u001b[0m         \u001b[1mDURAÇÃO\u001b[0m   \u001b[1mVETOR\u001b[0m",
+    "c4Kd2  \u001b[32m+\u001b[0m mitigated  2026-11-26 03:14:07  00:12:40  UDP flood",
+    "c4Kf7  \u001b[36m~\u001b[0m ongoing    2026-11-27 13:55:21  00:03:02  SYN flood",
+    "",
+    "\u001b[2mMais resultados: repita com --cursor eyJvIjoyMH0\u001b[0m"
+   ]
+  }
+ },
+ "DV-adm-node-list": {
+  "plain": [
+   "ID  NOME    ENDEREÇO    REGIÃO  LOCAL  CLASSE  SAÚDE     VISTO EM",
+   "1   gru-01  10.20.0.11  gru     gru-a  epyc    healthy   2026-11-27 14:31:02",
+   "3   gru-03  10.20.0.13  gru     gru-a  epyc    degraded  2026-11-27 14:31:00",
+   "7   gru-07  10.20.0.17  gru     gru-b  xeon    offline   2026-11-27 11:02:44"
+  ],
+  "unicode": {
+   "none": [
+    "ID  NOME    ENDEREÇO    REGIÃO  LOCAL  CLASSE  SAÚDE       VISTO EM",
+    "1   gru-01  10.20.0.11  gru     gru-a  epyc    ● healthy   2026-11-27 14:31:02",
+    "3   gru-03  10.20.0.13  gru     gru-a  epyc    ▲ degraded  2026-11-27 14:31:00",
+    "7   gru-07  10.20.0.17  gru     gru-b  xeon    · offline   2026-11-27 11:02:44"
+   ],
+   "true": [
+    "\u001b[1mID\u001b[0m  \u001b[1mNOME\u001b[0m    \u001b[1mENDEREÇO\u001b[0m    \u001b[1mREGIÃO\u001b[0m  \u001b[1mLOCAL\u001b[0m  \u001b[1mCLASSE\u001b[0m  \u001b[1mSAÚDE\u001b[0m       \u001b[1mVISTO EM\u001b[0m",
+    "1   gru-01  10.20.0.11  gru     gru-a  epyc    \u001b[32m●\u001b[0m healthy   2026-11-27 14:31:02",
+    "3   gru-03  10.20.0.13  gru     gru-a  epyc    \u001b[33m▲\u001b[0m degraded  2026-11-27 14:31:00",
+    "7   gru-07  10.20.0.17  gru     gru-b  xeon    \u001b[2m·\u001b[0m offline   2026-11-27 11:02:44"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "ID  NOME    ENDEREÇO    REGIÃO  LOCAL  CLASSE  SAÚDE       VISTO EM",
+    "1   gru-01  10.20.0.11  gru     gru-a  epyc    + healthy   2026-11-27 14:31:02",
+    "3   gru-03  10.20.0.13  gru     gru-a  epyc    ! degraded  2026-11-27 14:31:00",
+    "7   gru-07  10.20.0.17  gru     gru-b  xeon    - offline   2026-11-27 11:02:44"
+   ],
+   "true": [
+    "\u001b[1mID\u001b[0m  \u001b[1mNOME\u001b[0m    \u001b[1mENDEREÇO\u001b[0m    \u001b[1mREGIÃO\u001b[0m  \u001b[1mLOCAL\u001b[0m  \u001b[1mCLASSE\u001b[0m  \u001b[1mSAÚDE\u001b[0m       \u001b[1mVISTO EM\u001b[0m",
+    "1   gru-01  10.20.0.11  gru     gru-a  epyc    \u001b[32m+\u001b[0m healthy   2026-11-27 14:31:02",
+    "3   gru-03  10.20.0.13  gru     gru-a  epyc    \u001b[33m!\u001b[0m degraded  2026-11-27 14:31:00",
+    "7   gru-07  10.20.0.17  gru     gru-b  xeon    \u001b[2m-\u001b[0m offline   2026-11-27 11:02:44"
+   ]
+  }
+ },
+ "DV-adm-operation-list": {
+  "plain": [
+   "ID    TIPO     ESTADO     ALVO   CRIADA               ATUALIZADA",
+   "8841  rebuild  running    k3TqZ  2026-11-27 14:28:10  2026-11-27 14:28:58",
+   "8840  power    completed  k3TqZ  2026-11-27 14:27:51  2026-11-27 14:27:55",
+   "8839  resize   failed     m4CdX  2026-11-27 14:20:03  2026-11-27 14:21:17"
+  ],
+  "unicode": {
+   "none": [
+    "ID    TIPO     ESTADO       ALVO   CRIADA               ATUALIZADA",
+    "8841  rebuild  ○ running    k3TqZ  2026-11-27 14:28:10  2026-11-27 14:28:58",
+    "8840  power    ● completed  k3TqZ  2026-11-27 14:27:51  2026-11-27 14:27:55",
+    "8839  resize   ✗ failed     m4CdX  2026-11-27 14:20:03  2026-11-27 14:21:17"
+   ],
+   "true": [
+    "\u001b[1mID\u001b[0m    \u001b[1mTIPO\u001b[0m     \u001b[1mESTADO\u001b[0m       \u001b[1mALVO\u001b[0m   \u001b[1mCRIADA\u001b[0m               \u001b[1mATUALIZADA\u001b[0m",
+    "8841  rebuild  \u001b[36m○\u001b[0m running    k3TqZ  2026-11-27 14:28:10  2026-11-27 14:28:58",
+    "8840  power    \u001b[32m●\u001b[0m completed  k3TqZ  2026-11-27 14:27:51  2026-11-27 14:27:55",
+    "8839  resize   \u001b[31m✗\u001b[0m failed     m4CdX  2026-11-27 14:20:03  2026-11-27 14:21:17"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "ID    TIPO     ESTADO       ALVO   CRIADA               ATUALIZADA",
+    "8841  rebuild  ~ running    k3TqZ  2026-11-27 14:28:10  2026-11-27 14:28:58",
+    "8840  power    + completed  k3TqZ  2026-11-27 14:27:51  2026-11-27 14:27:55",
+    "8839  resize   x failed     m4CdX  2026-11-27 14:20:03  2026-11-27 14:21:17"
+   ],
+   "true": [
+    "\u001b[1mID\u001b[0m    \u001b[1mTIPO\u001b[0m     \u001b[1mESTADO\u001b[0m       \u001b[1mALVO\u001b[0m   \u001b[1mCRIADA\u001b[0m               \u001b[1mATUALIZADA\u001b[0m",
+    "8841  rebuild  \u001b[36m~\u001b[0m running    k3TqZ  2026-11-27 14:28:10  2026-11-27 14:28:58",
+    "8840  power    \u001b[32m+\u001b[0m completed  k3TqZ  2026-11-27 14:27:51  2026-11-27 14:27:55",
+    "8839  resize   \u001b[31mx\u001b[0m failed     m4CdX  2026-11-27 14:20:03  2026-11-27 14:21:17"
+   ]
+  }
+ },
+ "DV-adm-network-check": {
+  "plain": [
+   "STATUS  CHECAGEM                 DETALHE",
+   "ok      vxlan gru-01 <-> gru-03  mtu 1450, 0% perda",
+   "warn    dhcp vpc-acme-01         pool 92% usado",
+   "fail    bgp peer 200.9.152.1     sessão caída há 00:04:12"
+  ],
+  "unicode": {
+   "none": [
+    "STATUS  CHECAGEM                 DETALHE",
+    "✓ ok    vxlan gru-01 <-> gru-03  mtu 1450, 0% perda",
+    "▲ warn  dhcp vpc-acme-01         pool 92% usado",
+    "✗ fail  bgp peer 200.9.152.1     sessão caída há 00:04:12"
+   ],
+   "true": [
+    "\u001b[1mSTATUS\u001b[0m  \u001b[1mCHECAGEM\u001b[0m                 \u001b[1mDETALHE\u001b[0m",
+    "\u001b[32m✓\u001b[0m ok    vxlan gru-01 <-> gru-03  mtu 1450, 0% perda",
+    "\u001b[33m▲\u001b[0m warn  dhcp vpc-acme-01         pool 92% usado",
+    "\u001b[31m✗\u001b[0m fail  bgp peer 200.9.152.1     sessão caída há 00:04:12"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "STATUS    CHECAGEM                 DETALHE",
+    "[+] ok    vxlan gru-01 <-> gru-03  mtu 1450, 0% perda",
+    "[!] warn  dhcp vpc-acme-01         pool 92% usado",
+    "[x] fail  bgp peer 200.9.152.1     sessão caída há 00:04:12"
+   ],
+   "true": [
+    "\u001b[1mSTATUS\u001b[0m    \u001b[1mCHECAGEM\u001b[0m                 \u001b[1mDETALHE\u001b[0m",
+    "\u001b[32m[+]\u001b[0m ok    vxlan gru-01 <-> gru-03  mtu 1450, 0% perda",
+    "\u001b[33m[!]\u001b[0m warn  dhcp vpc-acme-01         pool 92% usado",
+    "\u001b[31m[x]\u001b[0m fail  bgp peer 200.9.152.1     sessão caída há 00:04:12"
+   ]
+  }
+ },
+ "DV-adm-region-list": {
+  "plain": [
+   "ID   NOME          NÓS  NÓS OK  VMS",
+   "gru  São Paulo     8    8       171",
+   "poa  Porto Alegre  3    2       39",
+   "for  Fortaleza     1    0       4"
+  ],
+  "unicode": {
+   "none": [
+    "ID   NOME          NÓS  NÓS OK  VMS",
+    "gru  São Paulo     8    8       171",
+    "poa  Porto Alegre  3    2 ▲     39",
+    "for  Fortaleza     1    0 ✗     4"
+   ],
+   "true": [
+    "\u001b[1mID\u001b[0m   \u001b[1mNOME\u001b[0m          \u001b[1mNÓS\u001b[0m  \u001b[1mNÓS OK\u001b[0m  \u001b[1mVMS\u001b[0m",
+    "gru  São Paulo     8    8       171",
+    "poa  Porto Alegre  3    2 \u001b[33m▲\u001b[0m     39",
+    "for  Fortaleza     1    0 \u001b[31m✗\u001b[0m     4"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "ID   NOME          NÓS  NÓS OK  VMS",
+    "gru  São Paulo     8    8       171",
+    "poa  Porto Alegre  3    2 !     39",
+    "for  Fortaleza     1    0 x     4"
+   ],
+   "true": [
+    "\u001b[1mID\u001b[0m   \u001b[1mNOME\u001b[0m          \u001b[1mNÓS\u001b[0m  \u001b[1mNÓS OK\u001b[0m  \u001b[1mVMS\u001b[0m",
+    "gru  São Paulo     8    8       171",
+    "poa  Porto Alegre  3    2 \u001b[33m!\u001b[0m     39",
+    "for  Fortaleza     1    0 \u001b[31mx\u001b[0m     4"
+   ]
+  }
+ },
+ "DV-meter": {
+  "plain": null,
+  "unicode": {
+   "none": [
+    "····················    0%",
+    "▌···················    1%",
+    "█████···············   25%",
+    "████████████▌·······   62%",
+    "███████████████·····   75%",
+    "██████████████████··   91% ▲",
+    "████████████████████  100% ▲"
+   ],
+   "true": [
+    "\u001b[2m····················\u001b[0m    0%",
+    "▌\u001b[2m···················\u001b[0m    1%",
+    "█████\u001b[2m···············\u001b[0m   25%",
+    "████████████▌\u001b[2m·······\u001b[0m   62%",
+    "\u001b[33m███████████████\u001b[0m\u001b[2m·····\u001b[0m   75%",
+    "\u001b[31m██████████████████\u001b[0m\u001b[2m··\u001b[0m   91% \u001b[31m▲\u001b[0m",
+    "\u001b[31m████████████████████\u001b[0m  100% \u001b[31m▲\u001b[0m"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "[..................]    0%",
+    "[=.................]    1%",
+    "[====..............]   25%",
+    "[===========.......]   62%",
+    "[==============....]   75%",
+    "[================..]   91% !",
+    "[==================]  100% !"
+   ],
+   "true": [
+    "[\u001b[2m..................\u001b[0m]    0%",
+    "[=\u001b[2m.................\u001b[0m]    1%",
+    "[====\u001b[2m..............\u001b[0m]   25%",
+    "[===========\u001b[2m.......\u001b[0m]   62%",
+    "[\u001b[33m==============\u001b[0m\u001b[2m....\u001b[0m]   75%",
+    "[\u001b[31m================\u001b[0m\u001b[2m..\u001b[0m]   91% \u001b[31m!\u001b[0m",
+    "[\u001b[31m==================\u001b[0m]  100% \u001b[31m!\u001b[0m"
+   ]
+  }
+ },
+ "DV-vm-metrics": {
+  "plain": null,
+  "unicode": {
+   "none": [
+    "── Métricas · web-01 · última 1h ───────────────────────────",
+    "CPU:      ▁▁▁▂▂▄▆█▆▄▂▂▁▁▁▂▂▂▁▂  23%         pico 91% às 14:12",
+    "RAM:      ████████████▌·······  62%         2,5 de 4 GiB",
+    "Disco:    ███████████████████·  94% ▲       37,6 de 40 GiB",
+    "Rede rx:  ▁▁▁▁▁▁▁▁▁▁▁▃█▆▃▂▁▁▁▁  4,2 Mbit/s  pico 38,0 Mbit/s"
+   ],
+   "true": [
+    "\u001b[2m──\u001b[0m \u001b[1mMétricas · web-01 · última 1h\u001b[0m \u001b[2m───────────────────────────\u001b[0m",
+    "\u001b[2mCPU:      \u001b[0m▁▁▁▂▂▄▆█▆▄▂▂▁▁▁▂▂▂▁▂  23%         pico 91% às 14:12",
+    "\u001b[2mRAM:      \u001b[0m████████████▌\u001b[2m·······\u001b[0m  62%         2,5 de 4 GiB",
+    "\u001b[2mDisco:    \u001b[0m\u001b[31m███████████████████\u001b[0m\u001b[2m·\u001b[0m  94% \u001b[31m▲\u001b[0m       37,6 de 40 GiB",
+    "\u001b[2mRede rx:  \u001b[0m▁▁▁▁▁▁▁▁▁▁▁▃█▆▃▂▁▁▁▁  4,2 Mbit/s  pico 38,0 Mbit/s"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "-- Métricas / web-01 / última 1h ---------------------------",
+    "CPU:                            23%         pico 91% às 14:12",
+    "RAM:      [===========.......]  62%         2,5 de 4 GiB",
+    "Disco:    [=================.]  94% !       37,6 de 40 GiB",
+    "Rede rx:                        4,2 Mbit/s  pico 38,0 Mbit/s"
+   ],
+   "true": [
+    "\u001b[2m--\u001b[0m \u001b[1mMétricas / web-01 / última 1h\u001b[0m \u001b[2m---------------------------\u001b[0m",
+    "\u001b[2mCPU:      \u001b[0m                      23%         pico 91% às 14:12",
+    "\u001b[2mRAM:      \u001b[0m[===========\u001b[2m.......\u001b[0m]  62%         2,5 de 4 GiB",
+    "\u001b[2mDisco:    \u001b[0m[\u001b[31m=================\u001b[0m\u001b[2m.\u001b[0m]  94% \u001b[31m!\u001b[0m       37,6 de 40 GiB",
+    "\u001b[2mRede rx:  \u001b[0m                      4,2 Mbit/s  pico 38,0 Mbit/s"
+   ]
+  }
+ },
+ "DV-adm-vm-infra": {
+  "plain": [
+   "Regiões:   3",
+   "Nós:       12",
+   "VMs por estado:",
+   "  running: 176",
+   "  stopped: 27",
+   "  installing: 6",
+   "  error: 1",
+   "Roteadores:        6 (saudáveis: 5)",
+   "(use --output json para o painel completo)"
+  ],
+  "unicode": {
+   "none": [
+    "══ Infra ═══════════════════════════════════════════════════",
+    "Regiões:   3",
+    "Nós:       12",
+    "VMs por estado:",
+    "  ● running:    █████████████████···  176",
+    "  · stopped:    ██▌·················   27",
+    "  ○ installing: ▌···················    6",
+    "  ✗ error:      ▌···················    1",
+    "Roteadores:        6 (saudáveis: 5) ▲",
+    "(use --output json para o painel completo)"
+   ],
+   "true": [
+    "\u001b[38;2;214;31;38m══\u001b[0m \u001b[1mInfra\u001b[0m \u001b[38;2;214;31;38m═══════════════════════════════════════════════════\u001b[0m",
+    "\u001b[2mRegiões:\u001b[0m   3",
+    "\u001b[2mNós:\u001b[0m       12",
+    "\u001b[2mVMs por estado:\u001b[0m",
+    "  \u001b[32m●\u001b[0m running:    █████████████████\u001b[2m···\u001b[0m  176",
+    "  \u001b[2m·\u001b[0m stopped:    ██▌\u001b[2m·················\u001b[0m   27",
+    "  \u001b[36m○\u001b[0m installing: ▌\u001b[2m···················\u001b[0m    6",
+    "  \u001b[31m✗\u001b[0m error:      ▌\u001b[2m···················\u001b[0m    1",
+    "\u001b[2mRoteadores:\u001b[0m        6 (saudáveis: 5) \u001b[33m▲\u001b[0m",
+    "\u001b[2m(use --output json para o painel completo)\u001b[0m"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "== Infra ===================================================",
+    "Regiões:   3",
+    "Nós:       12",
+    "VMs por estado:",
+    "  + running:    [===============...]  176",
+    "  - stopped:    [==................]   27",
+    "  ~ installing: [=.................]    6",
+    "  x error:      [=.................]    1",
+    "Roteadores:        6 (saudáveis: 5) !",
+    "(use --output json para o painel completo)"
+   ],
+   "true": [
+    "\u001b[38;2;214;31;38m==\u001b[0m \u001b[1mInfra\u001b[0m \u001b[38;2;214;31;38m===================================================\u001b[0m",
+    "\u001b[2mRegiões:\u001b[0m   3",
+    "\u001b[2mNós:\u001b[0m       12",
+    "\u001b[2mVMs por estado:\u001b[0m",
+    "  \u001b[32m+\u001b[0m running:    [===============\u001b[2m...\u001b[0m]  176",
+    "  \u001b[2m-\u001b[0m stopped:    [==\u001b[2m................\u001b[0m]   27",
+    "  \u001b[36m~\u001b[0m installing: [=\u001b[2m.................\u001b[0m]    6",
+    "  \u001b[31mx\u001b[0m error:      [=\u001b[2m.................\u001b[0m]    1",
+    "\u001b[2mRoteadores:\u001b[0m        6 (saudáveis: 5) \u001b[33m!\u001b[0m",
+    "\u001b[2m(use --output json para o painel completo)\u001b[0m"
+   ]
+  }
+ },
+ "DV-adm-node-show": {
+  "plain": null,
+  "unicode": {
+   "none": [
+    "══ Nó gru-03 ═══════════════════════════════════════════════",
+    "Nome:     gru-03",
+    "Região:   gru",
+    "Saúde:    ▲ degraded",
+    "VMs:      41",
+    "vCPU:     168 de 96 (1,75x)",
+    "Memória:  ████████████████····  81%  415 de 512 GiB",
+    "Disco:    █████████···········  46%  3,3 de 7,2 TiB",
+    "(use --output json para o objeto completo)"
+   ],
+   "true": [
+    "\u001b[38;2;214;31;38m══\u001b[0m \u001b[1mNó gru-03\u001b[0m \u001b[38;2;214;31;38m═══════════════════════════════════════════════\u001b[0m",
+    "\u001b[2mNome:\u001b[0m     gru-03",
+    "\u001b[2mRegião:\u001b[0m   gru",
+    "\u001b[2mSaúde:\u001b[0m    \u001b[33m▲\u001b[0m degraded",
+    "\u001b[2mVMs:\u001b[0m      41",
+    "\u001b[2mvCPU:\u001b[0m     168 de 96 (1,75x)",
+    "\u001b[2mMemória:\u001b[0m  \u001b[33m████████████████\u001b[0m\u001b[2m····\u001b[0m  81%  415 de 512 GiB",
+    "\u001b[2mDisco:\u001b[0m    █████████\u001b[2m···········\u001b[0m  46%  3,3 de 7,2 TiB",
+    "\u001b[2m(use --output json para o objeto completo)\u001b[0m"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "== Nó gru-03 ===============================================",
+    "Nome:     gru-03",
+    "Região:   gru",
+    "Saúde:    ! degraded",
+    "VMs:      41",
+    "vCPU:     168 de 96 (1,75x)",
+    "Memória:  [===============...]  81%  415 de 512 GiB",
+    "Disco:    [========..........]  46%  3,3 de 7,2 TiB",
+    "(use --output json para o objeto completo)"
+   ],
+   "true": [
+    "\u001b[38;2;214;31;38m==\u001b[0m \u001b[1mNó gru-03\u001b[0m \u001b[38;2;214;31;38m===============================================\u001b[0m",
+    "\u001b[2mNome:\u001b[0m     gru-03",
+    "\u001b[2mRegião:\u001b[0m   gru",
+    "\u001b[2mSaúde:\u001b[0m    \u001b[33m!\u001b[0m degraded",
+    "\u001b[2mVMs:\u001b[0m      41",
+    "\u001b[2mvCPU:\u001b[0m     168 de 96 (1,75x)",
+    "\u001b[2mMemória:\u001b[0m  [\u001b[33m===============\u001b[0m\u001b[2m...\u001b[0m]  81%  415 de 512 GiB",
+    "\u001b[2mDisco:\u001b[0m    [========\u001b[2m..........\u001b[0m]  46%  3,3 de 7,2 TiB",
+    "\u001b[2m(use --output json para o objeto completo)\u001b[0m"
+   ]
+  }
+ },
+ "DV-adm-mrr": {
+  "plain": null,
+  "unicode": {
+   "none": [
+    "══ Dashboard · MRR · dez/25 a nov/26 ═══════════════════════",
+    "MRR atual:  R$ 184.320,00   +3,2% no mês",
+    "12 meses:   ▁▁▂▃▃▄▅▆▇███    mín R$ 121.400 · máx R$ 184.320"
+   ],
+   "true": [
+    "\u001b[38;2;214;31;38m══\u001b[0m \u001b[1mDashboard · MRR · dez/25 a nov/26\u001b[0m \u001b[38;2;214;31;38m═══════════════════════\u001b[0m",
+    "\u001b[2mMRR atual:\u001b[0m  R$ 184.320,00   +3,2% no mês",
+    "\u001b[2m12 meses:\u001b[0m   ▁▁▂▃▃▄▅▆▇███    mín R$ 121.400 · máx R$ 184.320"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "== Dashboard / MRR / dez/25 a nov/26 =======================",
+    "MRR atual:  R$ 184.320,00   +3,2% no mês",
+    "12 meses:                   mín R$ 121.400, máx R$ 184.320"
+   ],
+   "true": [
+    "\u001b[38;2;214;31;38m==\u001b[0m \u001b[1mDashboard / MRR / dez/25 a nov/26\u001b[0m \u001b[38;2;214;31;38m=======================\u001b[0m",
+    "\u001b[2mMRR atual:\u001b[0m  R$ 184.320,00   +3,2% no mês",
+    "\u001b[2m12 meses:\u001b[0m                   mín R$ 121.400, máx R$ 184.320"
+   ]
+  }
+ },
+ "DV-upload": {
+  "plain": [
+   "world.zip enviado para /world.zip (64382217 bytes)."
+  ],
+  "unicode": {
+   "none": [
+    "▌ Enviando world.zip  █···················    4%  2,5 de 61,4 MiB",
+    "▀ Enviando world.zip  ████████████▌·······   62%  38,1 de 61,4 MiB",
+    "▐ Enviando world.zip  ████████████████████  100%  61,4 de 61,4 MiB",
+    "✓ world.zip enviado para /world.zip (64382217 bytes)."
+   ],
+   "true": [
+    "\u001b[38;2;254;118;65m▌\u001b[0m Enviando world.zip  █\u001b[2m···················\u001b[0m    4%  2,5 de 61,4 MiB",
+    "\u001b[38;2;254;118;65m▀\u001b[0m Enviando world.zip  ████████████▌\u001b[2m·······\u001b[0m   62%  38,1 de 61,4 MiB",
+    "\u001b[38;2;254;118;65m▐\u001b[0m Enviando world.zip  ████████████████████  100%  61,4 de 61,4 MiB",
+    "\u001b[32m✓\u001b[0m world.zip enviado para /world.zip (64382217 bytes)."
+   ]
+  },
+  "ascii": {
+   "none": [
+    "[|] Enviando world.zip  [=.................]    4%  2,5 de 61,4 MiB",
+    "[/] Enviando world.zip  [===========.......]   62%  38,1 de 61,4 MiB",
+    "[-] Enviando world.zip  [==================]  100%  61,4 de 61,4 MiB",
+    "[+] world.zip enviado para /world.zip (64382217 bytes)."
+   ],
+   "true": [
+    "\u001b[38;2;254;118;65m[|]\u001b[0m Enviando world.zip  [=\u001b[2m.................\u001b[0m]    4%  2,5 de 61,4 MiB",
+    "\u001b[38;2;254;118;65m[/]\u001b[0m Enviando world.zip  [===========\u001b[2m.......\u001b[0m]   62%  38,1 de 61,4 MiB",
+    "\u001b[38;2;254;118;65m[-]\u001b[0m Enviando world.zip  [==================]  100%  61,4 de 61,4 MiB",
+    "\u001b[32m[+]\u001b[0m world.zip enviado para /world.zip (64382217 bytes)."
+   ]
+  }
+ },
+ "DV-receipt": {
+  "plain": [
+   "Pedido njLME pago."
+  ],
+  "unicode": {
+   "none": [
+    "█▄█▄█ MJSV HOSTING                  Pedido njLME",
+    "────────────────────────────────────────────────",
+    "VM Cloud 2 vCPU 4 GiB, 1 mês ·········· R$ 59,90",
+    "Gameserver Minecraft 8 GiB, 1 mês ····· R$ 44,90",
+    "Cupom BEMVINDO10 ····················· -R$ 10,48",
+    "────────────────────────────────────────────────",
+    "Total                                   R$ 94,32",
+    "Saldo                                  R$ 152,40",
+    "Resta                                   R$ 58,08",
+    "────────────────────────────────────────────────",
+    "✓ Pedido njLME pago."
+   ],
+   "true": [
+    "\u001b[38;2;255;92;57m█▄█▄█\u001b[0m \u001b[1mMJSV HOSTING\u001b[0m                  Pedido njLME",
+    "\u001b[2m────────────────────────────────────────────────\u001b[0m",
+    "VM Cloud 2 vCPU 4 GiB, 1 mês \u001b[2m··········\u001b[0m R$ 59,90",
+    "Gameserver Minecraft 8 GiB, 1 mês \u001b[2m·····\u001b[0m R$ 44,90",
+    "Cupom BEMVINDO10 \u001b[2m·····················\u001b[0m -R$ 10,48",
+    "\u001b[2m────────────────────────────────────────────────\u001b[0m",
+    "\u001b[1mTotal                                   R$ 94,32\u001b[0m",
+    "Saldo                                  R$ 152,40",
+    "Resta                                   R$ 58,08",
+    "\u001b[2m────────────────────────────────────────────────\u001b[0m",
+    "\u001b[32m✓\u001b[0m Pedido njLME pago."
+   ]
+  },
+  "ascii": {
+   "none": [
+    "\\_/^\\_/ MJSV HOSTING                Pedido njLME",
+    "------------------------------------------------",
+    "VM Cloud 2 vCPU 4 GiB, 1 mês .......... R$ 59,90",
+    "Gameserver Minecraft 8 GiB, 1 mês ..... R$ 44,90",
+    "Cupom BEMVINDO10 ..................... -R$ 10,48",
+    "------------------------------------------------",
+    "Total                                   R$ 94,32",
+    "Saldo                                  R$ 152,40",
+    "Resta                                   R$ 58,08",
+    "------------------------------------------------",
+    "[+] Pedido njLME pago."
+   ],
+   "true": [
+    "\u001b[1;38;2;255;92;57m\\_/^\\_/\u001b[0m \u001b[1mMJSV HOSTING\u001b[0m                Pedido njLME",
+    "\u001b[2m------------------------------------------------\u001b[0m",
+    "VM Cloud 2 vCPU 4 GiB, 1 mês \u001b[2m..........\u001b[0m R$ 59,90",
+    "Gameserver Minecraft 8 GiB, 1 mês \u001b[2m.....\u001b[0m R$ 44,90",
+    "Cupom BEMVINDO10 \u001b[2m.....................\u001b[0m -R$ 10,48",
+    "\u001b[2m------------------------------------------------\u001b[0m",
+    "\u001b[1mTotal                                   R$ 94,32\u001b[0m",
+    "Saldo                                  R$ 152,40",
+    "Resta                                   R$ 58,08",
+    "\u001b[2m------------------------------------------------\u001b[0m",
+    "\u001b[32m[+]\u001b[0m Pedido njLME pago."
+   ]
+  }
+ },
+ "DV-adm-order-show": {
+  "plain": null,
+  "unicode": {
+   "none": [
+    "══ Pedido njLME ════════════════════════════════════════════",
+    "Status:   ○ PENDING",
+    "Método:   pix",
+    "Org:      acme (nUME7)",
+    "Usuário:  ana@acme.com.br",
+    "Vence:    2026-11-30 23:59:59",
+    "",
+    "VM Cloud 2 vCPU 4 GiB, 1 mês ·········· R$ 59,90",
+    "Gameserver Minecraft 8 GiB, 1 mês ····· R$ 44,90",
+    "Cupom BEMVINDO10 ····················· -R$ 10,48",
+    "Total                                   R$ 94,32",
+    "(use --output json para o objeto completo)"
+   ],
+   "true": [
+    "\u001b[38;2;214;31;38m══\u001b[0m \u001b[1mPedido njLME\u001b[0m \u001b[38;2;214;31;38m════════════════════════════════════════════\u001b[0m",
+    "\u001b[2mStatus:\u001b[0m   \u001b[36m○\u001b[0m PENDING",
+    "\u001b[2mMétodo:\u001b[0m   pix",
+    "\u001b[2mOrg:\u001b[0m      acme (nUME7)",
+    "\u001b[2mUsuário:\u001b[0m  ana@acme.com.br",
+    "\u001b[2mVence:\u001b[0m    2026-11-30 23:59:59",
+    "",
+    "VM Cloud 2 vCPU 4 GiB, 1 mês \u001b[2m··········\u001b[0m R$ 59,90",
+    "Gameserver Minecraft 8 GiB, 1 mês \u001b[2m·····\u001b[0m R$ 44,90",
+    "Cupom BEMVINDO10 \u001b[2m·····················\u001b[0m -R$ 10,48",
+    "\u001b[1mTotal                                   R$ 94,32\u001b[0m",
+    "\u001b[2m(use --output json para o objeto completo)\u001b[0m"
+   ]
+  },
+  "ascii": {
+   "none": [
+    "== Pedido njLME ============================================",
+    "Status:   ~ PENDING",
+    "Método:   pix",
+    "Org:      acme (nUME7)",
+    "Usuário:  ana@acme.com.br",
+    "Vence:    2026-11-30 23:59:59",
+    "",
+    "VM Cloud 2 vCPU 4 GiB, 1 mês .......... R$ 59,90",
+    "Gameserver Minecraft 8 GiB, 1 mês ..... R$ 44,90",
+    "Cupom BEMVINDO10 ..................... -R$ 10,48",
+    "Total                                   R$ 94,32",
+    "(use --output json para o objeto completo)"
+   ],
+   "true": [
+    "\u001b[38;2;214;31;38m==\u001b[0m \u001b[1mPedido njLME\u001b[0m \u001b[38;2;214;31;38m============================================\u001b[0m",
+    "\u001b[2mStatus:\u001b[0m   \u001b[36m~\u001b[0m PENDING",
+    "\u001b[2mMétodo:\u001b[0m   pix",
+    "\u001b[2mOrg:\u001b[0m      acme (nUME7)",
+    "\u001b[2mUsuário:\u001b[0m  ana@acme.com.br",
+    "\u001b[2mVence:\u001b[0m    2026-11-30 23:59:59",
+    "",
+    "VM Cloud 2 vCPU 4 GiB, 1 mês \u001b[2m..........\u001b[0m R$ 59,90",
+    "Gameserver Minecraft 8 GiB, 1 mês \u001b[2m.....\u001b[0m R$ 44,90",
+    "Cupom BEMVINDO10 \u001b[2m.....................\u001b[0m -R$ 10,48",
+    "\u001b[1mTotal                                   R$ 94,32\u001b[0m",
+    "\u001b[2m(use --output json para o objeto completo)\u001b[0m"
+   ]
+  }
+ }
+}
